@@ -1,2 +1,2 @@
 # DFProfiler
-A multi-level dataflow profiler for capture I/O calls from worklows.
+A multi-level dataflow profiler to capture I/O calls from workflows.
