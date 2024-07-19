@@ -5,10 +5,10 @@ sudo apt-get install -y apt-transport-https ca-certificates curl clang llvm jq
 sudo apt-get install -y libelf-dev libpcap-dev libbfd-dev binutils-dev build-essential make 
 sudo apt-get install -y linux-tools-common linux-tools-$(uname -r) linux-headers-$(uname -r)
 sudo apt-get install -y bpfcc-tools
-sudo apt-get install -y python3-pip python3.10-venv
+sudo apt-get install -y python3-pip python3.9-venv
 # Install bcc
 sudo apt install -y zip bison build-essential cmake flex git libedit-dev \
-    libllvm14 llvm-14-dev libclang-14-dev python3 zlib1g-dev libelf-dev libfl-dev python3-setuptools \
+    libllvm12 llvm-12-dev libclang-12-dev python3 zlib1g-dev libelf-dev libfl-dev python3-setuptools \
     liblzma-dev libdebuginfod-dev arping netperf iperf
 sudo apt install -y clangd
 
@@ -21,13 +21,13 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 428D7C01 C8CAB6595
 
 sudo apt-get update
 
-sudo apt-get install openmpi-bin-dbgsym openmpi-bin openmpi-doc libopenmpi-dev 
+sudo apt-get install openmpi-bin-dbgsym openmpi-doc libopenmpi-dev 
 
 git clone https://github.com/iovisor/bcc.git ~/bcc
-mkdir ~/bcc/build
-pushd ~/bcc/build
+mkdir bcc/build
+pushd bcc/build
 cmake ..
-make -j2
+make -j
 sudo make install -j
 cmake -DPYTHON_CMD=python3 .. # build python3 binding
 pushd src/python/

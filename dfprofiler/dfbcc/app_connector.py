@@ -38,12 +38,12 @@ class BCCApplicationConnector:
 
     def attach_probe(self, bpf: BPF) -> None:
         bpf.attach_uprobe(
-            name=f"{self.config.install_dir}/libdftracer_ebpf.so",
+            name=f"{self.config.install_dir}/libdfprofiler.so",
             sym="dfprofiler_start",
             fn_name="trace_dfprofiler_start",
         )
         bpf.attach_uprobe(
-            name=f"{dir}/build/libdftracer_ebpf.so",
+            name=f"{self.config.install_dir}/libdfprofiler.so",
             sym="dfprofiler_stop",
             fn_name="trace_dfprofiler_stop",
         )

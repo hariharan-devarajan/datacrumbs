@@ -43,10 +43,6 @@ int main(int argc, char *argv[]) {
   int my_rank, comm_size;
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
-  if (argc < 6) {
-    fprintf(stderr, "usage test <NUM FILES> <NUM OPS> <TS> <DIR> <IS_TRACE>");
-    return -1;
-  }
   int files = atoi(argv[1]);
   int ops = atoi(argv[2]);
   int ts = atoi(argv[3]);

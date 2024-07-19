@@ -2,8 +2,7 @@ name: default
 install_dir: build
 file: profile.pfw
 user:
-  app: test
-  mpi: libmpi.so
+  app: /home/cc/dfprofiler/build/tests/df_tracer_test
 
 profile:
   interval_sec: 1 

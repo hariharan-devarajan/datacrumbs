@@ -1,5 +1,6 @@
 import logging
 from time import sleep
+import ctypes
 
 # External Imports
 from bcc import BPF
@@ -12,6 +13,8 @@ from dfprofiler.dfbcc.header import BCCHeader
 from dfprofiler.dfbcc.io_probes import IOProbes
 from dfprofiler.dfbcc.user_probes import UserProbes
 from dfprofiler.configs.configuration_manager import ConfigurationManager
+from dfprofiler.common.data_structure import DFEvent
+from dfprofiler.writer.perfetto import PerfettoWriter
 
 
 class BCCMain:
@@ -29,7 +32,7 @@ class BCCMain:
         bpf_text += str(app_connector)
         bpf_text += str(collector)
         bpf_text = bpf_text.replace(
-            "INTERVAL_RANGE", str(int(self.config.interval_sec * 1e6))
+            "INTERVAL_RANGE", str(int(self.config.interval_sec * 1e9))
         )
         logging.debug(f"Compiled Program is \n{bpf_text}")
         self.bpf = BPF(text=bpf_text)
@@ -38,9 +41,12 @@ class BCCMain:
         io_probes.attach_probes(self.bpf, collector)
         user_probes = UserProbes()
         user_probes.attach_probes(self.bpf, collector)
+        matched = self.bpf.num_open_kprobes()
+        logging.info(f"{matched} functions matched")
         return self
 
     def run(self) -> None:
+        writer = PerfettoWriter()
         count = 0
         exiting = False
         print("Ready to run code")
@@ -54,7 +60,7 @@ class BCCMain:
 
             for k, v in reversed(
                 sorted(
-                    counts.items_lookup_and_delete_batch(),
+                    counts.items(),
                     key=lambda counts: counts[1].time,
                 )
             ):
@@ -63,9 +69,9 @@ class BCCMain:
                 if pid == 0 and k.trange == 0 and k.ip == 0 and v.count == 1000:
                     exiting = True
                     continue
-                fname = b.sym(k.ip, pid, show_module=True).decode()
+                fname = self.bpf.sym(k.ip, pid, show_module=True).decode()
                 if "unknown" in fname:
-                    fname = b.ksym(k.ip, show_module=True).decode()
+                    fname = self.bpf.ksym(k.ip, show_module=True).decode()
                 if "unknown" in fname:
                     cat = "unknown"
                 else:
@@ -78,6 +84,8 @@ class BCCMain:
                 event.ts = k.trange
                 event.count = v.count
                 event.time = v.time
+                writer.write(event)
             count += 1
+            counts.clear()
             if exiting:
                 break
