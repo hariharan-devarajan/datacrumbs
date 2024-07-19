@@ -3,6 +3,7 @@ install_dir: build
 file: profile.pfw
 user:
   app: /home/cc/dfprofiler/build/tests/df_tracer_test
+  mpi: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
 
 profile:
   interval_sec: 1 
