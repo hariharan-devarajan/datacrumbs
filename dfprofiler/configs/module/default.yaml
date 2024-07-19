@@ -1,0 +1,9 @@
+name: default
+install_dir: build
+file: profile.pfw
+user:
+  app: test
+  mpi: libmpi.so
+
+profile:
+  interval_sec: 1 

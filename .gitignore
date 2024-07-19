@@ -30,3 +30,17 @@
 *.exe
 *.out
 *.app
+
+# Ouput
+hydra_log
+build
+
+#VSCode
+.cache
+
+# Log files
+*.log
+
+# Py Cache
+__pycache__
+*.pyc
