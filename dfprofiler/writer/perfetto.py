@@ -29,7 +29,7 @@ class PerfettoWriter:
             "name": event.name,
             "cat": event.cat,
             "ph": "C",
-            "ts": event.ts * 1e6,  # Convert to us
+            "ts": int(event.ts * self.config.interval_sec * 1e6),  # Convert to us
             "args": {
                 "count": event.count,
                 "time": event.time / 1e9,  # Convert to sec

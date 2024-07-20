@@ -159,6 +159,64 @@ class IOProbes:
                 ],
             )
         )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "block",
+                [BCCFunctions("block", "^block_.*")],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "huge_memory",
+                [BCCFunctions("huge_memory", "^nm_.*")],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "io_uring",
+                [BCCFunctions("io_uring", "^io_uring_.*")],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "iocost",
+                [BCCFunctions("iocost", "^iocost_.*")],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "iomap",
+                [BCCFunctions("iomap", "^iomap_.*")],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "iommu",
+                [
+                    BCCFunctions("add_device_to_group"),
+                    BCCFunctions("attach_device_to_domain"),
+                    BCCFunctions("io_page_fault"),
+                    BCCFunctions("map"),
+                    BCCFunctions("remove_device_from_group"),
+                    BCCFunctions("unmap"),
+                ],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "kmem",
+                [BCCFunctions("kmem", "^km.*"),
+                 BCCFunctions("kfree"),
+                 BCCFunctions("mm", "^mm.*"),],
+            )
+        )
 
     def collector_fn(self, collector: BCCCollector, category_fn_map, count: int):
         bpf_text = ""

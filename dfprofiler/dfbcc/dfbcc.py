@@ -92,7 +92,7 @@ class BCCMain:
                         event.name = self.bpf.ksym(k.ip).decode()
                 else:
                     event.name = function_probe.name
-                event.ts = k.trange
+                event.ts = k.trange 
                 event.count = v.count
                 event.time = v.time
                 writer.write(event)
