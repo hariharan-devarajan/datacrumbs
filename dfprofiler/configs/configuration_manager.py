@@ -31,10 +31,15 @@ class ConfigurationManager:
 
     def __init__(self):
         self.project_root = pathlib.Path(__file__).parent.parent.parent.resolve()
+        log_file = "dfprofiler.log"
+        try:
+            os.remove(log_file)
+        except OSError:
+            pass
         logging.basicConfig(
             level=logging.DEBUG,
             handlers=[
-                logging.FileHandler("dfprofiler.log", mode="a", encoding="utf-8"),
+                logging.FileHandler(log_file, mode="a", encoding="utf-8"),
                 logging.StreamHandler(),
             ],
             format="%(asctime)s [%(levelname)s]: %(message)s in %(pathname)s:%(lineno)d",

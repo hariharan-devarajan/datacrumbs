@@ -106,7 +106,11 @@ class IOProbes:
             )
         )
         self.probes.append(
-            BCCProbes(ProbeType.KERNEL, "vfs", [BCCFunctions("vfs", "^vfs_.*")])
+            BCCProbes(
+                ProbeType.KERNEL,
+                "vfs",
+                [BCCFunctions("vfs", "^vfs_.*"), BCCFunctions("rw_verify_area")],
+            )
         )
         self.probes.append(
             BCCProbes(

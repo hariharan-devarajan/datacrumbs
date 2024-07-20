@@ -74,3 +74,7 @@ cc@ebpf:~/dfprofiler$ head -n 5 profile.pfw
 The output format used is Chrome Tracing format and can be viewed using [perfetto](https://ui.perfetto.dev/).
 
 ![Perfetto Visualization of Data](docs/images/sample_profile.png "Perfetto Visualization of Data")
+
+## Analyzing counters using queries
+
+The profiler output can be analyzed using Dask distributed analysis. Please refer to the [notebook](analysis/analysis.ipynb).
