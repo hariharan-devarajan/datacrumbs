@@ -60,7 +60,7 @@ class BCCMain:
 
             for k, v in reversed(
                 sorted(
-                    counts.items(),
+                    counts.items_lookup_and_delete_batch(),
                     key=lambda counts: counts[1].time,
                 )
             ):
@@ -86,6 +86,5 @@ class BCCMain:
                 event.time = v.time
                 writer.write(event)
             count += 1
-            counts.clear()
             if exiting:
                 break

@@ -44,3 +44,7 @@ build
 # Py Cache
 __pycache__
 *.pyc
+
+# Dependency
+venv
+.venv

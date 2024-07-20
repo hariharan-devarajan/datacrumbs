@@ -1,2 +1,76 @@
 # DFProfiler
 A multi-level dataflow profiler to capture I/O calls from workflows.
+
+
+## Dependency installation
+
+### Requirements
+
+- Newer Kernel > 5.6 [see kernel doc](https://github.com/iovisor/bcc/blob/master/docs/kernel-versions.md)
+- BCC > v0.30.0
+- cmake
+- python 3.10
+  - hydra-core>=1.2.0
+
+**Test Requirements**
+
+- OpenMPI
+
+### Chameleon
+
+We have a Image that can be used to do development on Chameleon called HARI-UBUNTU-22.04.04-BCC.
+
+
+## Compiling the code
+
+### Clone the repo
+
+```bash
+git clone https://github.com/hariharan-devarajan/dfprofiler.git
+
+cd dfprofiler
+mkdir build
+cmake ..
+make -j
+```
+
+## Running the code
+
+The profiler tool need to run as root
+
+```bash
+sudo su
+export PYTHONPATH=<PATH to dfprofiler>
+cd <PATH to DFProfiler Root>
+python3 dfprofiler/main.py
+```
+Once the profiler is loaded, it will wait for applictaions to connect.
+
+## Running the test
+
+Once the profiler has started u can run the application code.
+
+```bash
+cd <PATH to DFProfiler Root>
+cd tests/scripts
+./run.sh
+```
+
+## Checking the profiler output.
+
+The profiler outpur is created in the directory where the profiler runs.
+
+```bash
+cc@ebpf:~/dfprofiler$ head -n 5 profile.pfw 
+[
+{"pid": 30545, "tid": 30545, "name": "__libc_malloc [libc.so.6]", "cat": "[libc.so.6]", "ph": "C", "ts": 0.0, "args": {"count": 21, "time": 0.000198116}}
+{"pid": 30545, "tid": 30545, "name": "cfree [libc.so.6]", "cat": "[libc.so.6]", "ph": "C", "ts": 0.0, "args": {"count": 2, "time": 1.9788e-05}}
+{"pid": 30545, "tid": 30545, "name": "[unknown]", "cat": "unknown", "ph": "C", "ts": 0.0, "args": {"count": 1, "time": 1.3094e-05}}
+{"pid": 30545, "tid": 30545, "name": "__libc_malloc [libc.so.6]", "cat": "[libc.so.6]", "ph": "C", "ts": 24000000.0, "args": {"count": 149, "time": 0.000503765}}
+```
+
+## Visualizing the counters
+
+The output format used is Chrome Tracing format and can be viewed using [perfetto](https://ui.perfetto.dev/).
+
+![Perfetto Visualization of Data](docs/images/sample_profile.png "Perfetto Visualization of Data")
