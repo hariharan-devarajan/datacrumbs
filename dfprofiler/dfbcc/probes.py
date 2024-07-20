@@ -5,9 +5,9 @@ from typing import *
 
 class BCCFunctions:
     name: str
-    regex: bool
+    regex: str
 
-    def __init__(self, name: str, regex: bool = False) -> None:
+    def __init__(self, name: str, regex: str = None) -> None:
         self.name = name
         self.regex = regex
 

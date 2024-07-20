@@ -1,6 +1,7 @@
 import logging
 from time import sleep
 import ctypes
+from typing import *
 
 # External Imports
 from bcc import BPF
@@ -22,6 +23,7 @@ class BCCMain:
 
     def __init__(self) -> None:
         self.config = ConfigurationManager.get_instance()
+        self.category_fn_map = {}
         pass
 
     def load(self) -> any:
@@ -30,16 +32,27 @@ class BCCMain:
         bpf_text = ""
         bpf_text += str(BCCHeader())
         bpf_text += str(app_connector)
-        bpf_text += str(collector)
+        io_probes = IOProbes()
+        count = 0
+        probe_text, self.category_fn_map, count = io_probes.collector_fn(
+            collector, self.category_fn_map, count
+        )
+        bpf_text += probe_text
+        user_probes = UserProbes()
+        probe_text, self.category_fn_map, count = user_probes.collector_fn(
+            collector, self.category_fn_map, count
+        )
+        bpf_text += probe_text
+        # bpf_text += str(collector)
         bpf_text = bpf_text.replace(
             "INTERVAL_RANGE", str(int(self.config.interval_sec * 1e9))
         )
         logging.debug(f"Compiled Program is \n{bpf_text}")
         self.bpf = BPF(text=bpf_text)
         app_connector.attach_probe(self.bpf)
-        io_probes = IOProbes()
+
         io_probes.attach_probes(self.bpf, collector)
-        user_probes = UserProbes()
+
         user_probes.attach_probes(self.bpf, collector)
         matched = self.bpf.num_open_kprobes()
         logging.info(f"{matched} functions matched")
@@ -64,23 +77,21 @@ class BCCMain:
                     key=lambda counts: counts[1].time,
                 )
             ):
-                pid = ctypes.c_uint32(k.id).value
-                tid = ctypes.c_uint32(k.id >> 32).value
-                if pid == 0 and k.trange == 0 and k.ip == 0 and v.count == 1000:
+                event = DFEvent()
+                event.pid = ctypes.c_uint32(k.id).value
+                event.tid = ctypes.c_uint32(k.id >> 32).value
+                if event.pid == 0 and k.trange == 0 and v.count == 1000:
                     exiting = True
                     continue
-                fname = self.bpf.sym(k.ip, pid, show_module=True).decode()
-                if "unknown" in fname:
-                    fname = self.bpf.ksym(k.ip, show_module=True).decode()
-                if "unknown" in fname:
-                    cat = "unknown"
+                event_tuple = self.category_fn_map[k.event_id]
+                event.cat = event_tuple[0]
+                function_probe = event_tuple[1]
+                if function_probe.regex:
+                    event.name = self.bpf.sym(k.ip, event.pid).decode()
+                    if "unknown" in event.name:
+                        event.name = self.bpf.ksym(k.ip).decode()
                 else:
-                    cat = fname.split(" ")[1]
-                event = DFEvent()
-                event.pid = pid
-                event.tid = tid
-                event.name = fname
-                event.cat = cat
+                    event.name = function_probe.name
                 event.ts = k.trange
                 event.count = v.count
                 event.time = v.time

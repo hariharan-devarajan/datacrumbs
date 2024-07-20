@@ -37,6 +37,8 @@ class BCCApplicationConnector:
         return self.functions
 
     def attach_probe(self, bpf: BPF) -> None:
+
+        bpf.add_module(f"{self.config.install_dir}/libdfprofiler.so")
         bpf.attach_uprobe(
             name=f"{self.config.install_dir}/libdfprofiler.so",
             sym="dfprofiler_start",
