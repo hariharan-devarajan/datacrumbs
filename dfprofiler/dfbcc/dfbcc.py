@@ -14,7 +14,7 @@ from dfprofiler.dfbcc.header import BCCHeader
 from dfprofiler.dfbcc.io_probes import IOProbes
 from dfprofiler.dfbcc.user_probes import UserProbes
 from dfprofiler.configs.configuration_manager import ConfigurationManager
-from dfprofiler.common.data_structure import DFEvent
+from dfprofiler.common.data_structure import DFEvent, Filename
 from dfprofiler.writer.perfetto import PerfettoWriter
 
 
@@ -63,47 +63,53 @@ class BCCMain:
 
     def run(self) -> None:
         writer = PerfettoWriter()
-        count = 0
+        no_event_count = 0
         has_events = False
         last_processed_ts = -1
         logging.info("Ready to run code")
         sleep_sec = self.config.interval_sec * 5
         wait_for = 60 / (sleep_sec)
-
+        filename_map = {0: None}
         try:
             while True:
+                counts = self.bpf.get_table("fn_map")
+                filenames = self.bpf.get_table("file_hash")
                 try:
                     logging.debug(
                         f"sleeping for {sleep_sec} secs with last ts {last_processed_ts}"
                     )
                     sleep(sleep_sec)
-                    if has_events and count > wait_for:
+                    if has_events and no_event_count > wait_for:
                         logging.info(
-                            f"No events for {count * sleep_sec} seconds. Quiting Profiler Now."
+                            f"No events for {no_event_count * sleep_sec} seconds. Quiting Profiler Now."
                         )
+                        filenames.clear()
                         writer.finalize()
                         break
                 except KeyboardInterrupt:
                     break
-                counts = self.bpf.get_table("fn_map")
+                for k, v in filenames.items():
+
+                    if k.value not in filename_map:
+                        filename_map[k.value] = v.fname.decode()
                 map_values = sorted(
                     counts.items(),
                     key=lambda counts: counts[0].trange,
                 )
                 num_entries = len(map_values)
+                big_ts = -1
+                if num_entries > 0:
+                    big_ts = map_values[num_entries - 1][0].trange
                 processed = 0
                 for k, v in map_values:
                     has_events = True
-                    count = 0
                     processed += 1
                     event = DFEvent()
                     event.pid = ctypes.c_uint32(k.id).value
-                    if processed != 1 and processed == num_entries:
+                    if big_ts == k.trange and big_ts > last_processed_ts + 1:
                         logging.debug(
-                            f"{processed} of {num_entries} is last entry with ts {k.trange}"
+                            f"Previous loop had {last_processed_ts} ts and now is {big_ts} ts"
                         )
-                        continue
-                    if k.event_id == 0:
                         continue
                     event.tid = ctypes.c_uint32(k.id >> 32).value
                     event_tuple = self.category_fn_map[k.event_id]
@@ -116,6 +122,7 @@ class BCCMain:
                     else:
                         event.name = function_probe.name
                     event.ts = k.trange
+                    event.fname = filename_map[k.file_hash]
                     event.freq = v.freq
                     event.time = v.time
                     event.size_sum = v.size_sum if v.size_sum > 0 else None
@@ -125,6 +132,8 @@ class BCCMain:
                     keys = (counts.Key * 1)()
                     keys[0] = k
                     counts.items_delete_batch(keys)
-                count = count + 1
+                    no_event_count = 0
+                if has_events:
+                    no_event_count += 1
         except KeyboardInterrupt:
             pass

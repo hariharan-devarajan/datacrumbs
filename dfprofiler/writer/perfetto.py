@@ -33,10 +33,10 @@ class PerfettoWriter:
         with open(self.config.profile_file, "rb") as f_in:
             with gzip.open(f"{self.config.profile_file}.gz", "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)
-        try:
-            os.remove(f"{self.config.profile_file}.gz")
-        except OSError:
-            pass
+        # try:
+        #     os.remove(self.config.profile_file)
+        # except OSError:
+        #     pass
 
     def write(self, event: DFEvent):
         obj = {
@@ -50,6 +50,7 @@ class PerfettoWriter:
                 "freq": event.freq,
                 "time": event.time / 1e9,  # Convert to sec
                 "size_sum": event.size_sum,
+                "fname": event.fname,
             },
         }
         self.trace_log.info(json.dumps(obj))

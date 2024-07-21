@@ -19,10 +19,103 @@ class IOProbes:
                 ProbeType.SYSTEM,
                 "sys",
                 [
-                    BCCFunctions("openat"),
-                    BCCFunctions("read"),
-                    BCCFunctions("write"),
-                    BCCFunctions("close"),
+                    BCCFunctions(
+                        "openat",
+                        entry_args=", int dfd, const char *filename, int flags",
+                        entry_cmd="""
+                        struct filename_t fname_i;
+                        int len = bpf_probe_read_user_str(&fname_i.fname, sizeof(fname_i.fname), filename);
+                        //fname_i.fname[len-1] = '\\0';
+                        u32 filehash = get_hash(id);
+                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filename,filehash);
+                        file_hash.update(&filehash, &fname_i);
+                        latest_hash.update(&id, &filehash);
+                        """,
+                        exit_cmd_key="""
+                        u32* hash_ptr = latest_hash.lookup(&id);
+                        if (hash_ptr != 0) {
+                            stats_key.file_hash = *hash_ptr; 
+                        }
+                        """,
+                        exit_cmd_stats="""
+                        if (hash_ptr != 0) {
+                            int fd = PT_REGS_RC(ctx);
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = fd;
+                            fd_hash.update(&file_key, hash_ptr);
+                        }
+                        """,
+                    ),
+                    BCCFunctions(
+                        "read",
+                        entry_args="""
+                        , int fd, void *data, u64 count
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key.file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    BCCFunctions(
+                        "write",
+                        entry_args="""
+                        , int fd, const void *data, u64 count
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key.file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    BCCFunctions(
+                        "close",
+                        entry_args="""
+                        , int fd
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key.file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
                     BCCFunctions("copy_file_range"),
                     BCCFunctions("execve"),
                     BCCFunctions("execveat"),
@@ -124,42 +217,12 @@ class IOProbes:
                     BCCFunctions("close_range"),
                     BCCFunctions("closefrom"),
                     BCCFunctions("close"),
-                    BCCFunctions(
-                        "read",
-                        exit_cmd="""
-                                 stats->size_sum += PT_REGS_RC(ctx);
-                                 """,
-                    ),
-                    BCCFunctions(
-                        "pread",
-                        exit_cmd="""
-                                 stats->size_sum += PT_REGS_RC(ctx);
-                                 """,
-                    ),
-                    BCCFunctions(
-                        "pread64",
-                        exit_cmd="""
-                                 stats->size_sum += PT_REGS_RC(ctx);
-                                 """,
-                    ),
-                    BCCFunctions(
-                        "write",
-                        exit_cmd="""
-                                 stats->size_sum += PT_REGS_RC(ctx);
-                                 """,
-                    ),
-                    BCCFunctions(
-                        "pwrite",
-                        exit_cmd="""
-                                 stats->size_sum += PT_REGS_RC(ctx);
-                                 """,
-                    ),
-                    BCCFunctions(
-                        "pwrite64",
-                        exit_cmd="""
-                                 stats->size_sum += PT_REGS_RC(ctx);
-                                 """,
-                    ),
+                    BCCFunctions("read"),
+                    BCCFunctions("pread"),
+                    BCCFunctions("pread64"),
+                    BCCFunctions("write"),
+                    BCCFunctions("pwrite"),
+                    BCCFunctions("pwrite64"),
                     BCCFunctions("lseek"),
                     BCCFunctions("lseek64"),
                     BCCFunctions("fdopen"),
@@ -209,12 +272,17 @@ class IOProbes:
         for probe in self.probes:
             for fn in probe.functions:
                 count = count + 1
-                text = collector.get_wrapper_functions()
+                if ProbeType.SYSTEM == probe.type:
+                    text = collector.sys_functions
+                else:
+                    text = collector.functions
                 text = text.replace("DFCAT", probe.category)
                 text = text.replace("DFFUNCTION", fn.name)
                 text = text.replace("DFEVENTID", str(count))
                 text = text.replace("DFENTRYCMD", fn.entry_cmd)
-                text = text.replace("DFEXITCMD", fn.exit_cmd)
+                text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
+                text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
+                text = text.replace("DFENTRYARGS", fn.entry_args)
                 category_fn_map[count] = (probe.category, fn)
                 bpf_text += text
 
@@ -226,13 +294,16 @@ class IOProbes:
                 try:
                     if ProbeType.SYSTEM == probe.type:
                         fnname = bpf.get_syscall_prefix().decode() + fn.name
+                        # logging.debug(
+                        #     f"attaching name {fnname} with {fn.name} for cat {probe.category}"
+                        # )
                         bpf.attach_kprobe(
-                            event_re=fnname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            event=fnname,
+                            fn_name=f"syscall__trace_entry_{fn.name}",
                         )
                         bpf.attach_kretprobe(
-                            event_re=fnname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            event=fnname,
+                            fn_name=f"sys__trace_exit_{fn.name}",
                         )
                     elif ProbeType.KERNEL == probe.type:
                         fname = fn.name

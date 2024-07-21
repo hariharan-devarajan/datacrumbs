@@ -40,12 +40,17 @@ class UserProbes:
         for probe in self.probes:
             for fn in probe.functions:
                 count = count + 1
-                text = collector.get_wrapper_functions()
+                if ProbeType.SYSTEM == probe.type:
+                    text = collector.sys_functions
+                else:
+                    text = collector.functions
                 text = text.replace("DFCAT", probe.category)
                 text = text.replace("DFFUNCTION", fn.name)
                 text = text.replace("DFEVENTID", str(count))
                 text = text.replace("DFENTRYCMD", fn.entry_cmd)
-                text = text.replace("DFEXITCMD", fn.exit_cmd)
+                text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
+                text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
+                text = text.replace("DFENTRYARGS", fn.entry_args)
                 category_fn_map[count] = (probe.category, fn)
                 bpf_text += text
 
@@ -60,26 +65,7 @@ class UserProbes:
                     logging.debug(
                         f"Adding Probe function {fn.name} from {probe.category}"
                     )
-                    if ProbeType.SYSTEM == probe.type:
-                        fnname = bpf.get_syscall_prefix().decode() + fn.name
-                        bpf.attach_kprobe(
-                            event_re=fnname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                        )
-                        bpf.attach_kretprobe(
-                            event_re=fnname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                        )
-                    elif ProbeType.KERNEL == probe.type:
-                        bpf.attach_kprobe(
-                            event_re=fn.name,
-                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                        )
-                        bpf.attach_kretprobe(
-                            event_re=fn.name,
-                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                        )
-                    elif ProbeType.USER == probe.type:
+                    if ProbeType.USER == probe.type:
                         library = probe.category
                         fname = fn.name
                         if probe.category in self.config.user_libraries:
