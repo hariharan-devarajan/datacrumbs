@@ -15,18 +15,25 @@ class UserProbes:
     def __init__(self) -> None:
         self.config = ConfigurationManager.get_instance()
         self.probes = []
-        for key, value in self.config.user_libraries.items():
+        for key, obj in self.config.user_libraries.items():
             probe = BCCProbes(ProbeType.USER, key, [])
-            symbols = (
-                os.popen(f"nm {value} | grep \" T \" | awk {{'print $3'}}")
-                .read()
-                .strip()
-                .split("\n")
-            )
-            for symbol in symbols:
-                if symbol or symbol != "":
-                    probe.functions.append(BCCFunctions(symbol))
-                    logging.debug(f"Adding Probe function {symbol} from {key}")
+            if "regex" not in obj:
+                symbols = (
+                    os.popen(f"nm {obj['name']} | grep \" T \" | awk {{'print $3'}}")
+                    .read()
+                    .strip()
+                    .split("\n")
+                )
+                for symbol in symbols:
+                    if symbol or symbol != "":
+                        probe.functions.append(BCCFunctions(symbol))
+                        logging.debug(f"Adding Probe function {symbol} from {key}")
+            else:
+                probe.functions.append(BCCFunctions(obj["name"], obj["regex"]))
+                logging.debug(
+                    f"Adding Probe function {obj['regex']} from {obj['name']}"
+                )
+
             self.probes.append(probe)
 
     def collector_fn(self, collector: BCCCollector, category_fn_map, count: int):
@@ -54,24 +61,56 @@ class UserProbes:
                     )
                     if ProbeType.SYSTEM == probe.type:
                         fnname = bpf.get_syscall_prefix().decode() + fn.name
-                        bpf.attach_kprobe(event_re=fnname, fn_name=collector.entry_fn)
-                        bpf.attach_kretprobe(event_re=fnname, fn_name=collector.exit_fn)
-                    elif ProbeType.KERNEL == probe.type:
-                        bpf.attach_kprobe(event_re=fn.name, fn_name=collector.entry_fn)
+                        bpf.attach_kprobe(
+                            event_re=fnname,
+                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                        )
                         bpf.attach_kretprobe(
-                            event_re=fn.name, fn_name=collector.exit_fn
+                            event_re=fnname,
+                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                        )
+                    elif ProbeType.KERNEL == probe.type:
+                        bpf.attach_kprobe(
+                            event_re=fn.name,
+                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                        )
+                        bpf.attach_kretprobe(
+                            event_re=fn.name,
+                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
                         )
                     elif ProbeType.USER == probe.type:
                         library = probe.category
+                        fname = fn.name
+                        is_regex = False
+                        if fn.regex:
+                            is_regex = True
+                            fname = fn.regex
                         if probe.category in self.config.user_libraries:
-                            library = self.config.user_libraries[probe.category]
+                            library = self.config.user_libraries[probe.category]["link"]
                             bpf.add_module(library)
-                        bpf.attach_uprobe(
-                            name=library, sym=fn.name, fn_name=collector.entry_fn
-                        )
-                        bpf.attach_uretprobe(
-                            name=library, sym=fn.name, fn_name=collector.exit_fn
-                        )
+
+                        if is_regex:
+                            bpf.attach_uprobe(
+                                name=library,
+                                sym_re=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            )
+                            bpf.attach_uretprobe(
+                                name=library,
+                                sym_re=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            )
+                        else:
+                            bpf.attach_uprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            )
+                            bpf.attach_uretprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            )
                 except Exception as e:
                     logging.warn(
                         f"Unable attach probe {probe.category} to user function {fn.name} due to {e}"

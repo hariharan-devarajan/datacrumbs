@@ -46,6 +46,19 @@ python3 dfprofiler/main.py
 ```
 Once the profiler is loaded, it will wait for applictaions to connect.
 
+### Environment variable to consider
+
+Check ulimit -n for open file handlers
+
+```bash
+ulimit -n 1048576
+```
+
+Increase probe limit within BCC
+```bash
+export BCC_PROBE_LIMIT=1048576
+```
+
 ## Running the test
 
 Once the profiler has started u can run the application code.
@@ -78,3 +91,4 @@ The output format used is Chrome Tracing format and can be viewed using [perfett
 ## Analyzing counters using queries
 
 The profiler output can be analyzed using Dask distributed analysis. Please refer to the [notebook](analysis/analysis.ipynb).
+

@@ -48,6 +48,9 @@ class BCCMain:
             "INTERVAL_RANGE", str(int(self.config.interval_sec * 1e9))
         )
         logging.debug(f"Compiled Program is \n{bpf_text}")
+        f = open("profile.c", "w")
+        f.write(bpf_text)
+        f.close()
         self.bpf = BPF(text=bpf_text)
         app_connector.attach_probe(self.bpf)
 
@@ -92,7 +95,7 @@ class BCCMain:
                         event.name = self.bpf.ksym(k.ip).decode()
                 else:
                     event.name = function_probe.name
-                event.ts = k.trange 
+                event.ts = k.trange
                 event.count = v.count
                 event.time = v.time
                 writer.write(event)

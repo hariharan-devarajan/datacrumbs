@@ -56,8 +56,8 @@ class ConfigurationManager:
         if "file" in config:
             self.profile_file = config["file"]
         if "user" in config:
-            for key, value in config["user"].items():
-                self.user_libraries[key] = value
+            for obj in config["user"]:
+                self.user_libraries[obj["name"]] = obj
         if "profile" in config:
             if "interval_sec" in config["profile"]:
                 status, self.interval_sec = convert_or_fail(

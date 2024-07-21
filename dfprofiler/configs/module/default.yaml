@@ -2,8 +2,12 @@ name: default
 install_dir: build
 file: profile.pfw
 user:
-  app: /home/cc/dfprofiler/build/tests/df_tracer_test
-  mpi: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+  - name: app
+    link: /home/cc/dfprofiler/build/tests/df_tracer_test
+    regex: .*
+  - name: mpi
+    link: /home/cc/dfprofiler/dependency/.spack-env/view/lib/libmpi.so
+    regex: ^MPI.*
 
 profile:
   interval_sec: 1 

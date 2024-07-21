@@ -169,52 +169,8 @@ class IOProbes:
         self.probes.append(
             BCCProbes(
                 ProbeType.KERNEL,
-                "huge_memory",
-                [BCCFunctions("huge_memory", "^nm_.*")],
-            )
-        )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
                 "io_uring",
                 [BCCFunctions("io_uring", "^io_uring_.*")],
-            )
-        )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "iocost",
-                [BCCFunctions("iocost", "^iocost_.*")],
-            )
-        )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "iomap",
-                [BCCFunctions("iomap", "^iomap_.*")],
-            )
-        )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "iommu",
-                [
-                    BCCFunctions("add_device_to_group"),
-                    BCCFunctions("attach_device_to_domain"),
-                    BCCFunctions("io_page_fault"),
-                    BCCFunctions("map"),
-                    BCCFunctions("remove_device_from_group"),
-                    BCCFunctions("unmap"),
-                ],
-            )
-        )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "kmem",
-                [BCCFunctions("kmem", "^km.*"),
-                 BCCFunctions("kfree"),
-                 BCCFunctions("mm", "^mm.*"),],
             )
         )
 
@@ -250,29 +206,56 @@ class IOProbes:
                         fname = fn.name
                         if fn.regex:
                             fname = fn.regex
-                        bpf.attach_kprobe(
-                            event_re=fname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                        )
-                        bpf.attach_kretprobe(
-                            event_re=fname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                        )
+                            bpf.attach_kprobe(
+                                event_re=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            )
+                            bpf.attach_kretprobe(
+                                event_re=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            )
+                        else:
+                            bpf.attach_kprobe(
+                                event=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            )
+                            bpf.attach_kretprobe(
+                                event=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            )
                     elif ProbeType.USER == probe.type:
                         library = probe.category
+                        fname = fn.name
+                        is_regex = False
+                        if fn.regex:
+                            is_regex = True
+                            fname = fn.regex
                         if probe.category in self.config.user_libraries:
-                            library = self.config.user_libraries[probe.category]
+                            library = self.config.user_libraries[probe.category]["link"]
                             bpf.add_module(library)
-                        bpf.attach_uprobe(
-                            name=library,
-                            sym=fn.name,
-                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                        )
-                        bpf.attach_uretprobe(
-                            name=library,
-                            sym=fn.name,
-                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                        )
+
+                        if is_regex:
+                            bpf.attach_uprobe(
+                                name=library,
+                                sym_re=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            )
+                            bpf.attach_uretprobe(
+                                name=library,
+                                sym_re=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            )
+                        else:
+                            bpf.attach_uprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            )
+                            bpf.attach_uretprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            )
                 except Exception as e:
                     logging.warn(
                         f"Unable attach probe  {probe.category} to io function {fn.name} due to {e}"
