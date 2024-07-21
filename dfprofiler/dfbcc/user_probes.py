@@ -44,6 +44,8 @@ class UserProbes:
                 text = text.replace("DFCAT", probe.category)
                 text = text.replace("DFFUNCTION", fn.name)
                 text = text.replace("DFEVENTID", str(count))
+                text = text.replace("DFENTRYCMD", fn.entry_cmd)
+                text = text.replace("DFEXITCMD", fn.exit_cmd)
                 category_fn_map[count] = (probe.category, fn)
                 bpf_text += text
 

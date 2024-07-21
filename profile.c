@@ -11,7 +11,12 @@
         };
         struct stats_t {
             u64 time;
-            s64 count;
+            s64 freq;
+            
+        
+            
+            u64 size_sum;
+        
         };
         struct fn_key_t {
             s64 pid;
@@ -19,6 +24,8 @@
         struct fn_t {
             u64 ts;
             u64 ip;
+            
+        
         };
         
         BPF_HASH(pid_map, u32, u64); // map for apps to collect data
@@ -38,13 +45,6 @@
             u32 pid = id;
             bpf_trace_printk("Stop tracing PID \%d",pid);
             pid_map.delete(&pid);
-            struct stats_key_t key = {};
-            key.id = 0;
-            key.trange = 0;
-            key.ip = 0;
-            struct stats_t zero_stats = {};
-            zero_stats.count = 1000;
-            //fn_map.lookup_or_init(&key, &zero_stats);
             return 0;
         }
         
@@ -59,6 +59,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -81,7 +82,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -96,6 +98,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -118,7 +121,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -133,6 +137,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -155,7 +160,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -170,6 +176,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -192,7 +199,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -207,6 +215,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -229,7 +238,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -244,6 +254,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -266,7 +277,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -281,6 +293,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -303,7 +316,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -318,6 +332,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -340,7 +355,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -355,6 +371,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -377,7 +394,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -392,6 +410,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -414,7 +433,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -429,6 +449,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -451,7 +472,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -466,6 +488,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -488,7 +511,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -503,6 +527,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -525,7 +550,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -540,6 +566,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -562,7 +589,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -577,6 +605,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -599,7 +628,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -614,6 +644,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -636,7 +667,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -651,6 +683,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -673,7 +706,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -688,6 +722,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -710,7 +745,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -725,6 +761,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -747,7 +784,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -762,6 +800,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -784,7 +823,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -799,6 +839,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -821,7 +862,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -836,6 +878,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -858,7 +901,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -873,6 +917,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -895,7 +940,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -910,6 +956,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -932,7 +979,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -947,6 +995,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -969,7 +1018,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -984,6 +1034,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1006,7 +1057,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1021,6 +1073,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1043,7 +1096,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1058,6 +1112,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1080,7 +1135,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1095,6 +1151,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1117,7 +1174,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1132,6 +1190,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1154,7 +1213,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1169,6 +1229,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1191,7 +1252,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1206,6 +1268,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1228,7 +1291,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1243,6 +1307,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1265,7 +1330,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1280,6 +1346,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1302,7 +1369,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1317,6 +1385,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1339,7 +1408,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1354,6 +1424,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1376,7 +1447,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1391,6 +1463,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1413,7 +1486,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1428,6 +1502,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1450,7 +1525,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1465,6 +1541,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1487,7 +1564,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1502,6 +1580,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1524,7 +1603,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1539,6 +1619,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1561,7 +1642,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1576,6 +1658,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1598,7 +1681,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1613,6 +1697,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1635,7 +1720,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1650,6 +1736,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1672,7 +1759,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1687,6 +1775,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1709,7 +1798,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1724,6 +1814,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1746,7 +1837,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1761,6 +1853,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1783,7 +1876,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1798,6 +1892,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1820,7 +1915,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1835,6 +1931,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1857,7 +1954,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1872,6 +1970,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1894,7 +1993,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1909,6 +2009,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1931,7 +2032,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1946,6 +2048,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -1968,7 +2071,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -1983,6 +2087,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2005,7 +2110,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2020,6 +2126,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2042,7 +2149,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2057,6 +2165,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2079,7 +2188,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2094,6 +2204,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2116,7 +2227,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2131,6 +2243,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2153,7 +2266,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2168,6 +2282,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2190,7 +2305,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2205,6 +2321,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2227,7 +2344,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2242,6 +2360,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2264,7 +2383,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2279,6 +2399,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2301,7 +2422,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2316,6 +2438,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2338,7 +2461,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2353,6 +2477,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2375,7 +2500,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2390,6 +2516,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2412,7 +2539,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2427,6 +2555,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2449,7 +2578,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2464,6 +2594,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2486,7 +2617,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2501,6 +2633,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2523,7 +2656,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2538,6 +2672,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2560,7 +2695,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2575,6 +2711,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2597,7 +2734,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2612,6 +2750,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2634,7 +2773,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2649,6 +2789,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2671,7 +2812,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2686,6 +2828,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2708,7 +2851,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2723,6 +2867,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2745,7 +2890,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2760,6 +2906,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2782,7 +2929,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2797,6 +2945,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2819,7 +2968,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2834,6 +2984,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2856,7 +3007,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -2871,6 +3023,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2893,7 +3046,10 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 
             return 0;
         }
         
@@ -2908,6 +3064,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2930,7 +3087,10 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 
             return 0;
         }
         
@@ -2945,6 +3105,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -2967,7 +3128,10 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 
             return 0;
         }
         
@@ -2982,6 +3146,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3004,7 +3169,10 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 
             return 0;
         }
         
@@ -3019,6 +3187,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3041,7 +3210,10 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 
             return 0;
         }
         
@@ -3056,6 +3228,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3078,7 +3251,10 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 
             return 0;
         }
         
@@ -3093,6 +3269,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3115,7 +3292,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3130,6 +3308,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3152,7 +3331,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3167,6 +3347,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3189,7 +3370,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3204,6 +3386,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3226,7 +3409,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3241,6 +3425,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3263,7 +3448,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3278,6 +3464,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3300,7 +3487,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3315,6 +3503,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3337,7 +3526,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3352,6 +3542,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3374,7 +3565,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3389,6 +3581,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3411,7 +3604,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3426,6 +3620,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3448,7 +3643,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3463,6 +3659,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3485,7 +3682,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3500,6 +3698,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3522,7 +3721,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3537,6 +3737,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3559,7 +3760,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3574,6 +3776,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3596,7 +3799,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3611,6 +3815,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3633,7 +3838,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3648,6 +3854,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3670,7 +3877,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3685,6 +3893,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3707,7 +3916,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3722,6 +3932,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3744,7 +3955,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3759,6 +3971,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3781,7 +3994,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3796,6 +4010,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3818,7 +4033,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3833,6 +4049,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3855,7 +4072,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3870,6 +4088,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3892,7 +4111,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3907,6 +4127,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3929,7 +4150,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3944,6 +4166,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -3966,7 +4189,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -3981,6 +4205,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4003,7 +4228,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4018,6 +4244,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4040,7 +4267,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4055,6 +4283,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4077,7 +4306,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4092,6 +4322,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4114,7 +4345,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4129,6 +4361,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4151,7 +4384,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4166,6 +4400,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4188,7 +4423,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4203,6 +4439,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4225,7 +4462,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4240,6 +4478,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4262,7 +4501,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4277,6 +4517,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4299,7 +4540,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4314,6 +4556,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4336,7 +4579,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4351,6 +4595,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4373,7 +4618,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4388,6 +4634,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4410,7 +4657,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4425,6 +4673,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4447,7 +4696,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4462,6 +4712,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4484,7 +4735,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4499,6 +4751,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4521,7 +4774,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4536,6 +4790,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4558,7 +4813,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4573,6 +4829,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4595,7 +4852,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4610,6 +4868,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4632,7 +4891,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4647,6 +4907,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4669,7 +4930,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4684,6 +4946,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4706,7 +4969,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4721,6 +4985,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4743,7 +5008,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4758,6 +5024,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4780,7 +5047,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4795,6 +5063,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4817,7 +5086,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4832,6 +5102,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4854,7 +5125,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4869,6 +5141,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4891,7 +5164,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4906,6 +5180,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4928,7 +5203,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4943,6 +5219,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -4965,7 +5242,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -4980,6 +5258,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5002,7 +5281,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5017,6 +5297,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5039,7 +5320,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5054,6 +5336,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5076,7 +5359,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5091,6 +5375,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5113,7 +5398,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5128,6 +5414,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5150,7 +5437,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5165,6 +5453,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5187,7 +5476,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5202,6 +5492,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5224,7 +5515,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5239,6 +5531,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5261,7 +5554,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5276,6 +5570,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5298,7 +5593,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5313,6 +5609,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5335,7 +5632,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5350,6 +5648,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5372,7 +5671,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5387,6 +5687,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5409,7 +5710,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5424,6 +5726,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5446,7 +5749,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5461,6 +5765,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5483,7 +5788,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5498,6 +5804,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5520,7 +5827,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5535,6 +5843,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5557,7 +5866,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5572,6 +5882,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5594,7 +5905,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5609,6 +5921,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5631,7 +5944,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5646,6 +5960,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5668,7 +5983,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5683,6 +5999,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5705,7 +6022,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5720,6 +6038,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5742,7 +6061,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5757,6 +6077,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5779,7 +6100,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5794,6 +6116,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5816,7 +6139,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5831,6 +6155,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5853,7 +6178,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5868,6 +6194,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5890,7 +6217,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5905,6 +6233,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5927,7 +6256,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5942,6 +6272,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -5964,7 +6295,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -5979,6 +6311,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6001,7 +6334,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6016,6 +6350,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6038,7 +6373,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6053,6 +6389,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6075,7 +6412,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6090,6 +6428,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6112,7 +6451,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6127,6 +6467,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6149,7 +6490,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6164,6 +6506,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6186,7 +6529,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6201,6 +6545,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6223,7 +6568,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6238,6 +6584,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6260,7 +6607,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6275,6 +6623,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6297,7 +6646,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6312,6 +6662,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6334,7 +6685,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6349,6 +6701,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6371,7 +6724,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6386,6 +6740,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6408,7 +6763,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6423,6 +6779,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6445,7 +6802,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6460,6 +6818,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6482,7 +6841,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6497,6 +6857,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6519,7 +6880,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6534,6 +6896,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6556,7 +6919,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6571,6 +6935,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6593,7 +6958,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6608,6 +6974,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6630,7 +6997,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6645,6 +7013,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6667,7 +7036,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6682,6 +7052,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6704,7 +7075,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6719,6 +7091,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6741,7 +7114,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6756,6 +7130,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6778,7 +7153,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6793,6 +7169,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6815,7 +7192,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6830,6 +7208,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6852,7 +7231,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6867,6 +7247,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6889,7 +7270,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6904,6 +7286,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6926,7 +7309,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6941,6 +7325,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -6963,7 +7348,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -6978,6 +7364,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7000,7 +7387,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7015,6 +7403,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7037,7 +7426,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7052,6 +7442,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7074,7 +7465,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7089,6 +7481,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7111,7 +7504,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7126,6 +7520,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7148,7 +7543,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7163,6 +7559,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7185,7 +7582,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7200,6 +7598,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7222,7 +7621,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7237,6 +7637,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7259,7 +7660,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7274,6 +7676,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7296,7 +7699,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7311,6 +7715,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7333,7 +7738,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7348,6 +7754,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7370,7 +7777,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7385,6 +7793,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7407,7 +7816,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7422,6 +7832,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7444,7 +7855,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7459,6 +7871,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7481,7 +7894,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7496,6 +7910,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7518,7 +7933,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7533,6 +7949,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7555,7 +7972,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7570,6 +7988,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7592,7 +8011,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7607,6 +8027,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7629,7 +8050,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7644,6 +8066,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7666,7 +8089,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7681,6 +8105,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7703,7 +8128,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7718,6 +8144,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7740,7 +8167,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7755,6 +8183,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7777,7 +8206,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7792,6 +8222,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7814,7 +8245,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7829,6 +8261,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7851,7 +8284,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7866,6 +8300,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7888,7 +8323,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7903,6 +8339,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7925,7 +8362,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7940,6 +8378,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7962,7 +8401,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -7977,6 +8417,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -7999,7 +8440,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8014,6 +8456,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8036,7 +8479,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8051,6 +8495,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8073,7 +8518,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8088,6 +8534,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8110,7 +8557,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8125,6 +8573,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8147,7 +8596,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8162,6 +8612,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8184,7 +8635,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8199,6 +8651,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8221,7 +8674,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8236,6 +8690,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8258,7 +8713,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8273,6 +8729,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8295,7 +8752,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8310,6 +8768,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8332,7 +8791,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8347,6 +8807,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8369,7 +8830,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8384,6 +8846,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8406,7 +8869,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8421,6 +8885,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8443,7 +8908,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8458,6 +8924,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8480,7 +8947,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8495,6 +8963,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8517,7 +8986,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8532,6 +9002,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8554,7 +9025,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8569,6 +9041,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8591,7 +9064,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8606,6 +9080,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8628,7 +9103,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8643,6 +9119,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8665,7 +9142,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8680,6 +9158,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8702,7 +9181,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8717,6 +9197,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8739,7 +9220,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8754,6 +9236,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8776,7 +9259,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8791,6 +9275,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8813,7 +9298,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8828,6 +9314,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8850,7 +9337,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8865,6 +9353,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8887,7 +9376,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8902,6 +9392,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8924,7 +9415,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8939,6 +9431,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8961,7 +9454,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -8976,6 +9470,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -8998,7 +9493,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9013,6 +9509,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9035,7 +9532,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9050,6 +9548,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9072,7 +9571,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9087,6 +9587,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9109,7 +9610,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9124,6 +9626,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9146,7 +9649,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9161,6 +9665,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9183,7 +9688,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9198,6 +9704,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9220,7 +9727,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9235,6 +9743,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9257,7 +9766,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9272,6 +9782,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9294,7 +9805,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9309,6 +9821,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9331,7 +9844,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9346,6 +9860,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9368,7 +9883,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9383,6 +9899,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9405,7 +9922,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9420,6 +9938,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9442,7 +9961,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9457,6 +9977,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9479,7 +10000,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9494,6 +10016,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9516,7 +10039,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9531,6 +10055,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9553,7 +10078,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9568,6 +10094,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9590,7 +10117,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9605,6 +10133,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9627,7 +10156,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9642,6 +10172,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9664,7 +10195,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9679,6 +10211,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9701,7 +10234,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9716,6 +10250,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9738,7 +10273,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9753,6 +10289,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9775,7 +10312,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9790,6 +10328,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9812,7 +10351,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9827,6 +10367,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9849,7 +10390,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9864,6 +10406,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9886,7 +10429,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9901,6 +10445,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9923,7 +10468,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9938,6 +10484,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9960,7 +10507,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -9975,6 +10523,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -9997,7 +10546,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10012,6 +10562,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10034,7 +10585,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10049,6 +10601,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10071,7 +10624,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10086,6 +10640,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10108,7 +10663,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10123,6 +10679,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10145,7 +10702,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10160,6 +10718,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10182,7 +10741,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10197,6 +10757,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10219,7 +10780,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10234,6 +10796,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10256,7 +10819,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10271,6 +10835,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10293,7 +10858,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10308,6 +10874,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10330,7 +10897,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10345,6 +10913,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10367,7 +10936,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10382,6 +10952,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10404,7 +10975,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10419,6 +10991,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10441,7 +11014,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10456,6 +11030,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10478,7 +11053,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10493,6 +11069,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10515,7 +11092,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10530,6 +11108,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10552,7 +11131,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10567,6 +11147,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10589,7 +11170,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10604,6 +11186,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10626,7 +11209,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10641,6 +11225,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10663,7 +11248,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10678,6 +11264,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10700,7 +11287,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10715,6 +11303,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10737,7 +11326,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10752,6 +11342,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10774,7 +11365,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10789,6 +11381,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10811,7 +11404,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10826,6 +11420,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10848,7 +11443,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10863,6 +11459,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10885,7 +11482,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10900,6 +11498,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10922,7 +11521,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10937,6 +11537,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10959,7 +11560,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -10974,6 +11576,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -10996,7 +11599,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11011,6 +11615,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11033,7 +11638,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11048,6 +11654,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11070,7 +11677,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11085,6 +11693,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11107,7 +11716,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11122,6 +11732,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11144,7 +11755,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11159,6 +11771,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11181,7 +11794,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11196,6 +11810,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11218,7 +11833,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11233,6 +11849,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11255,7 +11872,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11270,6 +11888,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11292,7 +11911,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11307,6 +11927,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11329,7 +11950,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11344,6 +11966,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11366,7 +11989,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11381,6 +12005,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11403,7 +12028,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11418,6 +12044,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11440,7 +12067,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11455,6 +12083,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11477,7 +12106,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11492,6 +12122,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11514,7 +12145,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11529,6 +12161,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11551,7 +12184,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11566,6 +12200,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11588,7 +12223,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11603,6 +12239,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11625,7 +12262,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11640,6 +12278,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11662,7 +12301,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11677,6 +12317,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11699,7 +12340,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11714,6 +12356,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11736,7 +12379,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11751,6 +12395,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11773,7 +12418,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11788,6 +12434,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11810,7 +12457,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11825,6 +12473,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11847,7 +12496,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11862,6 +12512,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11884,7 +12535,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11899,6 +12551,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11921,7 +12574,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11936,6 +12590,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11958,7 +12613,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -11973,6 +12629,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -11995,7 +12652,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12010,6 +12668,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12032,7 +12691,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12047,6 +12707,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12069,7 +12730,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12084,6 +12746,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12106,7 +12769,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12121,6 +12785,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12143,7 +12808,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12158,6 +12824,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12180,7 +12847,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12195,6 +12863,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12217,7 +12886,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12232,6 +12902,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12254,7 +12925,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12269,6 +12941,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12291,7 +12964,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12306,6 +12980,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12328,7 +13003,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12343,6 +13019,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12365,7 +13042,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12380,6 +13058,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12402,7 +13081,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12417,6 +13097,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12439,7 +13120,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12454,6 +13136,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12476,7 +13159,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12491,6 +13175,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12513,7 +13198,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12528,6 +13214,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12550,7 +13237,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12565,6 +13253,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12587,7 +13276,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12602,6 +13292,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12624,7 +13315,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12639,6 +13331,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12661,7 +13354,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12676,6 +13370,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12698,7 +13393,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12713,6 +13409,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12735,7 +13432,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12750,6 +13448,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12772,7 +13471,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12787,6 +13487,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12809,7 +13510,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12824,6 +13526,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12846,7 +13549,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12861,6 +13565,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12883,7 +13588,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12898,6 +13604,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12920,7 +13627,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12935,6 +13643,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12957,7 +13666,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -12972,6 +13682,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -12994,7 +13705,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13009,6 +13721,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13031,7 +13744,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13046,6 +13760,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13068,7 +13783,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13083,6 +13799,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13105,7 +13822,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13120,6 +13838,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13142,7 +13861,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13157,6 +13877,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13179,7 +13900,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13194,6 +13916,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13216,7 +13939,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13231,6 +13955,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13253,7 +13978,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13268,6 +13994,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13290,7 +14017,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13305,6 +14033,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13327,7 +14056,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13342,6 +14072,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13364,7 +14095,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13379,6 +14111,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13401,7 +14134,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13416,6 +14150,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13438,7 +14173,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13453,6 +14189,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13475,7 +14212,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13490,6 +14228,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13512,7 +14251,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13527,6 +14267,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13549,7 +14290,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13564,6 +14306,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13586,7 +14329,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13601,6 +14345,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13623,7 +14368,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13638,6 +14384,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13660,7 +14407,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13675,6 +14423,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13697,7 +14446,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13712,6 +14462,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13734,7 +14485,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13749,6 +14501,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13771,7 +14524,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13786,6 +14540,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13808,7 +14563,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13823,6 +14579,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13845,7 +14602,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13860,6 +14618,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13882,7 +14641,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13897,6 +14657,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13919,7 +14680,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13934,6 +14696,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13956,7 +14719,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -13971,6 +14735,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -13993,7 +14758,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14008,6 +14774,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14030,7 +14797,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14045,6 +14813,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14067,7 +14836,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14082,6 +14852,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14104,7 +14875,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14119,6 +14891,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14141,7 +14914,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14156,6 +14930,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14178,7 +14953,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14193,6 +14969,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14215,7 +14992,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14230,6 +15008,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14252,7 +15031,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14267,6 +15047,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14289,7 +15070,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14304,6 +15086,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14326,7 +15109,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14341,6 +15125,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14363,7 +15148,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14378,6 +15164,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14400,7 +15187,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14415,6 +15203,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14437,7 +15226,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14452,6 +15242,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14474,7 +15265,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14489,6 +15281,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14511,7 +15304,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14526,6 +15320,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14548,7 +15343,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14563,6 +15359,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14585,7 +15382,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14600,6 +15398,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14622,7 +15421,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14637,6 +15437,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14659,7 +15460,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14674,6 +15476,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14696,7 +15499,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14711,6 +15515,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14733,7 +15538,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14748,6 +15554,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14770,7 +15577,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14785,6 +15593,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14807,7 +15616,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14822,6 +15632,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14844,7 +15655,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14859,6 +15671,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14881,7 +15694,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14896,6 +15710,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14918,7 +15733,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14933,6 +15749,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14955,7 +15772,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -14970,6 +15788,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -14992,7 +15811,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15007,6 +15827,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15029,7 +15850,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15044,6 +15866,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15066,7 +15889,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15081,6 +15905,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15103,7 +15928,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15118,6 +15944,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15140,7 +15967,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15155,6 +15983,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15177,7 +16006,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15192,6 +16022,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15214,7 +16045,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15229,6 +16061,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15251,7 +16084,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15266,6 +16100,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15288,7 +16123,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15303,6 +16139,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15325,7 +16162,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15340,6 +16178,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15362,7 +16201,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15377,6 +16217,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15399,7 +16240,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15414,6 +16256,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15436,7 +16279,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15451,6 +16295,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15473,7 +16318,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15488,6 +16334,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15510,7 +16357,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15525,6 +16373,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15547,7 +16396,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15562,6 +16412,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15584,7 +16435,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15599,6 +16451,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15621,7 +16474,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15636,6 +16490,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15658,7 +16513,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15673,6 +16529,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15695,7 +16552,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15710,6 +16568,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15732,7 +16591,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15747,6 +16607,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15769,7 +16630,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15784,6 +16646,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15806,7 +16669,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15821,6 +16685,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15843,7 +16708,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15858,6 +16724,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15880,7 +16747,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15895,6 +16763,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15917,7 +16786,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15932,6 +16802,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15954,7 +16825,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -15969,6 +16841,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -15991,7 +16864,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16006,6 +16880,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16028,7 +16903,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16043,6 +16919,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16065,7 +16942,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16080,6 +16958,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16102,7 +16981,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16117,6 +16997,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16139,7 +17020,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16154,6 +17036,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16176,7 +17059,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16191,6 +17075,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16213,7 +17098,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16228,6 +17114,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16250,7 +17137,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16265,6 +17153,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16287,7 +17176,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16302,6 +17192,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16324,7 +17215,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16339,6 +17231,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16361,7 +17254,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16376,6 +17270,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16398,7 +17293,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16413,6 +17309,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16435,7 +17332,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16450,6 +17348,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16472,7 +17371,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16487,6 +17387,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16509,7 +17410,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16524,6 +17426,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16546,7 +17449,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16561,6 +17465,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16583,7 +17488,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16598,6 +17504,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16620,7 +17527,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16635,6 +17543,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16657,7 +17566,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16672,6 +17582,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16694,7 +17605,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16709,6 +17621,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16731,7 +17644,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16746,6 +17660,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16768,7 +17683,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16783,6 +17699,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16805,7 +17722,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16820,6 +17738,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16842,7 +17761,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16857,6 +17777,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16879,7 +17800,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16894,6 +17816,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16916,7 +17839,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16931,6 +17855,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16953,7 +17878,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -16968,6 +17894,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -16990,7 +17917,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17005,6 +17933,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17027,7 +17956,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17042,6 +17972,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17064,7 +17995,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17079,6 +18011,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17101,7 +18034,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17116,6 +18050,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17138,7 +18073,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17153,6 +18089,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17175,7 +18112,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17190,6 +18128,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17212,7 +18151,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17227,6 +18167,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17249,7 +18190,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17264,6 +18206,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17286,7 +18229,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17301,6 +18245,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17323,7 +18268,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17338,6 +18284,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17360,7 +18307,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17375,6 +18323,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17397,7 +18346,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17412,6 +18362,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17434,7 +18385,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17449,6 +18401,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17471,7 +18424,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17486,6 +18440,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17508,7 +18463,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17523,6 +18479,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17545,7 +18502,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17560,6 +18518,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17582,7 +18541,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17597,6 +18557,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17619,7 +18580,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17634,6 +18596,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17656,7 +18619,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17671,6 +18635,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17693,7 +18658,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17708,6 +18674,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17730,7 +18697,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17745,6 +18713,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17767,7 +18736,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17782,6 +18752,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17804,7 +18775,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17819,6 +18791,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17841,7 +18814,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17856,6 +18830,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17878,7 +18853,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17893,6 +18869,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17915,7 +18892,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17930,6 +18908,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17952,7 +18931,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -17967,6 +18947,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -17989,7 +18970,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18004,6 +18986,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18026,7 +19009,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18041,6 +19025,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18063,7 +19048,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18078,6 +19064,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18100,7 +19087,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18115,6 +19103,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18137,7 +19126,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18152,6 +19142,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18174,7 +19165,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18189,6 +19181,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18211,7 +19204,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18226,6 +19220,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18248,7 +19243,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18263,6 +19259,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18285,7 +19282,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18300,6 +19298,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18322,7 +19321,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18337,6 +19337,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18359,7 +19360,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18374,6 +19376,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18396,7 +19399,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18411,6 +19415,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18433,7 +19438,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18448,6 +19454,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18470,7 +19477,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18485,6 +19493,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18507,7 +19516,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18522,6 +19532,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18544,7 +19555,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18559,6 +19571,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18581,7 +19594,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18596,6 +19610,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18618,7 +19633,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18633,6 +19649,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18655,7 +19672,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18670,6 +19688,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18692,7 +19711,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18707,6 +19727,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18729,7 +19750,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18744,6 +19766,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18766,7 +19789,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18781,6 +19805,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18803,7 +19828,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18818,6 +19844,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18840,7 +19867,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18855,6 +19883,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18877,7 +19906,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18892,6 +19922,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18914,7 +19945,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18929,6 +19961,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18951,7 +19984,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -18966,6 +20000,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -18988,7 +20023,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19003,6 +20039,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19025,7 +20062,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19040,6 +20078,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19062,7 +20101,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19077,6 +20117,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19099,7 +20140,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19114,6 +20156,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19136,7 +20179,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19151,6 +20195,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19173,7 +20218,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19188,6 +20234,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19210,7 +20257,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19225,6 +20273,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19247,7 +20296,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19262,6 +20312,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19284,7 +20335,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19299,6 +20351,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19321,7 +20374,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19336,6 +20390,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19358,7 +20413,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19373,6 +20429,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19395,7 +20452,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19410,6 +20468,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19432,7 +20491,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19447,6 +20507,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19469,7 +20530,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19484,6 +20546,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19506,7 +20569,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19521,6 +20585,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19543,7 +20608,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19558,6 +20624,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19580,7 +20647,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19595,6 +20663,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19617,7 +20686,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19632,6 +20702,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19654,7 +20725,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19669,6 +20741,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19691,7 +20764,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19706,6 +20780,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19728,7 +20803,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19743,6 +20819,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19765,7 +20842,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19780,6 +20858,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19802,7 +20881,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19817,6 +20897,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19839,7 +20920,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19854,6 +20936,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19876,7 +20959,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19891,6 +20975,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19913,7 +20998,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19928,6 +21014,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19950,7 +21037,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -19965,6 +21053,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -19987,7 +21076,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20002,6 +21092,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20024,7 +21115,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20039,6 +21131,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20061,7 +21154,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20076,6 +21170,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20098,7 +21193,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20113,6 +21209,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20135,7 +21232,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20150,6 +21248,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20172,7 +21271,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20187,6 +21287,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20209,7 +21310,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20224,6 +21326,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20246,7 +21349,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20261,6 +21365,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20283,7 +21388,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20298,6 +21404,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20320,7 +21427,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20335,6 +21443,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20357,7 +21466,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20372,6 +21482,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20394,7 +21505,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20409,6 +21521,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20431,7 +21544,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20446,6 +21560,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20468,7 +21583,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20483,6 +21599,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20505,7 +21622,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20520,6 +21638,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20542,7 +21661,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20557,6 +21677,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20579,7 +21700,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20594,6 +21716,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20616,7 +21739,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20631,6 +21755,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20653,7 +21778,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20668,6 +21794,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20690,7 +21817,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20705,6 +21833,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20727,7 +21856,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20742,6 +21872,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20764,7 +21895,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20779,6 +21911,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20801,7 +21934,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20816,6 +21950,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20838,7 +21973,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20853,6 +21989,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20875,7 +22012,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20890,6 +22028,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20912,7 +22051,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20927,6 +22067,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20949,7 +22090,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -20964,6 +22106,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -20986,7 +22129,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21001,6 +22145,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21023,7 +22168,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21038,6 +22184,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21060,7 +22207,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21075,6 +22223,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21097,7 +22246,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21112,6 +22262,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21134,7 +22285,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21149,6 +22301,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21171,7 +22324,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21186,6 +22340,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21208,7 +22363,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21223,6 +22379,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21245,7 +22402,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21260,6 +22418,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21282,7 +22441,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21297,6 +22457,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21319,7 +22480,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21334,6 +22496,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21356,7 +22519,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21371,6 +22535,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21393,7 +22558,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21408,6 +22574,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21430,7 +22597,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21445,6 +22613,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21467,7 +22636,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21482,6 +22652,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21504,7 +22675,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21519,6 +22691,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21541,7 +22714,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21556,6 +22730,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21578,7 +22753,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21593,6 +22769,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21615,7 +22792,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21630,6 +22808,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21652,7 +22831,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21667,6 +22847,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21689,7 +22870,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21704,6 +22886,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21726,7 +22909,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21741,6 +22925,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21763,7 +22948,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21778,6 +22964,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21800,7 +22987,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21815,6 +23003,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21837,7 +23026,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21852,6 +23042,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21874,7 +23065,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21889,6 +23081,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21911,7 +23104,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         
@@ -21926,6 +23120,7 @@
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -21948,7 +23143,8 @@
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            
             return 0;
         }
         

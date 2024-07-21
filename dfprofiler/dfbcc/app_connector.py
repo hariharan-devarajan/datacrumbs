@@ -22,13 +22,6 @@ class BCCApplicationConnector:
             u32 pid = id;
             bpf_trace_printk(\"Stop tracing PID \%d\",pid);
             pid_map.delete(&pid);
-            struct stats_key_t key = {};
-            key.id = 0;
-            key.trange = 0;
-            key.ip = 0;
-            struct stats_t zero_stats = {};
-            zero_stats.count = 1000;
-            //fn_map.lookup_or_init(&key, &zero_stats);
             return 0;
         }
         """

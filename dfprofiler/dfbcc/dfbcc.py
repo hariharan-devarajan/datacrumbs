@@ -64,23 +64,24 @@ class BCCMain:
     def run(self) -> None:
         writer = PerfettoWriter()
         count = 0
-        exiting = False
+        has_events = False
         last_processed_ts = -1
         logging.info("Ready to run code")
         sleep_sec = self.config.interval_sec * 5
         wait_for = 60 / (sleep_sec)
+
         try:
             while True:
-                has_events = False
                 try:
                     logging.debug(
                         f"sleeping for {sleep_sec} secs with last ts {last_processed_ts}"
                     )
                     sleep(sleep_sec)
-                    if count > wait_for:
+                    if has_events and count > wait_for:
                         logging.info(
                             f"No events for {count * sleep_sec} seconds. Quiting Profiler Now."
                         )
+                        writer.finalize()
                         break
                 except KeyboardInterrupt:
                     break
@@ -92,6 +93,7 @@ class BCCMain:
                 num_entries = len(map_values)
                 processed = 0
                 for k, v in map_values:
+                    has_events = True
                     count = 0
                     processed += 1
                     event = DFEvent()
@@ -114,8 +116,9 @@ class BCCMain:
                     else:
                         event.name = function_probe.name
                     event.ts = k.trange
-                    event.count = v.count
+                    event.freq = v.freq
                     event.time = v.time
+                    event.size_sum = v.size_sum if v.size_sum > 0 else None
                     last_processed_ts = k.trange
                     logging.info(f"{last_processed_ts} timestamp processed")
                     writer.write(event)
@@ -125,4 +128,3 @@ class BCCMain:
                 count = count + 1
         except KeyboardInterrupt:
             pass
-        writer.finalize()

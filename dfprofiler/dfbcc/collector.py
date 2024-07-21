@@ -15,6 +15,7 @@ class BCCCollector:
             struct fn_t fn = {};
             fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
+            DFENTRYCMD
             fn_pid_map.update(&key, &fn);
             return 0;
         }
@@ -37,7 +38,8 @@ class BCCCollector:
             struct stats_t zero_stats = {};
             struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
             stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->count++;
+            stats->freq++;
+            DFEXITCMD
             return 0;
         }
         """

@@ -29,6 +29,7 @@ class PerfettoWriter:
         self.trace_log.info("[")
 
     def finalize(self):
+        logging.info(f"Finalizing Writer")
         with open(self.config.profile_file, "rb") as f_in:
             with gzip.open(f"{self.config.profile_file}.gz", "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)
@@ -46,8 +47,9 @@ class PerfettoWriter:
             "ph": "C",
             "ts": int(event.ts * self.config.interval_sec * 1e6),  # Convert to us
             "args": {
-                "count": event.count,
+                "freq": event.freq,
                 "time": event.time / 1e9,  # Convert to sec
+                "size_sum": event.size_sum,
             },
         }
         self.trace_log.info(json.dumps(obj))

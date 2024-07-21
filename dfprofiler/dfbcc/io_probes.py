@@ -124,12 +124,42 @@ class IOProbes:
                     BCCFunctions("close_range"),
                     BCCFunctions("closefrom"),
                     BCCFunctions("close"),
-                    BCCFunctions("read"),
-                    BCCFunctions("pread"),
-                    BCCFunctions("pread64"),
-                    BCCFunctions("write"),
-                    BCCFunctions("pwrite"),
-                    BCCFunctions("pwrite64"),
+                    BCCFunctions(
+                        "read",
+                        exit_cmd="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                    ),
+                    BCCFunctions(
+                        "pread",
+                        exit_cmd="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                    ),
+                    BCCFunctions(
+                        "pread64",
+                        exit_cmd="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                    ),
+                    BCCFunctions(
+                        "write",
+                        exit_cmd="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                    ),
+                    BCCFunctions(
+                        "pwrite",
+                        exit_cmd="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                    ),
+                    BCCFunctions(
+                        "pwrite64",
+                        exit_cmd="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                    ),
                     BCCFunctions("lseek"),
                     BCCFunctions("lseek64"),
                     BCCFunctions("fdopen"),
@@ -183,6 +213,8 @@ class IOProbes:
                 text = text.replace("DFCAT", probe.category)
                 text = text.replace("DFFUNCTION", fn.name)
                 text = text.replace("DFEVENTID", str(count))
+                text = text.replace("DFENTRYCMD", fn.entry_cmd)
+                text = text.replace("DFEXITCMD", fn.exit_cmd)
                 category_fn_map[count] = (probe.category, fn)
                 bpf_text += text
 

@@ -6,10 +6,16 @@ from typing import *
 class BCCFunctions:
     name: str
     regex: str
+    entry_cmd: str
+    exit_cmd: str
 
-    def __init__(self, name: str, regex: str = None) -> None:
+    def __init__(
+        self, name: str, regex: str = None, entry_cmd: str = "", exit_cmd: str = ""
+    ) -> None:
         self.name = name
         self.regex = regex
+        self.entry_cmd = entry_cmd
+        self.exit_cmd = exit_cmd
 
 
 class BCCProbes:

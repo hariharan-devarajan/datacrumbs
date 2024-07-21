@@ -4,5 +4,6 @@ class DFEvent:
     name: str
     cat: str
     ts: int
-    count: int
+    freq: int
     time: int
+    size_sum: int

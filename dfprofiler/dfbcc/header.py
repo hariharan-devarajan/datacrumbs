@@ -1,5 +1,12 @@
 class BCCHeader:
     def __init__(self):
+
+        self.entry_struct = """
+        """
+        self.exit_struct = """
+            u64 size_sum;
+        """
+
         self.includes = """
         #include <linux/sched.h>
         #include <uapi/linux/limits.h>
@@ -15,7 +22,9 @@ class BCCHeader:
         };
         struct stats_t {
             u64 time;
-            s64 count;
+            s64 freq;
+            DFENTRY_STRUCT
+            DEXIT_STRUCT
         };
         struct fn_key_t {
             s64 pid;
@@ -23,8 +32,13 @@ class BCCHeader:
         struct fn_t {
             u64 ts;
             u64 ip;
+            DFENTRY_STRUCT
         };
-        """
+        """.replace(
+            "DFENTRY_STRUCT", self.entry_struct
+        ).replace(
+            "DEXIT_STRUCT", self.exit_struct
+        )
 
         self.events_ds = """
         BPF_HASH(pid_map, u32, u64); // map for apps to collect data
