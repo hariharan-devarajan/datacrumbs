@@ -7,7 +7,7 @@ user:
     regex: .*
   - name: mpi
     link: /home/cc/dfprofiler/dependency/.spack-env/view/lib/libmpi.so
-    regex: ^MPI.*
+    regex: ^PMPI.*
 
 profile:
   interval_sec: 1 

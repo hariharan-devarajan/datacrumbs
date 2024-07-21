@@ -1,6 +1,8 @@
 import logging
 import json
 import os
+import gzip
+import shutil
 from dfprofiler.common.data_structure import DFEvent
 from dfprofiler.configs.configuration_manager import ConfigurationManager
 
@@ -14,6 +16,10 @@ class PerfettoWriter:
             os.remove(self.config.profile_file)
         except OSError:
             pass
+        try:
+            os.remove(f"{self.config.profile_file}.gz")
+        except OSError:
+            pass
         self.trace_log = logging.getLogger("dfprofiler.trace")
         self.trace_log.setLevel(logging.INFO)
         trace_file_handler = logging.FileHandler(self.config.profile_file)
@@ -21,6 +27,15 @@ class PerfettoWriter:
         trace_file_handler.setFormatter(logging.Formatter("%(message)s"))
         self.trace_log.addHandler(trace_file_handler)
         self.trace_log.info("[")
+
+    def finalize(self):
+        with open(self.config.profile_file, "rb") as f_in:
+            with gzip.open(f"{self.config.profile_file}.gz", "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+        try:
+            os.remove(f"{self.config.profile_file}.gz")
+        except OSError:
+            pass
 
     def write(self, event: DFEvent):
         obj = {

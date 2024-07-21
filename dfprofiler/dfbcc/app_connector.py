@@ -28,7 +28,7 @@ class BCCApplicationConnector:
             key.ip = 0;
             struct stats_t zero_stats = {};
             zero_stats.count = 1000;
-            fn_map.lookup_or_init(&key, &zero_stats);
+            //fn_map.lookup_or_init(&key, &zero_stats);
             return 0;
         }
         """

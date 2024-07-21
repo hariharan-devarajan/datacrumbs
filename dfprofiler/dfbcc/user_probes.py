@@ -1,6 +1,7 @@
 from typing import *
 import os
 import logging
+import re
 from bcc import BPF
 from dfprofiler.dfbcc.collector import BCCCollector
 from dfprofiler.dfbcc.probes import BCCFunctions, BCCProbes
@@ -18,22 +19,20 @@ class UserProbes:
         for key, obj in self.config.user_libraries.items():
             probe = BCCProbes(ProbeType.USER, key, [])
             if "regex" not in obj:
-                symbols = (
-                    os.popen(f"nm {obj['name']} | grep \" T \" | awk {{'print $3'}}")
-                    .read()
-                    .strip()
-                    .split("\n")
-                )
-                for symbol in symbols:
-                    if symbol or symbol != "":
-                        probe.functions.append(BCCFunctions(symbol))
-                        logging.debug(f"Adding Probe function {symbol} from {key}")
+                pattern = re.compile(".*")
             else:
-                probe.functions.append(BCCFunctions(obj["name"], obj["regex"]))
-                logging.debug(
-                    f"Adding Probe function {obj['regex']} from {obj['name']}"
-                )
-
+                pattern = re.compile(obj["regex"])
+            link = obj["link"]
+            symbols = (
+                os.popen(f"nm {link} | grep \" T \" | awk {{'print $3'}}")
+                .read()
+                .strip()
+                .split("\n")
+            )
+            for symbol in symbols:
+                if (symbol or symbol != "") and pattern.match(symbol):
+                    probe.functions.append(BCCFunctions(symbol))
+                    logging.debug(f"Adding Probe function {symbol} from {key}")
             self.probes.append(probe)
 
     def collector_fn(self, collector: BCCCollector, category_fn_map, count: int):
@@ -81,36 +80,19 @@ class UserProbes:
                     elif ProbeType.USER == probe.type:
                         library = probe.category
                         fname = fn.name
-                        is_regex = False
-                        if fn.regex:
-                            is_regex = True
-                            fname = fn.regex
                         if probe.category in self.config.user_libraries:
                             library = self.config.user_libraries[probe.category]["link"]
                             bpf.add_module(library)
-
-                        if is_regex:
-                            bpf.attach_uprobe(
-                                name=library,
-                                sym_re=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                            )
-                            bpf.attach_uretprobe(
-                                name=library,
-                                sym_re=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                            )
-                        else:
-                            bpf.attach_uprobe(
-                                name=library,
-                                sym=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                            )
-                            bpf.attach_uretprobe(
-                                name=library,
-                                sym=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                            )
+                        bpf.attach_uprobe(
+                            name=library,
+                            sym=fname,
+                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                        )
+                        bpf.attach_uretprobe(
+                            name=library,
+                            sym=fname,
+                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                        )
                 except Exception as e:
                     logging.warn(
                         f"Unable attach probe {probe.category} to user function {fn.name} due to {e}"

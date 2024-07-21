@@ -65,40 +65,64 @@ class BCCMain:
         writer = PerfettoWriter()
         count = 0
         exiting = False
-        print("Ready to run code")
-        while True:
-            has_events = False
-            try:
-                sleep(self.config.interval_sec)
-            except KeyboardInterrupt:
-                exiting = True
-            counts = self.bpf.get_table("fn_map")
-
-            for k, v in reversed(
-                sorted(
-                    counts.items_lookup_and_delete_batch(),
-                    key=lambda counts: counts[1].time,
+        last_processed_ts = -1
+        logging.info("Ready to run code")
+        sleep_sec = self.config.interval_sec * 5
+        wait_for = 60 / (sleep_sec)
+        try:
+            while True:
+                has_events = False
+                try:
+                    logging.debug(
+                        f"sleeping for {sleep_sec} secs with last ts {last_processed_ts}"
+                    )
+                    sleep(sleep_sec)
+                    if count > wait_for:
+                        logging.info(
+                            f"No events for {count * sleep_sec} seconds. Quiting Profiler Now."
+                        )
+                        break
+                except KeyboardInterrupt:
+                    break
+                counts = self.bpf.get_table("fn_map")
+                map_values = sorted(
+                    counts.items(),
+                    key=lambda counts: counts[0].trange,
                 )
-            ):
-                event = DFEvent()
-                event.pid = ctypes.c_uint32(k.id).value
-                event.tid = ctypes.c_uint32(k.id >> 32).value
-                if event.pid == 0 and k.trange == 0 and v.count == 1000:
-                    exiting = True
-                    continue
-                event_tuple = self.category_fn_map[k.event_id]
-                event.cat = event_tuple[0]
-                function_probe = event_tuple[1]
-                if function_probe.regex:
-                    event.name = self.bpf.sym(k.ip, event.pid).decode()
-                    if "unknown" in event.name:
-                        event.name = self.bpf.ksym(k.ip).decode()
-                else:
-                    event.name = function_probe.name
-                event.ts = k.trange
-                event.count = v.count
-                event.time = v.time
-                writer.write(event)
-            count += 1
-            if exiting:
-                break
+                num_entries = len(map_values)
+                processed = 0
+                for k, v in map_values:
+                    count = 0
+                    processed += 1
+                    event = DFEvent()
+                    event.pid = ctypes.c_uint32(k.id).value
+                    if processed != 1 and processed == num_entries:
+                        logging.debug(
+                            f"{processed} of {num_entries} is last entry with ts {k.trange}"
+                        )
+                        continue
+                    if k.event_id == 0:
+                        continue
+                    event.tid = ctypes.c_uint32(k.id >> 32).value
+                    event_tuple = self.category_fn_map[k.event_id]
+                    event.cat = event_tuple[0]
+                    function_probe = event_tuple[1]
+                    if function_probe.regex:
+                        event.name = self.bpf.sym(k.ip, event.pid).decode()
+                        if "unknown" in event.name:
+                            event.name = self.bpf.ksym(k.ip).decode()
+                    else:
+                        event.name = function_probe.name
+                    event.ts = k.trange
+                    event.count = v.count
+                    event.time = v.time
+                    last_processed_ts = k.trange
+                    logging.info(f"{last_processed_ts} timestamp processed")
+                    writer.write(event)
+                    keys = (counts.Key * 1)()
+                    keys[0] = k
+                    counts.items_delete_batch(keys)
+                count = count + 1
+        except KeyboardInterrupt:
+            pass
+        writer.finalize()
