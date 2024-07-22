@@ -3,6 +3,7 @@ import json
 import os
 import gzip
 import shutil
+import socket
 from dfprofiler.common.data_structure import DFEvent
 from dfprofiler.configs.configuration_manager import ConfigurationManager
 
@@ -46,11 +47,8 @@ class PerfettoWriter:
             "cat": event.cat,
             "ph": "C",
             "ts": int(event.ts * self.config.interval_sec * 1e6),  # Convert to us
-            "args": {
-                "freq": event.freq,
-                "time": event.time / 1e9,  # Convert to sec
-                "size_sum": event.size_sum,
-                "fname": event.fname,
-            },
+            "args": {"hostname": socket.gethostname()},
         }
+        for key, value in event.args.items():
+            obj["args"][key] = value
         self.trace_log.info(json.dumps(obj))

@@ -2,6 +2,8 @@ import logging
 from time import sleep
 import ctypes
 from typing import *
+import threading
+import psutil
 
 # External Imports
 from bcc import BPF
@@ -24,6 +26,8 @@ class BCCMain:
     def __init__(self) -> None:
         self.config = ConfigurationManager.get_instance()
         self.category_fn_map = {}
+        self.writer = PerfettoWriter()
+        self.run_thread_counter = True
         pass
 
     def load(self) -> any:
@@ -61,14 +65,70 @@ class BCCMain:
         logging.info(f"{matched} functions matched")
         return self
 
+    def run_cpu_loop(self):
+        start_counter = 0
+        while self.run_thread_counter:
+            cpu_utilization = psutil.cpu_percent(interval=1, percpu=True)
+            event = DFEvent()
+            event.pid = 0
+            event.tid = 0
+            event.cat = "CPU"
+            event.name = "utilization"
+            event.ts = start_counter * self.config.interval_sec
+            event.args = {}
+            for i, util in enumerate(cpu_utilization):
+                event.args[f"CPU_{i}"] = util
+            self.writer.write(event)
+            sleep(self.config.interval_sec)
+            start_counter += 1
+        logging.debug("Exiting CPU thread")
+
+    def run_memory_loop(self):
+        start_counter = 0
+        while self.run_thread_counter:
+            memory = psutil.virtual_memory()
+            event = DFEvent()
+            event.pid = 0
+            event.tid = 0
+            event.cat = "Memory"
+            event.name = "virtual_memory"
+            event.ts = start_counter * self.config.interval_sec
+            event.args = {
+                "total": memory.total,
+                "available": memory.available,
+                "percent": memory.percent,
+                "used": memory.used,
+                "free": memory.free,
+                "active": memory.active,
+                "inactive": memory.inactive,
+                "buffers": memory.buffers,
+                "cached": memory.cached,
+                "shared": memory.shared,
+                "slab": memory.slab,
+            }
+            self.writer.write(event)
+            sleep(self.config.interval_sec)
+            start_counter += 1
+        logging.debug("Exiting memory thread")
+
+    def stop(self):
+        self.run_thread_counter = False
+        logging.info("Stopping other threads")
+        self.memory_loop.join()
+        self.cpu_loop.join()
+        self.writer.finalize()
+
     def run(self) -> None:
-        writer = PerfettoWriter()
+        logging.info("Ready to run code")
+        self.memory_loop = threading.Thread(target=self.run_memory_loop)
+        self.memory_loop.start()
+        self.cpu_loop = threading.Thread(target=self.run_cpu_loop)
+        self.cpu_loop.start()
         no_event_count = 0
         has_events = False
         last_processed_ts = -1
-        logging.info("Ready to run code")
         sleep_sec = self.config.interval_sec * 5
-        wait_for = 60 / (sleep_sec)
+        wait_for = 30 / (sleep_sec)
         filename_map = {0: None}
         try:
             while True:
@@ -84,7 +144,7 @@ class BCCMain:
                             f"No events for {no_event_count * sleep_sec} seconds. Quiting Profiler Now."
                         )
                         filenames.clear()
-                        writer.finalize()
+                        self.stop()
                         break
                 except KeyboardInterrupt:
                     break
@@ -122,17 +182,18 @@ class BCCMain:
                     else:
                         event.name = function_probe.name
                     event.ts = k.trange
-                    event.fname = (
+                    event.args = {}
+                    event.args["fname"] = (
                         filename_map[k.file_hash]
                         if k.file_hash in filename_map
                         else None
                     )
-                    event.freq = v.freq
-                    event.time = v.time
-                    event.size_sum = v.size_sum if v.size_sum > 0 else None
+                    event.args["freq"] = v.freq
+                    event.args["time"] = v.time / 1e9
+                    event.args["size_sum"] = v.size_sum if v.size_sum > 0 else None
                     last_processed_ts = k.trange
                     logging.info(f"{last_processed_ts} timestamp processed")
-                    writer.write(event)
+                    self.writer.write(event)
                     keys = (counts.Key * 1)()
                     keys[0] = k
                     counts.items_delete_batch(keys)

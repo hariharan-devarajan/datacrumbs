@@ -11,6 +11,6 @@ DATA_DIR=${PROJECT_DIR}/build/data
 mkdir -p ${DATA_DIR} 
 rm -rf ${DATA_DIR}/*
 NUM_FILES=1
-NUM_OPS=$((16*1024))
-TS=$((1024*1024))
+NUM_OPS=$((1024*1024))
+TS=$((4*1024))
 LD_PRELOAD=${DFPROFILER_SO} ${PROJECT_DIR}/build/tests/df_tracer_test ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} 1
