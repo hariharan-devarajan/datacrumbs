@@ -122,7 +122,11 @@ class BCCMain:
                     else:
                         event.name = function_probe.name
                     event.ts = k.trange
-                    event.fname = filename_map[k.file_hash]
+                    event.fname = (
+                        filename_map[k.file_hash]
+                        if k.file_hash in filename_map
+                        else None
+                    )
                     event.freq = v.freq
                     event.time = v.time
                     event.size_sum = v.size_sum if v.size_sum > 0 else None
