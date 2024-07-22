@@ -65,7 +65,38 @@ class BCCMain:
         logging.info(f"{matched} functions matched")
         return self
 
+    def run_network_usage(self):
+        start_counter = 0
+        logging.info("Running Network thread")
+        while self.run_thread_counter:
+            network_counts = psutil.net_io_counters(pernic=True)
+            # logging.debug(f"network_counts {network_counts}")
+            event = DFEvent()
+            event.pid = 0
+            event.tid = 0
+            event.cat = "Network"
+            event.name = "snetio"
+            event.ts = start_counter * self.config.interval_sec
+            # logging.debug(f"Logging event {event}")
+            for interface, counter in network_counts.items():
+                event.args = {
+                    "nic": interface,
+                    "bytes_sent": counter.bytes_sent,
+                    "bytes_recv": counter.bytes_recv,
+                    "packets_sent": counter.packets_sent,
+                    "packets_recv": counter.packets_recv,
+                    "errin": counter.errin,
+                    "errout": counter.errout,
+                    "dropin": counter.dropin,
+                    "dropout": counter.dropout,
+                }
+                self.writer.write(event)
+            sleep(self.config.interval_sec)
+            start_counter += 1
+        logging.debug("Exiting Network thread")
+
     def run_disk_usage(self):
+        logging.info("Running Disk thread")
         start_counter = 0
         while self.run_thread_counter:
             disk_counters = psutil.disk_io_counters(perdisk=True)
@@ -92,6 +123,7 @@ class BCCMain:
         logging.debug("Exiting Disk thread")
 
     def run_cpu_loop(self):
+        logging.info("Running CPU thread")
         start_counter = 0
         while self.run_thread_counter:
             cpu_utilization = psutil.cpu_percent(interval=1, percpu=True)
@@ -110,6 +142,7 @@ class BCCMain:
         logging.debug("Exiting CPU thread")
 
     def run_memory_loop(self):
+        logging.info("Running Memory thread")
         start_counter = 0
         while self.run_thread_counter:
             memory = psutil.virtual_memory()
@@ -139,10 +172,11 @@ class BCCMain:
 
     def stop(self):
         self.run_thread_counter = False
-        logging.info("Stopping other threads")
+        logging.info("Stopping all threads")
         self.memory_loop.join()
         self.cpu_loop.join()
         self.disk_loop.join()
+        self.network_loop.join()
         self.writer.finalize()
 
     def run(self) -> None:
@@ -153,6 +187,8 @@ class BCCMain:
         self.cpu_loop.start()
         self.disk_loop = threading.Thread(target=self.run_disk_usage)
         self.disk_loop.start()
+        self.network_loop = threading.Thread(target=self.run_network_usage)
+        self.network_loop.start()
         no_event_count = 0
         has_events = False
         last_processed_ts = -1
