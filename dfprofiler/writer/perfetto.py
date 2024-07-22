@@ -34,10 +34,10 @@ class PerfettoWriter:
         with open(self.config.profile_file, "rb") as f_in:
             with gzip.open(f"{self.config.profile_file}.gz", "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)
-        # try:
-        #     os.remove(self.config.profile_file)
-        # except OSError:
-        #     pass
+        try:
+            os.remove(self.config.profile_file)
+        except OSError:
+            pass
 
     def write(self, event: DFEvent):
         obj = {

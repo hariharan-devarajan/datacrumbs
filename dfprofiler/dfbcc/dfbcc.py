@@ -65,6 +65,32 @@ class BCCMain:
         logging.info(f"{matched} functions matched")
         return self
 
+    def run_disk_usage(self):
+        start_counter = 0
+        while self.run_thread_counter:
+            disk_counters = psutil.disk_io_counters(perdisk=True)
+            event = DFEvent()
+            event.pid = 0
+            event.tid = 0
+            event.cat = "Disk"
+            event.name = "io_stat"
+            event.ts = start_counter * self.config.interval_sec
+
+            for mount, counter in disk_counters.items():
+                event.args = {
+                    "mount": mount,
+                    "read_count": counter.read_count,
+                    "write_count": counter.write_count,
+                    "read_bytes": counter.read_bytes,
+                    "write_bytes": counter.write_bytes,
+                    "read_time": counter.read_time,
+                    "write_time": counter.write_time,
+                }
+                self.writer.write(event)
+            sleep(self.config.interval_sec)
+            start_counter += 1
+        logging.debug("Exiting Disk thread")
+
     def run_cpu_loop(self):
         start_counter = 0
         while self.run_thread_counter:
@@ -116,6 +142,7 @@ class BCCMain:
         logging.info("Stopping other threads")
         self.memory_loop.join()
         self.cpu_loop.join()
+        self.disk_loop.join()
         self.writer.finalize()
 
     def run(self) -> None:
@@ -124,6 +151,8 @@ class BCCMain:
         self.memory_loop.start()
         self.cpu_loop = threading.Thread(target=self.run_cpu_loop)
         self.cpu_loop.start()
+        self.disk_loop = threading.Thread(target=self.run_disk_usage)
+        self.disk_loop.start()
         no_event_count = 0
         has_events = False
         last_processed_ts = -1
