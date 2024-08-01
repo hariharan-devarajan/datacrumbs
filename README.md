@@ -26,9 +26,9 @@ We have a Image that can be used to do development on Chameleon called HARI-UBUN
 ### Clone the repo
 
 ```bash
-git clone https://github.com/hariharan-devarajan/dfprofiler.git
+git clone https://github.com/hariharan-devarajan/datacrumbs.git
 
-cd dfprofiler
+cd datacrumbs
 mkdir build
 cmake ..
 make -j
@@ -40,8 +40,8 @@ The profiler tool need to run as root
 
 ```bash
 sudo su
-export PYTHONPATH=<PATH to dfprofiler>
-cd <PATH to DFProfiler Root>
+export PYTHONPATH=<PATH to datacrumbs>
+cd <PATH to datacrumbs Root>
 python3 dfprofiler/main.py
 ```
 Once the profiler is loaded, it will wait for applictaions to connect.
@@ -64,17 +64,17 @@ export BCC_PROBE_LIMIT=1048576
 Once the profiler has started u can run the application code.
 
 ```bash
-cd <PATH to DFProfiler Root>
+cd <PATH to datacrumbs Root>
 cd tests/scripts
 ./run.sh
 ```
 
 ## Checking the profiler output.
 
-The profiler outpur is created in the directory where the profiler runs.
+The profiler output is created in the directory where the profiler runs.
 
 ```bash
-cc@ebpf:~/dfprofiler$ head -n 5 profile.pfw 
+cc@ebpf:~/datacrumbs$ head -n 5 profile.pfw 
 [
 {"pid": 30545, "tid": 30545, "name": "__libc_malloc [libc.so.6]", "cat": "[libc.so.6]", "ph": "C", "ts": 0.0, "args": {"count": 21, "time": 0.000198116}}
 {"pid": 30545, "tid": 30545, "name": "cfree [libc.so.6]", "cat": "[libc.so.6]", "ph": "C", "ts": 0.0, "args": {"count": 2, "time": 1.9788e-05}}
