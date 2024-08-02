@@ -2,7 +2,7 @@
 defaults:
  - _self_
  - module: default
- - override hydra/help: dfprofiler_help.yaml
+ - override hydra/help: datacrumbs_help.yaml
  - override hydra/job_logging: disabled
  - override hydra/hydra_logging: disabled
 hydra:

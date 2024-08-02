@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   int ops = atoi(argv[2]);
   int ts = atoi(argv[3]);
   std::string dir = std::string(argv[4]);
-  int trace = atoi(argv[5]);
+  int test_flag = atoi(argv[5]);
   std::string data = gen_random(ts);
   char *read_data = (char *)malloc(ts);
   Timer open_timer = Timer();
@@ -60,24 +60,31 @@ int main(int argc, char *argv[]) {
                            std::to_string(my_rank) + ".dat";
 
     open_timer.resumeTime();
-    int fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC, 777);
+    int fd = -1;
+    if (test_flag == 0)
+      fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
+    else if (test_flag == 1)
+      fd = open(filename.c_str(), O_RDONLY, 0777);
+    else
+      fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0777);
+    
     assert(fd != -1);
     open_timer.pauseTime();
     for (int op_idx = 0; op_idx < ops; ++op_idx) {
-      write_timer.resumeTime();
-      assert(write(fd, data.c_str(), ts) == ts);
-      write_timer.pauseTime();
-      lseek(fd, (off_t)op_idx * ts, SEEK_SET);
-      read_timer.resumeTime();
-      auto read_bytes = read(fd, read_data, ts);
-      if (read_bytes != ts) {
-        if (read_bytes == -1)
-          printf("Error reading %d: %s\n", errno, strerror(errno));
-        else
-          printf("read only %ld bytes", read_bytes);
-        exit(1);
+      if (test_flag == 0 || test_flag == 2) {
+        write_timer.resumeTime();
+        assert(write(fd, data.c_str(), ts) == ts);
+        write_timer.pauseTime();
       }
-      read_timer.pauseTime();
+
+      if (test_flag == 2) {
+        lseek(fd, (off_t)op_idx * ts, SEEK_SET);
+      }
+      if (test_flag == 1 || test_flag == 2) {
+        read_timer.resumeTime();
+        auto read_bytes = read(fd, read_data, ts);
+        read_timer.pauseTime();
+      }
     }
     close_timer.resumeTime();
     close(fd);
@@ -101,7 +108,7 @@ int main(int argc, char *argv[]) {
   MPI_Reduce(&read_time, &total_read_time, 1, MPI_DOUBLE, MPI_SUM, 0,
              MPI_COMM_WORLD);
   if (my_rank == 0) {
-    printf("%d,%d,%d,%d,%f,%f,%f,%f\n", comm_size, trace, ops, ts,
+    printf("%d,%d,%d,%d,%f,%f,%f,%f\n", comm_size, test_flag, ops, ts,
            total_open_time / comm_size, total_close_time / comm_size,
            total_write_time / comm_size, total_read_time / comm_size);
   }

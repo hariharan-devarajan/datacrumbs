@@ -1,10 +1,10 @@
 from typing import *
 import logging
 from bcc import BPF
-from dfprofiler.dfbcc.collector import BCCCollector
-from dfprofiler.dfbcc.probes import BCCFunctions, BCCProbes
-from dfprofiler.common.enumerations import ProbeType
-from dfprofiler.configs.configuration_manager import ConfigurationManager
+from datacrumbs.dfbcc.collector import BCCCollector
+from datacrumbs.dfbcc.probes import BCCFunctions, BCCProbes
+from datacrumbs.common.enumerations import ProbeType
+from datacrumbs.configs.configuration_manager import ConfigurationManager
 
 
 class IOProbes:
@@ -153,6 +153,7 @@ class IOProbes:
                     BCCFunctions("sync_file_range"),
                     BCCFunctions("syncfs"),
                     BCCFunctions("writev"),
+                    BCCFunctions("sys", "^file.*"),
                 ],
             )
         )
@@ -167,6 +168,16 @@ class IOProbes:
                     BCCFunctions("mark_buffer_dirty"),
                     BCCFunctions("do_page_cache_ra"),
                     BCCFunctions("__page_cache_alloc"),
+                    BCCFunctions("os_cache", ".*page.*"),
+                ],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "map",
+                [
+                    BCCFunctions("map", ".*map.*"),
                 ],
             )
         )
@@ -174,28 +185,7 @@ class IOProbes:
             BCCProbes(
                 ProbeType.KERNEL,
                 "ext4",
-                [
-                    BCCFunctions("ext4_file_write_iter"),
-                    BCCFunctions("ext4_file_open"),
-                    BCCFunctions("ext4_sync_file"),
-                    BCCFunctions("ext4_alloc_da_blocks"),
-                    BCCFunctions("ext4_da_release_space"),
-                    BCCFunctions("ext4_da_reserve_space"),
-                    BCCFunctions("ext4_da_write_begin"),
-                    BCCFunctions("ext4_da_write_end"),
-                    BCCFunctions("ext4_discard_preallocations"),
-                    BCCFunctions("ext4_fallocate"),
-                    BCCFunctions("ext4_free_blocks"),
-                    BCCFunctions("ext4_readpage"),
-                    BCCFunctions("ext4_remove_blocks"),
-                    BCCFunctions("ext4_sync_fs"),
-                    BCCFunctions("ext4_truncate"),
-                    BCCFunctions("ext4_write_begin"),
-                    BCCFunctions("ext4_write_end"),
-                    BCCFunctions("ext4_writepage"),
-                    BCCFunctions("ext4_writepages"),
-                    BCCFunctions("ext4_zero_range"),
-                ],
+                [BCCFunctions("ext4", "^ext4_.*")],
             )
         )
         self.probes.append(

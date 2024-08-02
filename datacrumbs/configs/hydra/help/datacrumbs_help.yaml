@@ -1,12 +1,12 @@
 # App name, override to match the name your app is known by
-app_name: dfprofiler
+app_name: datacrumbs
 
 # Help header, customize to describe your app to your users
 header: =========================== ${hydra.help.app_name} ===========================
 
 footer: |-
   Please submit questions/bugs to 
-    https://github.com/hariharan-devarajan/dfprofiler/issues
+    https://github.com/hariharan-devarajan/datacrumbs/issues
 
             Copyright (c) 2024 LLNL
 
@@ -24,15 +24,15 @@ template: |-
 
   ${hydra.help.header}
 
-  DFProfiler - a multi-level dataflow profiler for capture I/O calls from worklows.
+  Datacrumbs - a multi-level dataflow profiler for capture I/O calls from worklows.
 
-  Running the profiler: dfprofiler module=io_only
+  Running the profiler: datacrumbs module=io_only
 
   One can select the module configuration using "module={MODULES}". 
-  The corresponding YAML file is dfprofiler/configs/module/{MODULES}.yaml folder. 
+  The corresponding YAML file is datacrumbs/configs/module/{MODULES}.yaml folder. 
   Available choise for $APP_CONFIG_GROUPS
   One can override everything in the command line, for example:
-  dfprofiler ++module.io_group=True
+  datacrumbs ++module.io_group=True
 
   One can also create a custom YAML file for a specific workload. 
   An example of a YAML file is as follows. 
@@ -41,10 +41,10 @@ template: |-
   $CONFIG
   -------
   A complete list of config options in the YAML file can be found: 
-  https://dfprofiler.readthedocs.io/config.html
+  https://datacrumbs.readthedocs.io/config.html
 
   By default all the output files will be saved in hydra.run.dir. 
-  This can be changed in dfprofiler/configs/config.yaml.
+  This can be changed in datacrumbs/configs/config.yaml.
 
   ${hydra.help.footer}
   --

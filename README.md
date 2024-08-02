@@ -42,7 +42,7 @@ The profiler tool need to run as root
 sudo su
 export PYTHONPATH=<PATH to datacrumbs>
 cd <PATH to datacrumbs Root>
-python3 dfprofiler/main.py
+python3 datacrumbs/main.py
 ```
 Once the profiler is loaded, it will wait for applictaions to connect.
 

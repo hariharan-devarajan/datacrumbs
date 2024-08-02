@@ -8,7 +8,7 @@ import logging
 from omegaconf import DictConfig
 
 # Internal Imports
-from dfprofiler.common.utils import convert_or_fail
+from datacrumbs.common.utils import convert_or_fail
 
 
 class ConfigurationManager:
@@ -31,7 +31,7 @@ class ConfigurationManager:
 
     def __init__(self):
         self.project_root = pathlib.Path(__file__).parent.parent.parent.resolve()
-        log_file = "dfprofiler.log"
+        log_file = "datacrumbs.log"
         try:
             os.remove(log_file)
         except OSError:

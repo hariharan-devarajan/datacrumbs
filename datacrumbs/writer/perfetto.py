@@ -4,8 +4,8 @@ import os
 import gzip
 import shutil
 import socket
-from dfprofiler.common.data_structure import DFEvent
-from dfprofiler.configs.configuration_manager import ConfigurationManager
+from datacrumbs.common.data_structure import DFEvent
+from datacrumbs.configs.configuration_manager import ConfigurationManager
 
 
 class PerfettoWriter:
@@ -21,7 +21,7 @@ class PerfettoWriter:
             os.remove(f"{self.config.profile_file}.gz")
         except OSError:
             pass
-        self.trace_log = logging.getLogger("dfprofiler.trace")
+        self.trace_log = logging.getLogger("datacrumbs.trace")
         self.trace_log.setLevel(logging.INFO)
         trace_file_handler = logging.FileHandler(self.config.profile_file)
         trace_file_handler.setLevel(logging.INFO)

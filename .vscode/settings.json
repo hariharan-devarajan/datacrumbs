@@ -1,5 +1,5 @@
 {
     "cmake.configureArgs": [
-        "-DCMAKE_PREFIX_PATH=/home/cc/dfprofiler/dependency/.spack-env/view"
+        "-DCMAKE_PREFIX_PATH=/home/cc/datacrumbs/dependency/.spack-env/view"
     ]
 }

@@ -3,10 +3,10 @@ install_dir: build
 file: profile.pfw
 user:
   - name: app
-    link: /home/cc/dfprofiler/build/tests/df_tracer_test
+    link: /home/cc/datacrumbs/build/tests/df_tracer_test
     regex: .*
   - name: mpi
-    link: /home/cc/dfprofiler/dependency/.spack-env/view/lib/libmpi.so
+    link: /home/cc/datacrumbs/dependency/.spack-env/view/lib/libmpi.so
     regex: ^PMPI.*
 
 profile:

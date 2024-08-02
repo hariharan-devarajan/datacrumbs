@@ -3,10 +3,10 @@ import os
 import logging
 import re
 from bcc import BPF
-from dfprofiler.dfbcc.collector import BCCCollector
-from dfprofiler.dfbcc.probes import BCCFunctions, BCCProbes
-from dfprofiler.common.enumerations import ProbeType
-from dfprofiler.configs.configuration_manager import ConfigurationManager
+from datacrumbs.dfbcc.collector import BCCCollector
+from datacrumbs.dfbcc.probes import BCCFunctions, BCCProbes
+from datacrumbs.common.enumerations import ProbeType
+from datacrumbs.configs.configuration_manager import ConfigurationManager
 
 
 class UserProbes:

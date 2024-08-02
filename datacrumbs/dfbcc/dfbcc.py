@@ -10,14 +10,14 @@ from bcc import BPF
 from bcc.utils import printb
 
 # Internal Imports
-from dfprofiler.dfbcc.app_connector import BCCApplicationConnector
-from dfprofiler.dfbcc.collector import BCCCollector
-from dfprofiler.dfbcc.header import BCCHeader
-from dfprofiler.dfbcc.io_probes import IOProbes
-from dfprofiler.dfbcc.user_probes import UserProbes
-from dfprofiler.configs.configuration_manager import ConfigurationManager
-from dfprofiler.common.data_structure import DFEvent, Filename
-from dfprofiler.writer.perfetto import PerfettoWriter
+from datacrumbs.dfbcc.app_connector import BCCApplicationConnector
+from datacrumbs.dfbcc.collector import BCCCollector
+from datacrumbs.dfbcc.header import BCCHeader
+from datacrumbs.dfbcc.io_probes import IOProbes
+from datacrumbs.dfbcc.user_probes import UserProbes
+from datacrumbs.configs.configuration_manager import ConfigurationManager
+from datacrumbs.common.data_structure import DFEvent, Filename
+from datacrumbs.writer.perfetto import PerfettoWriter
 
 
 class BCCMain:

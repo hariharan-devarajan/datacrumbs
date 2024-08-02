@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "env": {
-                "PYTHONPATH": "/home/cc/dfprofiler",
+                "PYTHONPATH": "/home/cc/datacrumbs",
             }
         }
     ]

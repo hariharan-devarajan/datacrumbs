@@ -1,4 +1,4 @@
-from dfprofiler.common.enumerations import ProbeType
+from datacrumbs.common.enumerations import ProbeType
 
 from typing import *
 

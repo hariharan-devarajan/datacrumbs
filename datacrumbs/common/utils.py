@@ -1,6 +1,6 @@
 import logging
 
-from dfprofiler.common.status import ProfilerStatus
+from datacrumbs.common.status import ProfilerStatus
 
 
 def convert_or_fail(type, value):

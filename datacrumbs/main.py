@@ -4,14 +4,14 @@ from omegaconf import DictConfig
 import logging
 
 # Internal Imports
-from dfprofiler.dfbcc.dfbcc import BCCMain
-from dfprofiler.common.status import ProfilerStatus
-from dfprofiler.configs.configuration_manager import ConfigurationManager
+from datacrumbs.dfbcc.dfbcc import BCCMain
+from datacrumbs.common.status import ProfilerStatus
+from datacrumbs.configs.configuration_manager import ConfigurationManager
 
 
-class DFProfiler:
+class Datacrumbs:
     """
-    DFProfiler Class
+    Datacrumbs Class
     """
 
     def __init__(self, cfg: DictConfig) -> None:
@@ -32,7 +32,7 @@ def main(cfg: DictConfig) -> int:
     """
     The main method to start the profiler runtime.
     """
-    profiler = DFProfiler(cfg["module"])
+    profiler = Datacrumbs(cfg["module"])
     profiler.initialize()
     profiler.run()
     profiler.finalize()
