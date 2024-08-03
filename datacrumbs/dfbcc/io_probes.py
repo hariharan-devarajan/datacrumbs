@@ -153,7 +153,6 @@ class IOProbes:
                     BCCFunctions("sync_file_range"),
                     BCCFunctions("syncfs"),
                     BCCFunctions("writev"),
-                    BCCFunctions("sys", "^file.*"),
                 ],
             )
         )
@@ -168,7 +167,11 @@ class IOProbes:
                     BCCFunctions("mark_buffer_dirty"),
                     BCCFunctions("do_page_cache_ra"),
                     BCCFunctions("__page_cache_alloc"),
-                    BCCFunctions("os_cache", ".*page.*"),
+                    BCCFunctions("page", ".*page.*"),
+                    BCCFunctions("lru", ".*lru.*"),
+                    BCCFunctions("swap", ".*swap.*"),
+                    BCCFunctions("buffer", ".*buffer.*"),
+                    BCCFunctions("nr", ".*nr.*"),
                 ],
             )
         )
@@ -185,14 +188,44 @@ class IOProbes:
             BCCProbes(
                 ProbeType.KERNEL,
                 "ext4",
-                [BCCFunctions("ext4", "^ext4_.*")],
+                [BCCFunctions("ext4", ".*ext4_.*")],
             )
         )
+        # https://fossd.anu.edu.au/linux/v2.6.18-rc4/source/fs/read_write.c#L247
         self.probes.append(
             BCCProbes(
                 ProbeType.KERNEL,
                 "vfs",
-                [BCCFunctions("vfs", "^vfs_.*"), BCCFunctions("rw_verify_area")],
+                [BCCFunctions("vfs", ".*vfs.*"), 
+                 BCCFunctions("generic", ".*generic.*"), 
+                 BCCFunctions("remote", ".*remote.*"), 
+                 BCCFunctions("llseek", ".*llseek.*"), 
+                 BCCFunctions("do_sync_read"), 
+                 BCCFunctions("vfs_read"), 
+                 BCCFunctions("do_sync_write"), 
+                 BCCFunctions("vfs_write"), 
+                 BCCFunctions("file", ".*file.*"), 
+                 BCCFunctions("do_readv_writev"),
+                 BCCFunctions("vfs_readv"),
+                 BCCFunctions("vfs_writev"),
+                 BCCFunctions("do_sendfile"),
+                 BCCFunctions("do_readv_writev"),
+                 BCCFunctions("rw_verify_area"),
+                 BCCFunctions("wait_on_page_bit"),
+                 BCCFunctions("find_or_create_page"),
+                 BCCFunctions("find_get_pages"),
+                 BCCFunctions("find_get_pages_contig"),
+                 BCCFunctions("grab_cache_page_nowait"),
+                 BCCFunctions(" wake_up_page"),
+                 BCCFunctions(" do_readahead"),
+                 BCCFunctions(" read_cache_page"),
+                 BCCFunctions(" do_readahead"),
+                 BCCFunctions(" do_readahead"),
+                 BCCFunctions("fdatawrite", ".*fdatawrite.*"), 
+                 BCCFunctions("filename", ".*filename.*"), 
+                 BCCFunctions("sync", ".*sync.*"), 
+                 BCCFunctions("eio", ".*eio.*"), 
+                ],
             )
         )
         self.probes.append(
@@ -239,6 +272,7 @@ class IOProbes:
                     BCCFunctions("pvalloc"),
                     BCCFunctions("aligned_alloc"),
                     BCCFunctions("free"),
+                    BCCFunctions("aio", ".*aio.*"), 
                 ],
             )
         )

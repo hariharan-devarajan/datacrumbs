@@ -241,9 +241,9 @@ class BCCMain:
                     event.cat = event_tuple[0]
                     function_probe = event_tuple[1]
                     if function_probe.regex:
-                        event.name = self.bpf.sym(k.ip, event.pid).decode()
+                        event.name = self.bpf.sym(k.ip, event.pid, module=True).decode()
                         if "unknown" in event.name:
-                            event.name = self.bpf.ksym(k.ip).decode()
+                            event.name = self.bpf.ksym(k.ip, module=True).decode()
                     else:
                         event.name = function_probe.name
                     event.ts = k.trange
