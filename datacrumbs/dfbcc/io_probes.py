@@ -187,6 +187,24 @@ class IOProbes:
         self.probes.append(
             BCCProbes(
                 ProbeType.KERNEL,
+                "bio",
+                [
+                    BCCFunctions("bio", ".*bio.*"),
+                ],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "aio",
+                [
+                    BCCFunctions("aio", ".*aio.*"),
+                ],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
                 "ext4",
                 [BCCFunctions("ext4", ".*ext4_.*")],
             )
