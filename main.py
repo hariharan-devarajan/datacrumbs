@@ -243,18 +243,18 @@ functions = {
 bpf_text = bpf_text.replace("INTERVAL_RANGE", str(INTERVAL_RANGE))
 
 dir = pathlib.Path(__file__).parent.resolve()
-usdt_ctx = USDT(path=f"{dir}/build/libdftracer_ebpf.so")
+usdt_ctx = USDT(path=f"{dir}/build/libdatacrumbs.so")
 f = open("profile.c", "w")
 f.write(bpf_text)
 f.close()
 b = BPF(text=bpf_text, usdt_contexts=[usdt_ctx])
 b.attach_uprobe(
-    name=f"{dir}/build/libdftracer_ebpf.so",
+    name=f"{dir}/build/libdatacrumbs.so",
     sym="dftracer_get_pid",
     fn_name="trace_dftracer_get_pid",
 )
 b.attach_uprobe(
-    name=f"{dir}/build/libdftracer_ebpf.so",
+    name=f"{dir}/build/libdatacrumbs.so",
     sym="dftracer_remove_pid",
     fn_name="trace_dftracer_remove_pid",
 )
