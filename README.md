@@ -34,6 +34,12 @@ cmake ..
 make -j
 ```
 
+## Build dependency for profiler
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Running the code
 
 The profiler tool need to run as root
