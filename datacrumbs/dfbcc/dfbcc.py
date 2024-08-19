@@ -173,15 +173,16 @@ class BCCMain:
     def stop(self):
         self.run_thread_counter = False
         logging.info("Stopping all threads")
-        self.memory_loop.join()
+        '''self.memory_loop.join()
         self.cpu_loop.join()
         self.disk_loop.join()
         self.network_loop.join()
+        '''
         self.writer.finalize()
 
     def run(self) -> None:
         logging.info("Ready to run code")
-        self.memory_loop = threading.Thread(target=self.run_memory_loop)
+        '''self.memory_loop = threading.Thread(target=self.run_memory_loop)
         self.memory_loop.start()
         self.cpu_loop = threading.Thread(target=self.run_cpu_loop)
         self.cpu_loop.start()
@@ -189,6 +190,7 @@ class BCCMain:
         self.disk_loop.start()
         self.network_loop = threading.Thread(target=self.run_network_usage)
         self.network_loop.start()
+        '''
         no_event_count = 0
         has_events = False
         last_processed_ts = -1
@@ -241,9 +243,9 @@ class BCCMain:
                     event.cat = event_tuple[0]
                     function_probe = event_tuple[1]
                     if function_probe.regex:
-                        event.name = self.bpf.sym(k.ip, event.pid, module=True).decode()
+                        event.name = self.bpf.sym(k.ip, event.pid, show_module=True).decode()
                         if "unknown" in event.name:
-                            event.name = self.bpf.ksym(k.ip, module=True).decode()
+                            event.name = self.bpf.ksym(k.ip, show_module=True).decode()
                     else:
                         event.name = function_probe.name
                     event.ts = k.trange
