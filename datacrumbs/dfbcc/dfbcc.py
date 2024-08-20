@@ -231,8 +231,6 @@ class BCCMain:
                 for k, v in map_values:
                     event = DFEvent()
                     event.pid = ctypes.c_uint32(k.id).value
-                    if event.pid == 0:
-                        continue
                     has_events = True
                     processed += 1
                     if big_ts == k.trange and big_ts > last_processed_ts + 1:
