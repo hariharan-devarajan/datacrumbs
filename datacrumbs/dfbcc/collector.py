@@ -8,7 +8,7 @@ class BCCCollector:
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
             u64* start_ts = pid_map.lookup(&pid);
-            if (start_ts == 0)                                      
+            if (start_ts == 0 || pid == 0)                                      
                 return 0;
             struct fn_key_t key = {};
             key.pid = pid;
@@ -24,7 +24,7 @@ class BCCCollector:
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
             u64* start_ts = pid_map.lookup(&pid);
-            if (start_ts == 0)                                      
+            if (start_ts == 0 || pid == 0)                                      
                 return 0;
             struct fn_key_t key = {};
             key.pid = pid;
@@ -49,7 +49,7 @@ class BCCCollector:
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
             u64* start_ts = pid_map.lookup(&pid);
-            if (start_ts == 0)                                      
+            if (start_ts == 0 || pid == 0)                                      
                 return 0;
             struct fn_key_t key = {};
             key.pid = pid;
@@ -65,7 +65,7 @@ class BCCCollector:
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
             u64* start_ts = pid_map.lookup(&pid);
-            if (start_ts == 0)                                      
+            if (start_ts == 0 || pid == 0)                                      
                 return 0;
             struct fn_key_t key = {};
             key.pid = pid;

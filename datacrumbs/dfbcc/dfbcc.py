@@ -229,10 +229,12 @@ class BCCMain:
                     big_ts = map_values[num_entries - 1][0].trange
                 processed = 0
                 for k, v in map_values:
-                    has_events = True
-                    processed += 1
                     event = DFEvent()
                     event.pid = ctypes.c_uint32(k.id).value
+                    if event.pid == 0:
+                        continue
+                    has_events = True
+                    processed += 1
                     if big_ts == k.trange and big_ts > last_processed_ts + 1:
                         logging.debug(
                             f"Previous loop had {last_processed_ts} ts and now is {big_ts} ts"
