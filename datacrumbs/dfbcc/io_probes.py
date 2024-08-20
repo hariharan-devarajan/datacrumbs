@@ -193,15 +193,15 @@ class IOProbes:
                 ],
             )
         )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "aio",
-                [
-                    BCCFunctions("aio", ".*aio.*"),
-                ],
-            )
-        )
+        # self.probes.append(
+        #     BCCProbes(
+        #         ProbeType.KERNEL,
+        #         "aio",
+        #         [
+        #             BCCFunctions("aio", ".*aio.*"),
+        #         ],
+        #     )
+        # )
         self.probes.append(
             BCCProbes(
                 ProbeType.KERNEL,
@@ -236,10 +236,10 @@ class IOProbes:
                  BCCFunctions("wake_up_page"),
                  BCCFunctions("do_readahead"),
                  BCCFunctions("read_cache_page"),
-                 BCCFunctions("fdatawrite", ".*fdatawrite.*"), 
-                 BCCFunctions("filename", ".*filename.*"), 
-                 BCCFunctions("sync", ".*sync.*"), 
-                 BCCFunctions("eio", ".*eio.*"), 
+                 BCCFunctions("fdatawrite"), 
+                 #BCCFunctions("filename", ".*filename.*"), 
+                 #BCCFunctions("sync", ".*sync.*"), 
+                 #BCCFunctions("eio", ".*eio.*"), 
                 ],
             )
         )
@@ -248,6 +248,13 @@ class IOProbes:
                 ProbeType.USER,
                 "c",
                 [
+                    BCCFunctions("fopen"),
+                    BCCFunctions("fopen64"),
+                    BCCFunctions("fclose"),
+                    BCCFunctions("fread"),
+                    BCCFunctions("fwrite"),
+                    BCCFunctions("ftell"),
+                    BCCFunctions("fseek"),
                     BCCFunctions("open"),
                     BCCFunctions("open64"),
                     BCCFunctions("creat"),

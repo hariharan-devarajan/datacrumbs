@@ -1778,46 +1778,6 @@
             return 0;
         }
         
-        int syscall__trace_entry_sys(struct pt_regs *ctx ) {
-            u64 id = bpf_get_current_pid_tgid();
-            u32 pid = id;
-            u64* start_ts = pid_map.lookup(&pid);
-            if (start_ts == 0)                                      
-                return 0;
-            struct fn_key_t key = {};
-            key.pid = pid;
-            struct fn_t fn = {};
-            fn.ip = PT_REGS_IP(ctx);
-            fn.ts = bpf_ktime_get_ns();
-            
-            fn_pid_map.update(&key, &fn);
-            return 0;
-        }
-
-        int sys__trace_exit_sys(struct pt_regs *ctx) {
-            u64 id = bpf_get_current_pid_tgid();
-            u32 pid = id;
-            u64* start_ts = pid_map.lookup(&pid);
-            if (start_ts == 0)                                      
-                return 0;
-            struct fn_key_t key = {};
-            key.pid = pid;
-            struct fn_t *fn = fn_pid_map.lookup(&key);
-            if (fn == 0) return 0; // missed entry
-            struct stats_key_t stats_key = {};
-            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 42;
-            stats_key.id = id;
-            stats_key.ip = fn->ip;
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
-            
-            return 0;
-        }
-        
         int trace_os_cache_add_to_page_cache_lru_entry(struct pt_regs *ctx ) {
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
@@ -1846,7 +1806,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 43;
+            stats_key.event_id = 42;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -1886,7 +1846,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 44;
+            stats_key.event_id = 43;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -1926,7 +1886,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 45;
+            stats_key.event_id = 44;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -1966,7 +1926,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 46;
+            stats_key.event_id = 45;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2006,7 +1966,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 47;
+            stats_key.event_id = 46;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2046,7 +2006,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 48;
+            stats_key.event_id = 47;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2058,7 +2018,7 @@
             return 0;
         }
         
-        int trace_os_cache_os_cache_entry(struct pt_regs *ctx ) {
+        int trace_os_cache_page_entry(struct pt_regs *ctx ) {
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
             u64* start_ts = pid_map.lookup(&pid);
@@ -2074,7 +2034,47 @@
             return 0;
         }
 
-        int trace_os_cache_os_cache_exit(struct pt_regs *ctx) {
+        int trace_os_cache_page_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 48;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_os_cache_lru_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_os_cache_lru_exit(struct pt_regs *ctx) {
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
             u64* start_ts = pid_map.lookup(&pid);
@@ -2087,6 +2087,126 @@
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
             stats_key.event_id = 49;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_os_cache_swap_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_os_cache_swap_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 50;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_os_cache_buffer_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_os_cache_buffer_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 51;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_os_cache_nr_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_os_cache_nr_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 52;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2126,7 +2246,47 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 50;
+            stats_key.event_id = 53;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_bio_bio_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_bio_bio_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 54;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2166,7 +2326,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 51;
+            stats_key.event_id = 55;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2206,7 +2366,487 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 52;
+            stats_key.event_id = 56;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_generic_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_generic_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 57;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_remote_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_remote_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 58;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_llseek_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_llseek_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 59;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_do_sync_read_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_do_sync_read_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 60;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_vfs_read_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_vfs_read_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 61;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_do_sync_write_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_do_sync_write_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 62;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_vfs_write_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_vfs_write_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 63;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_file_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_file_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 64;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_do_readv_writev_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_do_readv_writev_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 65;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_vfs_readv_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_vfs_readv_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 66;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_vfs_writev_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_vfs_writev_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 67;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_do_sendfile_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_do_sendfile_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 68;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2246,7 +2886,647 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 53;
+            stats_key.event_id = 69;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_wait_on_page_bit_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_wait_on_page_bit_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 70;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_find_or_create_page_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_find_or_create_page_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 71;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_find_get_pages_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_find_get_pages_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 72;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_find_get_pages_contig_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_find_get_pages_contig_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 73;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_grab_cache_page_nowait_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_grab_cache_page_nowait_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 74;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_wake_up_page_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_wake_up_page_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 75;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_do_readahead_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_do_readahead_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 76;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_read_cache_page_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_read_cache_page_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 77;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_vfs_fdatawrite_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_vfs_fdatawrite_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 78;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_fopen_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_fopen_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 79;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_fopen64_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_fopen64_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 80;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_fclose_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_fclose_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 81;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_fread_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_fread_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 82;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_fwrite_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_fwrite_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 83;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_ftell_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_ftell_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 84;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_fseek_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_fseek_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 85;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2286,7 +3566,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 54;
+            stats_key.event_id = 86;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2326,7 +3606,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 55;
+            stats_key.event_id = 87;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2366,7 +3646,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 56;
+            stats_key.event_id = 88;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2406,7 +3686,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 57;
+            stats_key.event_id = 89;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2446,7 +3726,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 58;
+            stats_key.event_id = 90;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2486,7 +3766,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 59;
+            stats_key.event_id = 91;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2526,7 +3806,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 60;
+            stats_key.event_id = 92;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2566,7 +3846,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 61;
+            stats_key.event_id = 93;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2606,7 +3886,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 62;
+            stats_key.event_id = 94;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2646,7 +3926,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 63;
+            stats_key.event_id = 95;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2686,7 +3966,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 64;
+            stats_key.event_id = 96;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2726,7 +4006,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 65;
+            stats_key.event_id = 97;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2766,7 +4046,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 66;
+            stats_key.event_id = 98;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2806,7 +4086,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 67;
+            stats_key.event_id = 99;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2846,7 +4126,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 68;
+            stats_key.event_id = 100;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2886,7 +4166,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 69;
+            stats_key.event_id = 101;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2926,7 +4206,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 70;
+            stats_key.event_id = 102;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -2966,7 +4246,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 71;
+            stats_key.event_id = 103;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3006,7 +4286,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 72;
+            stats_key.event_id = 104;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3046,7 +4326,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 73;
+            stats_key.event_id = 105;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3086,7 +4366,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 74;
+            stats_key.event_id = 106;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3126,7 +4406,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 75;
+            stats_key.event_id = 107;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3166,7 +4446,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 76;
+            stats_key.event_id = 108;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3206,7 +4486,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 77;
+            stats_key.event_id = 109;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3246,7 +4526,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 78;
+            stats_key.event_id = 110;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3286,7 +4566,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 79;
+            stats_key.event_id = 111;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3326,7 +4606,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 80;
+            stats_key.event_id = 112;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3366,7 +4646,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 81;
+            stats_key.event_id = 113;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3406,7 +4686,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 82;
+            stats_key.event_id = 114;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3446,7 +4726,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 83;
+            stats_key.event_id = 115;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3486,7 +4766,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 84;
+            stats_key.event_id = 116;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3526,7 +4806,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 85;
+            stats_key.event_id = 117;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3566,7 +4846,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 86;
+            stats_key.event_id = 118;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3606,7 +4886,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 87;
+            stats_key.event_id = 119;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3646,7 +4926,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 88;
+            stats_key.event_id = 120;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3686,7 +4966,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 89;
+            stats_key.event_id = 121;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3726,7 +5006,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 90;
+            stats_key.event_id = 122;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3766,7 +5046,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 91;
+            stats_key.event_id = 123;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3806,7 +5086,47 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 92;
+            stats_key.event_id = 124;
+            stats_key.id = id;
+            stats_key.ip = fn->ip;
+            
+            struct stats_t zero_stats = {};
+            struct stats_t *stats = fn_map.lookup_or_init(&stats_key, &zero_stats);
+            stats->time += bpf_ktime_get_ns() - fn->ts;
+            stats->freq++;
+            
+            return 0;
+        }
+        
+        int trace_c_aio_entry(struct pt_regs *ctx ) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            
+            fn_pid_map.update(&key, &fn);
+            return 0;
+        }
+
+        int trace_c_aio_exit(struct pt_regs *ctx) {
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0)                                      
+                return 0;
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+            struct stats_key_t stats_key = {};
+            stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
+            stats_key.event_id = 125;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3846,7 +5166,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 93;
+            stats_key.event_id = 126;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3886,7 +5206,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 94;
+            stats_key.event_id = 127;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3926,7 +5246,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 95;
+            stats_key.event_id = 128;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -3966,7 +5286,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 96;
+            stats_key.event_id = 129;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -4006,7 +5326,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 97;
+            stats_key.event_id = 130;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -4046,7 +5366,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 98;
+            stats_key.event_id = 131;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
@@ -4086,7 +5406,7 @@
             if (fn == 0) return 0; // missed entry
             struct stats_key_t stats_key = {};
             stats_key.trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key.event_id = 99;
+            stats_key.event_id = 132;
             stats_key.id = id;
             stats_key.ip = fn->ip;
             
