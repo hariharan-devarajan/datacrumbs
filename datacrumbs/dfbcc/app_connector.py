@@ -11,8 +11,14 @@ class BCCApplicationConnector:
         self.functions = """
         int trace_datacrumbs_start(struct pt_regs *ctx) {
             u64 id = bpf_get_current_pid_tgid();
-            u32 pid = id;
+            u32 pid = 0;
+            u64* start_ts = pid_map.lookup(&pid);
             u64 tsp = bpf_ktime_get_ns();
+            if (start_ts != 0)                                      
+                tsp = *start_ts;
+            else
+                pid_map.update(&pid, &tsp);
+            pid = id;
             bpf_trace_printk(\"Tracing PID \%d\",pid);
             pid_map.update(&pid, &tsp);
             return 0;
