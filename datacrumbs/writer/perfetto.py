@@ -35,6 +35,7 @@ class PerfettoWriter:
 
     def finalize(self):
         logging.info(f"Finalizing Writer")
+        self.trace_log.info("]")
         with open(self.config.profile_file, "rb") as f_in:
             with gzip.open(f"{self.config.profile_file}.gz", "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)

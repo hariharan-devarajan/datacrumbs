@@ -311,7 +311,7 @@ class BCCMain:
                     del event.args['file_hash']
         event.ts = int(c_event.ts // 1e3)
         event.ph = 'X'
-        event.dur = c_event.dur
+        event.dur = int(c_event.dur // 1e3)
         if function_probe.regex:
             event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
             if "unknown" in event.name:
@@ -329,7 +329,9 @@ class BCCMain:
         sleep_sec = self.config.interval_sec * 5
         self.last_processed_ts = -1
         wait_for = (30 / (sleep_sec) - 1)
-        self.no_event_count = 0        
+        self.no_event_count = 0     
+        
+        logging.info("Ready to run code")   
         try:
             while True:                
                 try:
