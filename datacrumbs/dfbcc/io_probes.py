@@ -173,32 +173,32 @@ class IOProbes:
                     BCCFunctions("mark_buffer_dirty"),
                     BCCFunctions("do_page_cache_ra"),
                     BCCFunctions("__page_cache_alloc"),
-                    # BCCFunctions("page", ".*page.*"),
-                    # BCCFunctions("lru", ".*lru.*"),
-                    # BCCFunctions("swap", ".*swap.*"),
-                    # BCCFunctions("buffer", ".*buffer.*"),
-                    # BCCFunctions("nr", ".*nr.*"),
+                    BCCFunctions("page", ".*page.*"),
+                    BCCFunctions("lru", ".*lru.*"),
+                    BCCFunctions("swap", ".*swap.*"),
+                    BCCFunctions("buffer", ".*buffer.*"),
+                    BCCFunctions("nr", ".*nr.*"),
                 ],
             )
         )
-        # # self.probes.append(
-        # #     BCCProbes(
-        # #         ProbeType.KERNEL,
-        # #         "map",
-        # #         [
-        # #             BCCFunctions("map", ".*map.*"),
-        # #         ],
-        # #     )
-        # # )
         # self.probes.append(
         #     BCCProbes(
         #         ProbeType.KERNEL,
-        #         "bio",
+        #         "map",
         #         [
-        #             BCCFunctions("bio", ".*bio.*"),
+        #             BCCFunctions("map", ".*map.*"),
         #         ],
         #     )
         # )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "bio",
+                [
+                    BCCFunctions("bio", ".*bio.*"),
+                ],
+            )
+        )
         # self.probes.append(
         #     BCCProbes(
         #         ProbeType.KERNEL,
@@ -208,102 +208,102 @@ class IOProbes:
         #         ],
         #     )
         # )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "ext4",
-        #         [BCCFunctions("ext4", ".*ext4_.*")],
-        #     )
-        # )
-        # # https://fossd.anu.edu.au/linux/v2.6.18-rc4/source/fs/read_write.c#L247
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "vfs",
-        #         [BCCFunctions("vfs", ".*vfs.*"), 
-        #          BCCFunctions("generic", ".*generic.*"), 
-        #          BCCFunctions("remote", ".*remote.*"), 
-        #          BCCFunctions("llseek", ".*llseek.*"), 
-        #          BCCFunctions("do_sync_read"), 
-        #          BCCFunctions("vfs_read"), 
-        #          BCCFunctions("do_sync_write"), 
-        #          BCCFunctions("vfs_write"), 
-        #          BCCFunctions("file", ".*file.*"), 
-        #          BCCFunctions("do_readv_writev"),
-        #          BCCFunctions("vfs_readv"),
-        #          BCCFunctions("vfs_writev"),
-        #          BCCFunctions("do_sendfile"),
-        #          BCCFunctions("rw_verify_area"),
-        #          BCCFunctions("wait_on_page_bit"),
-        #          BCCFunctions("find_or_create_page"),
-        #          BCCFunctions("find_get_pages"),
-        #          BCCFunctions("find_get_pages_contig"),
-        #          BCCFunctions("grab_cache_page_nowait"),
-        #          BCCFunctions("wake_up_page"),
-        #          BCCFunctions("do_readahead"),
-        #          BCCFunctions("read_cache_page"),
-        #          BCCFunctions("fdatawrite"), 
-        #          #BCCFunctions("filename", ".*filename.*"), 
-        #          #BCCFunctions("sync", ".*sync.*"), 
-        #          #BCCFunctions("eio", ".*eio.*"), 
-        #         ],
-        #     )
-        # )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.USER,
-        #         "c",
-        #         [
-        #             BCCFunctions("fopen"),
-        #             BCCFunctions("fopen64"),
-        #             BCCFunctions("fclose"),
-        #             BCCFunctions("fread"),
-        #             BCCFunctions("fwrite"),
-        #             BCCFunctions("ftell"),
-        #             BCCFunctions("fseek"),
-        #             BCCFunctions("open"),
-        #             BCCFunctions("open64"),
-        #             BCCFunctions("creat"),
-        #             BCCFunctions("creat64"),
-        #             BCCFunctions("close_range"),
-        #             BCCFunctions("closefrom"),
-        #             BCCFunctions("close"),
-        #             BCCFunctions("read"),
-        #             BCCFunctions("pread"),
-        #             BCCFunctions("pread64"),
-        #             BCCFunctions("write"),
-        #             BCCFunctions("pwrite"),
-        #             BCCFunctions("pwrite64"),
-        #             BCCFunctions("lseek"),
-        #             BCCFunctions("lseek64"),
-        #             BCCFunctions("fdopen"),
-        #             BCCFunctions("fileno"),
-        #             BCCFunctions("fileno_unlocked"),
-        #             BCCFunctions("mmap"),
-        #             BCCFunctions("mmap64"),
-        #             BCCFunctions("munmap"),
-        #             BCCFunctions("msync"),
-        #             BCCFunctions("mremap"),
-        #             BCCFunctions("madvise"),
-        #             BCCFunctions("shm_open"),
-        #             BCCFunctions("shm_unlink"),
-        #             BCCFunctions("memfd_create"),
-        #             BCCFunctions("fsync"),
-        #             BCCFunctions("fdatasync"),
-        #             BCCFunctions("fcntl"),
-        #             BCCFunctions("malloc"),
-        #             BCCFunctions("calloc"),
-        #             BCCFunctions("realloc"),
-        #             BCCFunctions("posix_memalign"),
-        #             BCCFunctions("valloc"),
-        #             BCCFunctions("memalign"),
-        #             BCCFunctions("pvalloc"),
-        #             BCCFunctions("aligned_alloc"),
-        #             BCCFunctions("free"),
-        #             BCCFunctions("aio", ".*aio.*"), 
-        #         ],
-        #     )
-        # )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "ext4",
+                [BCCFunctions("ext4", ".*ext4_.*")],
+            )
+        )
+        # https://fossd.anu.edu.au/linux/v2.6.18-rc4/source/fs/read_write.c#L247
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "vfs",
+                [BCCFunctions("vfs", ".*vfs.*"), 
+                 BCCFunctions("generic", ".*generic.*"), 
+                 BCCFunctions("remote", ".*remote.*"), 
+                 BCCFunctions("llseek", ".*llseek.*"), 
+                 BCCFunctions("do_sync_read"), 
+                 BCCFunctions("vfs_read"), 
+                 BCCFunctions("do_sync_write"), 
+                 BCCFunctions("vfs_write"), 
+                 BCCFunctions("file", ".*file.*"), 
+                 BCCFunctions("do_readv_writev"),
+                 BCCFunctions("vfs_readv"),
+                 BCCFunctions("vfs_writev"),
+                 BCCFunctions("do_sendfile"),
+                 BCCFunctions("rw_verify_area"),
+                 BCCFunctions("wait_on_page_bit"),
+                 BCCFunctions("find_or_create_page"),
+                 BCCFunctions("find_get_pages"),
+                 BCCFunctions("find_get_pages_contig"),
+                 BCCFunctions("grab_cache_page_nowait"),
+                 BCCFunctions("wake_up_page"),
+                 BCCFunctions("do_readahead"),
+                 BCCFunctions("read_cache_page"),
+                 BCCFunctions("fdatawrite"), 
+                 #BCCFunctions("filename", ".*filename.*"), 
+                 #BCCFunctions("sync", ".*sync.*"), 
+                 #BCCFunctions("eio", ".*eio.*"), 
+                ],
+            )
+        )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.USER,
+                "c",
+                [
+                    BCCFunctions("fopen"),
+                    BCCFunctions("fopen64"),
+                    BCCFunctions("fclose"),
+                    BCCFunctions("fread"),
+                    BCCFunctions("fwrite"),
+                    BCCFunctions("ftell"),
+                    BCCFunctions("fseek"),
+                    BCCFunctions("open"),
+                    BCCFunctions("open64"),
+                    BCCFunctions("creat"),
+                    BCCFunctions("creat64"),
+                    BCCFunctions("close_range"),
+                    BCCFunctions("closefrom"),
+                    BCCFunctions("close"),
+                    BCCFunctions("read"),
+                    BCCFunctions("pread"),
+                    BCCFunctions("pread64"),
+                    BCCFunctions("write"),
+                    BCCFunctions("pwrite"),
+                    BCCFunctions("pwrite64"),
+                    BCCFunctions("lseek"),
+                    BCCFunctions("lseek64"),
+                    BCCFunctions("fdopen"),
+                    BCCFunctions("fileno"),
+                    BCCFunctions("fileno_unlocked"),
+                    BCCFunctions("mmap"),
+                    BCCFunctions("mmap64"),
+                    BCCFunctions("munmap"),
+                    BCCFunctions("msync"),
+                    BCCFunctions("mremap"),
+                    BCCFunctions("madvise"),
+                    BCCFunctions("shm_open"),
+                    BCCFunctions("shm_unlink"),
+                    BCCFunctions("memfd_create"),
+                    BCCFunctions("fsync"),
+                    BCCFunctions("fdatasync"),
+                    BCCFunctions("fcntl"),
+                    BCCFunctions("malloc"),
+                    BCCFunctions("calloc"),
+                    BCCFunctions("realloc"),
+                    BCCFunctions("posix_memalign"),
+                    BCCFunctions("valloc"),
+                    BCCFunctions("memalign"),
+                    BCCFunctions("pvalloc"),
+                    BCCFunctions("aligned_alloc"),
+                    BCCFunctions("free"),
+                    BCCFunctions("aio", ".*aio.*"), 
+                ],
+            )
+        )
         # self.probes.append(
         #     BCCProbes(
         #         ProbeType.KERNEL,

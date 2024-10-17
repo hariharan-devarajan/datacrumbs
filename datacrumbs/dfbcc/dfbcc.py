@@ -319,7 +319,7 @@ class BCCMain:
         else:
             event.name = function_probe.name
         self.last_processed_ts = c_event.ts
-        logging.info(f"{self.last_processed_ts} timestamp processed")
+        logging.debug(f"{self.last_processed_ts} timestamp processed")
         self.writer.write(event)
         self.no_event_count = 0
         

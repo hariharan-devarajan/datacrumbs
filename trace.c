@@ -3865,6 +3865,5858 @@
         
         
         
+            struct os_cache_page_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_os_cache_page_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_os_cache_page_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct os_cache_page_event_t stats_key_v = {};
+            struct os_cache_page_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 48;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct os_cache_page_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_page_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct os_cache_lru_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_os_cache_lru_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_os_cache_lru_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct os_cache_lru_event_t stats_key_v = {};
+            struct os_cache_lru_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 49;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct os_cache_lru_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_lru_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct os_cache_swap_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_os_cache_swap_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_os_cache_swap_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct os_cache_swap_event_t stats_key_v = {};
+            struct os_cache_swap_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 50;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct os_cache_swap_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_swap_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct os_cache_buffer_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_os_cache_buffer_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_os_cache_buffer_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct os_cache_buffer_event_t stats_key_v = {};
+            struct os_cache_buffer_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 51;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct os_cache_buffer_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_buffer_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct os_cache_nr_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_os_cache_nr_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_os_cache_nr_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct os_cache_nr_event_t stats_key_v = {};
+            struct os_cache_nr_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 52;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct os_cache_nr_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_nr_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct bio_bio_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_bio_bio_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_bio_bio_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct bio_bio_event_t stats_key_v = {};
+            struct bio_bio_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 53;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct bio_bio_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct bio_bio_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct ext4_ext4_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_ext4_ext4_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_ext4_ext4_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct ext4_ext4_event_t stats_key_v = {};
+            struct ext4_ext4_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 54;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct ext4_ext4_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct ext4_ext4_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_vfs_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_vfs_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_vfs_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_vfs_event_t stats_key_v = {};
+            struct vfs_vfs_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 55;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_vfs_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_vfs_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_generic_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_generic_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_generic_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_generic_event_t stats_key_v = {};
+            struct vfs_generic_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 56;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_generic_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_generic_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_remote_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_remote_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_remote_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_remote_event_t stats_key_v = {};
+            struct vfs_remote_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 57;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_remote_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_remote_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_llseek_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_llseek_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_llseek_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_llseek_event_t stats_key_v = {};
+            struct vfs_llseek_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 58;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_llseek_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_llseek_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_do_sync_read_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_do_sync_read_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_do_sync_read_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_do_sync_read_event_t stats_key_v = {};
+            struct vfs_do_sync_read_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 59;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_do_sync_read_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_do_sync_read_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_vfs_read_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_vfs_read_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_vfs_read_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_vfs_read_event_t stats_key_v = {};
+            struct vfs_vfs_read_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 60;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_vfs_read_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_vfs_read_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_do_sync_write_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_do_sync_write_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_do_sync_write_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_do_sync_write_event_t stats_key_v = {};
+            struct vfs_do_sync_write_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 61;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_do_sync_write_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_do_sync_write_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_vfs_write_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_vfs_write_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_vfs_write_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_vfs_write_event_t stats_key_v = {};
+            struct vfs_vfs_write_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 62;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_vfs_write_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_vfs_write_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_file_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_file_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_file_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_file_event_t stats_key_v = {};
+            struct vfs_file_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 63;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_file_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_file_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_do_readv_writev_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_do_readv_writev_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_do_readv_writev_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_do_readv_writev_event_t stats_key_v = {};
+            struct vfs_do_readv_writev_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 64;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_do_readv_writev_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_do_readv_writev_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_vfs_readv_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_vfs_readv_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_vfs_readv_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_vfs_readv_event_t stats_key_v = {};
+            struct vfs_vfs_readv_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 65;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_vfs_readv_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_vfs_readv_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_vfs_writev_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_vfs_writev_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_vfs_writev_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_vfs_writev_event_t stats_key_v = {};
+            struct vfs_vfs_writev_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 66;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_vfs_writev_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_vfs_writev_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_do_sendfile_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_do_sendfile_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_do_sendfile_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_do_sendfile_event_t stats_key_v = {};
+            struct vfs_do_sendfile_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 67;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_do_sendfile_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_do_sendfile_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_rw_verify_area_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_rw_verify_area_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_rw_verify_area_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_rw_verify_area_event_t stats_key_v = {};
+            struct vfs_rw_verify_area_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 68;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_rw_verify_area_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_rw_verify_area_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_wait_on_page_bit_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_wait_on_page_bit_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_wait_on_page_bit_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_wait_on_page_bit_event_t stats_key_v = {};
+            struct vfs_wait_on_page_bit_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 69;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_wait_on_page_bit_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_wait_on_page_bit_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_find_or_create_page_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_find_or_create_page_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_find_or_create_page_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_find_or_create_page_event_t stats_key_v = {};
+            struct vfs_find_or_create_page_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 70;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_find_or_create_page_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_find_or_create_page_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_find_get_pages_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_find_get_pages_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_find_get_pages_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_find_get_pages_event_t stats_key_v = {};
+            struct vfs_find_get_pages_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 71;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_find_get_pages_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_find_get_pages_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_find_get_pages_contig_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_find_get_pages_contig_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_find_get_pages_contig_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_find_get_pages_contig_event_t stats_key_v = {};
+            struct vfs_find_get_pages_contig_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 72;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_find_get_pages_contig_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_find_get_pages_contig_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_grab_cache_page_nowait_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_grab_cache_page_nowait_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_grab_cache_page_nowait_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_grab_cache_page_nowait_event_t stats_key_v = {};
+            struct vfs_grab_cache_page_nowait_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 73;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_grab_cache_page_nowait_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_grab_cache_page_nowait_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_wake_up_page_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_wake_up_page_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_wake_up_page_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_wake_up_page_event_t stats_key_v = {};
+            struct vfs_wake_up_page_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 74;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_wake_up_page_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_wake_up_page_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_do_readahead_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_do_readahead_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_do_readahead_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_do_readahead_event_t stats_key_v = {};
+            struct vfs_do_readahead_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 75;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_do_readahead_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_do_readahead_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_read_cache_page_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_read_cache_page_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_read_cache_page_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_read_cache_page_event_t stats_key_v = {};
+            struct vfs_read_cache_page_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 76;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_read_cache_page_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_read_cache_page_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct vfs_fdatawrite_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_vfs_fdatawrite_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_vfs_fdatawrite_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct vfs_fdatawrite_event_t stats_key_v = {};
+            struct vfs_fdatawrite_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 77;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct vfs_fdatawrite_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct vfs_fdatawrite_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fopen_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fopen_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fopen_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fopen_event_t stats_key_v = {};
+            struct c_fopen_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 78;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fopen_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fopen_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fopen64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fopen64_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fopen64_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fopen64_event_t stats_key_v = {};
+            struct c_fopen64_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 79;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fopen64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fopen64_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fclose_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fclose_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fclose_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fclose_event_t stats_key_v = {};
+            struct c_fclose_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 80;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fclose_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fclose_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fread_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fread_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fread_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fread_event_t stats_key_v = {};
+            struct c_fread_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 81;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fread_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fread_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fwrite_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fwrite_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fwrite_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fwrite_event_t stats_key_v = {};
+            struct c_fwrite_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 82;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fwrite_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fwrite_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_ftell_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_ftell_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_ftell_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_ftell_event_t stats_key_v = {};
+            struct c_ftell_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 83;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_ftell_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_ftell_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fseek_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fseek_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fseek_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fseek_event_t stats_key_v = {};
+            struct c_fseek_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 84;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fseek_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fseek_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_open_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_open_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_open_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_open_event_t stats_key_v = {};
+            struct c_open_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 85;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_open_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_open_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_open64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_open64_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_open64_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_open64_event_t stats_key_v = {};
+            struct c_open64_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 86;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_open64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_open64_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_creat_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_creat_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_creat_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_creat_event_t stats_key_v = {};
+            struct c_creat_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 87;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_creat_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_creat_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_creat64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_creat64_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_creat64_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_creat64_event_t stats_key_v = {};
+            struct c_creat64_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 88;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_creat64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_creat64_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_close_range_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_close_range_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_close_range_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_close_range_event_t stats_key_v = {};
+            struct c_close_range_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 89;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_close_range_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_close_range_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_closefrom_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_closefrom_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_closefrom_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_closefrom_event_t stats_key_v = {};
+            struct c_closefrom_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 90;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_closefrom_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_closefrom_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_close_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_close_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_close_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_close_event_t stats_key_v = {};
+            struct c_close_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 91;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_close_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_close_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_read_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_read_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_read_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_read_event_t stats_key_v = {};
+            struct c_read_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 92;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_read_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_read_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_pread_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_pread_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_pread_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_pread_event_t stats_key_v = {};
+            struct c_pread_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 93;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_pread_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_pread_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_pread64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_pread64_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_pread64_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_pread64_event_t stats_key_v = {};
+            struct c_pread64_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 94;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_pread64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_pread64_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_write_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_write_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_write_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_write_event_t stats_key_v = {};
+            struct c_write_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 95;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_write_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_write_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_pwrite_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_pwrite_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_pwrite_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_pwrite_event_t stats_key_v = {};
+            struct c_pwrite_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 96;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_pwrite_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_pwrite_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_pwrite64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_pwrite64_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_pwrite64_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_pwrite64_event_t stats_key_v = {};
+            struct c_pwrite64_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 97;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_pwrite64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_pwrite64_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_lseek_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_lseek_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_lseek_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_lseek_event_t stats_key_v = {};
+            struct c_lseek_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 98;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_lseek_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_lseek_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_lseek64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_lseek64_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_lseek64_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_lseek64_event_t stats_key_v = {};
+            struct c_lseek64_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 99;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_lseek64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_lseek64_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fdopen_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fdopen_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fdopen_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fdopen_event_t stats_key_v = {};
+            struct c_fdopen_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 100;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fdopen_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fdopen_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fileno_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fileno_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fileno_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fileno_event_t stats_key_v = {};
+            struct c_fileno_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 101;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fileno_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fileno_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fileno_unlocked_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fileno_unlocked_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fileno_unlocked_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fileno_unlocked_event_t stats_key_v = {};
+            struct c_fileno_unlocked_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 102;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fileno_unlocked_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fileno_unlocked_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_mmap_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_mmap_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_mmap_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_mmap_event_t stats_key_v = {};
+            struct c_mmap_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 103;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_mmap_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_mmap_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_mmap64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_mmap64_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_mmap64_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_mmap64_event_t stats_key_v = {};
+            struct c_mmap64_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 104;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_mmap64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_mmap64_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_munmap_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_munmap_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_munmap_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_munmap_event_t stats_key_v = {};
+            struct c_munmap_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 105;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_munmap_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_munmap_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_msync_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_msync_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_msync_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_msync_event_t stats_key_v = {};
+            struct c_msync_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 106;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_msync_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_msync_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_mremap_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_mremap_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_mremap_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_mremap_event_t stats_key_v = {};
+            struct c_mremap_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 107;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_mremap_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_mremap_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_madvise_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_madvise_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_madvise_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_madvise_event_t stats_key_v = {};
+            struct c_madvise_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 108;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_madvise_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_madvise_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_shm_open_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_shm_open_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_shm_open_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_shm_open_event_t stats_key_v = {};
+            struct c_shm_open_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 109;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_shm_open_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_shm_open_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_shm_unlink_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_shm_unlink_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_shm_unlink_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_shm_unlink_event_t stats_key_v = {};
+            struct c_shm_unlink_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 110;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_shm_unlink_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_shm_unlink_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_memfd_create_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_memfd_create_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_memfd_create_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_memfd_create_event_t stats_key_v = {};
+            struct c_memfd_create_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 111;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_memfd_create_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_memfd_create_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fsync_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fsync_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fsync_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fsync_event_t stats_key_v = {};
+            struct c_fsync_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 112;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fsync_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fsync_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fdatasync_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fdatasync_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fdatasync_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fdatasync_event_t stats_key_v = {};
+            struct c_fdatasync_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 113;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fdatasync_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fdatasync_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_fcntl_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_fcntl_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_fcntl_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_fcntl_event_t stats_key_v = {};
+            struct c_fcntl_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 114;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_fcntl_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_fcntl_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_malloc_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_malloc_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_malloc_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_malloc_event_t stats_key_v = {};
+            struct c_malloc_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 115;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_malloc_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_malloc_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_calloc_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_calloc_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_calloc_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_calloc_event_t stats_key_v = {};
+            struct c_calloc_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 116;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_calloc_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_calloc_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_realloc_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_realloc_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_realloc_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_realloc_event_t stats_key_v = {};
+            struct c_realloc_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 117;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_realloc_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_realloc_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_posix_memalign_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_posix_memalign_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_posix_memalign_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_posix_memalign_event_t stats_key_v = {};
+            struct c_posix_memalign_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 118;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_posix_memalign_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_posix_memalign_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_valloc_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_valloc_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_valloc_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_valloc_event_t stats_key_v = {};
+            struct c_valloc_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 119;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_valloc_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_valloc_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_memalign_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_memalign_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_memalign_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_memalign_event_t stats_key_v = {};
+            struct c_memalign_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 120;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_memalign_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_memalign_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_pvalloc_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_pvalloc_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_pvalloc_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_pvalloc_event_t stats_key_v = {};
+            struct c_pvalloc_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 121;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_pvalloc_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_pvalloc_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_aligned_alloc_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_aligned_alloc_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_aligned_alloc_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_aligned_alloc_event_t stats_key_v = {};
+            struct c_aligned_alloc_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 122;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_aligned_alloc_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_aligned_alloc_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_free_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_free_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_free_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_free_event_t stats_key_v = {};
+            struct c_free_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 123;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_free_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_free_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
+            struct c_aio_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
+        
+        
+        int trace_c_aio_entry(struct pt_regs *ctx ) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t fn = {};
+            fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
+            fn_pid_map.update(&key, &fn);
+        
+            
+            
+            
+            return 0;
+        }
+
+        int trace_c_aio_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+        
+            
+            
+            struct fn_key_t key = {};
+            key.pid = pid;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+        
+            
+            
+            struct c_aio_event_t stats_key_v = {};
+            struct c_aio_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 124;
+            stats_key->ip = fn->ip;
+        
+            
+            
+            
+                        
+            struct c_aio_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+        
+            
+            
+            
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct c_aio_event_t), 0);
+        
+            return 0;
+        }
+        
+        
+        
             struct app__Z10gen_randomB5cxx11i_event_t {                                                       
             u64 id;
             u64 event_id;
@@ -3919,7 +9771,7 @@
             struct app__Z10gen_randomB5cxx11i_event_t stats_key_v = {};
             struct app__Z10gen_randomB5cxx11i_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
-            stats_key->event_id = 48;
+            stats_key->event_id = 125;
             stats_key->ip = fn->ip;
         
             
@@ -3995,7 +9847,7 @@
             struct app__fini_event_t stats_key_v = {};
             struct app__fini_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
-            stats_key->event_id = 49;
+            stats_key->event_id = 126;
             stats_key->ip = fn->ip;
         
             
@@ -4071,7 +9923,7 @@
             struct app__init_event_t stats_key_v = {};
             struct app__init_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
-            stats_key->event_id = 50;
+            stats_key->event_id = 127;
             stats_key->ip = fn->ip;
         
             
@@ -4147,7 +9999,7 @@
             struct app__start_event_t stats_key_v = {};
             struct app__start_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
-            stats_key->event_id = 51;
+            stats_key->event_id = 128;
             stats_key->ip = fn->ip;
         
             
@@ -4223,7 +10075,7 @@
             struct app_main_event_t stats_key_v = {};
             struct app_main_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
-            stats_key->event_id = 52;
+            stats_key->event_id = 129;
             stats_key->ip = fn->ip;
         
             

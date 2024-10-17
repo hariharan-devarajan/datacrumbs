@@ -39,7 +39,7 @@ class ConfigurationManager:
         except OSError:
             pass
         logging.basicConfig(
-            level=logging.DEBUG,
+            level=logging.INFO,
             handlers=[
                 logging.FileHandler(log_file, mode="a", encoding="utf-8"),
                 logging.StreamHandler(),
