@@ -4,7 +4,7 @@ import ctypes
 from typing import *
 import threading
 import psutil
-
+import math
 # External Imports
 from bcc import BPF
 from bcc.utils import printb
