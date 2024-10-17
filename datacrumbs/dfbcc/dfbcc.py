@@ -264,7 +264,7 @@ class BCCMain:
                         event.name = function_probe.name
                     event.ts = int(k.trange * self.config.interval_sec * 1e6)
                     event.ph = 'C'
-                    event.dur = 0
+                    event.dur = -1
                     event.args = {}
                     event.args["fname"] = (
                         self.filename_map[k.file_hash]
@@ -311,7 +311,7 @@ class BCCMain:
                     del event.args['file_hash']
         event.ts = int(c_event.ts // 1e3)
         event.ph = 'X'
-        event.dur = int(c_event.dur // 1e3)
+        event.dur = math.ceil(c_event.dur // 1e3)
         if function_probe.regex:
             event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
             if "unknown" in event.name:

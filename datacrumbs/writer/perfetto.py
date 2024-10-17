@@ -53,7 +53,7 @@ class PerfettoWriter:
             "ph": event.ph,
             "ts": event.ts,  # Convert to us
         }
-        if event.dur and event.dur > 0:
+        if event.dur and event.dur >= 0:
             obj["dur"] = event.dur
         obj["args"] = {}
         obj["args"]["hhash"] = self.host_hash
