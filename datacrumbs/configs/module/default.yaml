@@ -1,6 +1,7 @@
 name: default
 install_dir: build
-file: profile.pfw
+mode: trace
+file: trace.pfw
 user:
   - name: app
     link: /home/cc/datacrumbs/build/tests/df_tracer_test
@@ -10,4 +11,7 @@ user:
     regex: ^PMPI.*
 
 profile:
-  interval_sec: 1 
+  interval_sec: 1
+
+trace:
+  args: 1

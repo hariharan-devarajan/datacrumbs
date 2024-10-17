@@ -9,6 +9,7 @@ from omegaconf import DictConfig
 
 # Internal Imports
 from datacrumbs.common.utils import convert_or_fail
+from datacrumbs.common.enumerations import Mode
 
 
 class ConfigurationManager:
@@ -21,6 +22,7 @@ class ConfigurationManager:
     module: str
     install_dir: str
     profile_file: str
+    mode: Mode = Mode.PROFILE
 
     @staticmethod
     def get_instance():
@@ -55,6 +57,9 @@ class ConfigurationManager:
                 self.install_dir = os.path.join(self.project_root, self.install_dir)
         if "file" in config:
             self.profile_file = config["file"]
+        if "mode" in config:
+            self.mode = Mode.get_enum(config["mode"])
+            logging.debug(f'yaml mode {config["mode"]} set conf value {self.mode}')
         if "user" in config:
             for obj in config["user"]:
                 self.user_libraries[obj["name"]] = obj

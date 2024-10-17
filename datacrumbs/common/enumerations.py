@@ -8,3 +8,18 @@ class ProbeType(Enum):
 
     def __str__(self):
         return self.value
+
+class Mode(Enum):
+    PROFILE = 'profile'
+    TRACE = 'trace'
+
+    def __str__(self):
+        return self.value
+
+    @staticmethod
+    def get_enum(value):
+        if Mode.PROFILE.value == value:
+            return Mode.PROFILE
+        elif Mode.TRACE.value == value:
+            return Mode.TRACE
+        return None

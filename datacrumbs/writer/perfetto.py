@@ -5,12 +5,13 @@ import gzip
 import shutil
 import socket
 from datacrumbs.common.data_structure import DFEvent
+from datacrumbs.common.utils import *
 from datacrumbs.configs.configuration_manager import ConfigurationManager
-
+import hashlib
 
 class PerfettoWriter:
     config: ConfigurationManager
-
+    host_hash: int
     def __init__(self) -> None:
         self.config = ConfigurationManager.get_instance()
         try:
@@ -21,6 +22,8 @@ class PerfettoWriter:
             os.remove(f"{self.config.profile_file}.gz")
         except OSError:
             pass
+        host = socket.gethostname()
+        self.host_hash = get_hash(host)
         self.trace_log = logging.getLogger("datacrumbs.trace")
         self.trace_log.setLevel(logging.INFO)
         trace_file_handler = logging.FileHandler(self.config.profile_file)
@@ -28,6 +31,7 @@ class PerfettoWriter:
         trace_file_handler.setFormatter(logging.Formatter("%(message)s"))
         self.trace_log.addHandler(trace_file_handler)
         self.trace_log.info("[")
+        self.write_process_independent_metadata("HH", host, self.host_hash)
 
     def finalize(self):
         logging.info(f"Finalizing Writer")
@@ -45,10 +49,39 @@ class PerfettoWriter:
             "tid": event.tid,
             "name": event.name,
             "cat": event.cat,
-            "ph": "C",
-            "ts": int(event.ts * self.config.interval_sec * 1e6),  # Convert to us
-            "args": {"hostname": socket.gethostname()},
+            "ph": event.ph,
+            "ts": event.ts,  # Convert to us
         }
+        if event.dur and event.dur > 0:
+            obj["dur"] = event.dur
+        obj["args"] = {}
+        obj["args"]["hhash"] = self.host_hash
         for key, value in event.args.items():
             obj["args"][key] = value
+        self.trace_log.info(json.dumps(obj))
+    
+    def write_process_independent_metadata(self, metadata_name, name, value):
+        obj = {
+            "name": metadata_name,
+            "cat": "dftracer",
+            "ph": "M",
+            "args": {
+                "name": name,
+                "value": value
+            },            
+        }
+        self.trace_log.info(json.dumps(obj))
+    
+    def write_metadata_event(self, pid, tid, metadata_name, name, value):
+        obj = {
+            "pid": pid,
+            "tid": tid,
+            "name": metadata_name,
+            "cat": "dftracer",
+            "ph": "M",
+            "args": {
+                "name": name,
+                "value": value
+            },            
+        }
         self.trace_log.info(json.dumps(obj))

@@ -18,23 +18,6 @@
             char fname[256];
         };
         
-        struct stats_key_t {
-            u64 trange;
-            u64 id;
-            u64 event_id;
-            u64 ip;
-            u64 file_hash;
-        };
-        struct stats_t {
-            u64 time;
-            s64 freq;
-            
-        
-            
-            u64 size_sum;
-        
-        };
-        
         BPF_HASH(pid_map, u32, u64); // map for apps to collect data
         BPF_HASH(fn_pid_map, struct fn_key_t, struct fn_t); // collect start time and ip for apps
         BPF_HASH(file_hash, u32, struct filename_t);
@@ -43,7 +26,7 @@
         BPF_HASH(fd_hash, struct file_t, u32);
         BPF_HASH(pid_hash, u64, u64);
         
-        BPF_HASH(fn_map, struct stats_key_t, struct stats_t, 2 << 16); // emit events to python
+        BPF_RINGBUF_OUTPUT(events, 1 << 16); // emit events to python
         
         static u64 get_hash(u64 id) {
             u64 first_hash = 1;
@@ -75,6 +58,16 @@
         }
         
         
+        
+            struct sys_openat_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            u64 file_hash;
+            
+        };
         
         
         int syscall__trace_entry_openat(struct pt_regs *ctx , int dfd, const char *filename, int flags) {
@@ -125,11 +118,10 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 1;
+            struct sys_openat_event_t stats_key_v = {};
+            struct sys_openat_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 1;
             stats_key->ip = fn->ip;
         
             
@@ -140,11 +132,10 @@
                         }
                         
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_openat_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
@@ -157,7 +148,9 @@
                         }
                         
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_openat_event_t), 0);
+                    
             
             
         
@@ -166,6 +159,16 @@
         }
         
         
+        
+            struct sys_read_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            u64 file_hash;
+            u64 size_sum;
+        };
         
         
         int syscall__trace_entry_read(struct pt_regs *ctx 
@@ -212,11 +215,10 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 2;
+            struct sys_read_event_t stats_key_v = {};
+            struct sys_read_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 2;
             stats_key->ip = fn->ip;
         
             
@@ -233,18 +235,19 @@
                         }
                         
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_read_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_read_event_t), 0);
+                    
             
             
         
@@ -253,6 +256,16 @@
         }
         
         
+        
+            struct sys_write_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            u64 file_hash;
+            u64 size_sum;
+        };
         
         
         int syscall__trace_entry_write(struct pt_regs *ctx 
@@ -299,11 +312,10 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 3;
+            struct sys_write_event_t stats_key_v = {};
+            struct sys_write_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 3;
             stats_key->ip = fn->ip;
         
             
@@ -320,18 +332,19 @@
                         }
                         
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_write_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_write_event_t), 0);
+                    
             
             
         
@@ -340,6 +353,16 @@
         }
         
         
+        
+            struct sys_close_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            u64 file_hash;
+            
+        };
         
         
         int syscall__trace_entry_close(struct pt_regs *ctx 
@@ -386,11 +409,10 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 4;
+            struct sys_close_event_t stats_key_v = {};
+            struct sys_close_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 4;
             stats_key->ip = fn->ip;
         
             
@@ -407,16 +429,17 @@
                         }
                         
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_close_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_close_event_t), 0);
+                    
             
             
         
@@ -425,6 +448,16 @@
         }
         
         
+        
+            struct sys_copy_file_range_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_copy_file_range(struct pt_regs *ctx ) {
@@ -467,26 +500,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 5;
+            struct sys_copy_file_range_event_t stats_key_v = {};
+            struct sys_copy_file_range_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 5;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_copy_file_range_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_copy_file_range_event_t), 0);
+                    
             
             
         
@@ -495,6 +528,16 @@
         }
         
         
+        
+            struct sys_execve_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_execve(struct pt_regs *ctx ) {
@@ -537,26 +580,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 6;
+            struct sys_execve_event_t stats_key_v = {};
+            struct sys_execve_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 6;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_execve_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_execve_event_t), 0);
+                    
             
             
         
@@ -565,6 +608,16 @@
         }
         
         
+        
+            struct sys_execveat_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_execveat(struct pt_regs *ctx ) {
@@ -607,26 +660,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 7;
+            struct sys_execveat_event_t stats_key_v = {};
+            struct sys_execveat_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 7;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_execveat_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_execveat_event_t), 0);
+                    
             
             
         
@@ -635,6 +688,16 @@
         }
         
         
+        
+            struct sys_exit_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_exit(struct pt_regs *ctx ) {
@@ -677,26 +740,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 8;
+            struct sys_exit_event_t stats_key_v = {};
+            struct sys_exit_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 8;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_exit_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_exit_event_t), 0);
+                    
             
             
         
@@ -705,6 +768,16 @@
         }
         
         
+        
+            struct sys_faccessat_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_faccessat(struct pt_regs *ctx ) {
@@ -747,26 +820,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 9;
+            struct sys_faccessat_event_t stats_key_v = {};
+            struct sys_faccessat_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 9;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_faccessat_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_faccessat_event_t), 0);
+                    
             
             
         
@@ -775,6 +848,16 @@
         }
         
         
+        
+            struct sys_fcntl_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_fcntl(struct pt_regs *ctx ) {
@@ -817,26 +900,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 10;
+            struct sys_fcntl_event_t stats_key_v = {};
+            struct sys_fcntl_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 10;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_fcntl_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_fcntl_event_t), 0);
+                    
             
             
         
@@ -845,6 +928,16 @@
         }
         
         
+        
+            struct sys_fallocate_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_fallocate(struct pt_regs *ctx ) {
@@ -887,26 +980,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 11;
+            struct sys_fallocate_event_t stats_key_v = {};
+            struct sys_fallocate_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 11;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_fallocate_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_fallocate_event_t), 0);
+                    
             
             
         
@@ -915,6 +1008,16 @@
         }
         
         
+        
+            struct sys_fdatasync_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_fdatasync(struct pt_regs *ctx ) {
@@ -957,26 +1060,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 12;
+            struct sys_fdatasync_event_t stats_key_v = {};
+            struct sys_fdatasync_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 12;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_fdatasync_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_fdatasync_event_t), 0);
+                    
             
             
         
@@ -985,6 +1088,16 @@
         }
         
         
+        
+            struct sys_flock_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_flock(struct pt_regs *ctx ) {
@@ -1027,26 +1140,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 13;
+            struct sys_flock_event_t stats_key_v = {};
+            struct sys_flock_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 13;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_flock_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_flock_event_t), 0);
+                    
             
             
         
@@ -1055,6 +1168,16 @@
         }
         
         
+        
+            struct sys_fsopen_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_fsopen(struct pt_regs *ctx ) {
@@ -1097,26 +1220,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 14;
+            struct sys_fsopen_event_t stats_key_v = {};
+            struct sys_fsopen_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 14;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_fsopen_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_fsopen_event_t), 0);
+                    
             
             
         
@@ -1125,6 +1248,16 @@
         }
         
         
+        
+            struct sys_fstatfs_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_fstatfs(struct pt_regs *ctx ) {
@@ -1167,26 +1300,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 15;
+            struct sys_fstatfs_event_t stats_key_v = {};
+            struct sys_fstatfs_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 15;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_fstatfs_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_fstatfs_event_t), 0);
+                    
             
             
         
@@ -1195,6 +1328,16 @@
         }
         
         
+        
+            struct sys_fsync_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_fsync(struct pt_regs *ctx ) {
@@ -1237,26 +1380,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 16;
+            struct sys_fsync_event_t stats_key_v = {};
+            struct sys_fsync_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 16;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_fsync_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_fsync_event_t), 0);
+                    
             
             
         
@@ -1265,6 +1408,16 @@
         }
         
         
+        
+            struct sys_ftruncate_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_ftruncate(struct pt_regs *ctx ) {
@@ -1307,26 +1460,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 17;
+            struct sys_ftruncate_event_t stats_key_v = {};
+            struct sys_ftruncate_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 17;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_ftruncate_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_ftruncate_event_t), 0);
+                    
             
             
         
@@ -1335,6 +1488,16 @@
         }
         
         
+        
+            struct sys_io_pgetevents_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_io_pgetevents(struct pt_regs *ctx ) {
@@ -1377,26 +1540,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 18;
+            struct sys_io_pgetevents_event_t stats_key_v = {};
+            struct sys_io_pgetevents_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 18;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_io_pgetevents_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_io_pgetevents_event_t), 0);
+                    
             
             
         
@@ -1405,6 +1568,16 @@
         }
         
         
+        
+            struct sys_lseek_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_lseek(struct pt_regs *ctx ) {
@@ -1447,26 +1620,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 19;
+            struct sys_lseek_event_t stats_key_v = {};
+            struct sys_lseek_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 19;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_lseek_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_lseek_event_t), 0);
+                    
             
             
         
@@ -1475,6 +1648,16 @@
         }
         
         
+        
+            struct sys_memfd_create_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_memfd_create(struct pt_regs *ctx ) {
@@ -1517,26 +1700,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 20;
+            struct sys_memfd_create_event_t stats_key_v = {};
+            struct sys_memfd_create_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 20;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_memfd_create_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_memfd_create_event_t), 0);
+                    
             
             
         
@@ -1545,6 +1728,16 @@
         }
         
         
+        
+            struct sys_migrate_pages_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_migrate_pages(struct pt_regs *ctx ) {
@@ -1587,26 +1780,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 21;
+            struct sys_migrate_pages_event_t stats_key_v = {};
+            struct sys_migrate_pages_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 21;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_migrate_pages_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_migrate_pages_event_t), 0);
+                    
             
             
         
@@ -1615,6 +1808,16 @@
         }
         
         
+        
+            struct sys_mlock_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_mlock(struct pt_regs *ctx ) {
@@ -1657,26 +1860,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 22;
+            struct sys_mlock_event_t stats_key_v = {};
+            struct sys_mlock_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 22;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_mlock_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_mlock_event_t), 0);
+                    
             
             
         
@@ -1685,6 +1888,16 @@
         }
         
         
+        
+            struct sys_mmap_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_mmap(struct pt_regs *ctx ) {
@@ -1727,26 +1940,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 23;
+            struct sys_mmap_event_t stats_key_v = {};
+            struct sys_mmap_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 23;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_mmap_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_mmap_event_t), 0);
+                    
             
             
         
@@ -1755,6 +1968,16 @@
         }
         
         
+        
+            struct sys_msync_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_msync(struct pt_regs *ctx ) {
@@ -1797,26 +2020,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 24;
+            struct sys_msync_event_t stats_key_v = {};
+            struct sys_msync_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 24;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_msync_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_msync_event_t), 0);
+                    
             
             
         
@@ -1825,6 +2048,16 @@
         }
         
         
+        
+            struct sys_pread64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_pread64(struct pt_regs *ctx ) {
@@ -1867,26 +2100,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 25;
+            struct sys_pread64_event_t stats_key_v = {};
+            struct sys_pread64_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 25;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_pread64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_pread64_event_t), 0);
+                    
             
             
         
@@ -1895,6 +2128,16 @@
         }
         
         
+        
+            struct sys_preadv_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_preadv(struct pt_regs *ctx ) {
@@ -1937,26 +2180,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 26;
+            struct sys_preadv_event_t stats_key_v = {};
+            struct sys_preadv_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 26;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_preadv_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_preadv_event_t), 0);
+                    
             
             
         
@@ -1965,6 +2208,16 @@
         }
         
         
+        
+            struct sys_preadv2_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_preadv2(struct pt_regs *ctx ) {
@@ -2007,26 +2260,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 27;
+            struct sys_preadv2_event_t stats_key_v = {};
+            struct sys_preadv2_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 27;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_preadv2_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_preadv2_event_t), 0);
+                    
             
             
         
@@ -2035,6 +2288,16 @@
         }
         
         
+        
+            struct sys_pwrite64_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_pwrite64(struct pt_regs *ctx ) {
@@ -2077,26 +2340,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 28;
+            struct sys_pwrite64_event_t stats_key_v = {};
+            struct sys_pwrite64_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 28;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_pwrite64_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_pwrite64_event_t), 0);
+                    
             
             
         
@@ -2105,6 +2368,16 @@
         }
         
         
+        
+            struct sys_pwritev_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_pwritev(struct pt_regs *ctx ) {
@@ -2147,26 +2420,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 29;
+            struct sys_pwritev_event_t stats_key_v = {};
+            struct sys_pwritev_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 29;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_pwritev_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_pwritev_event_t), 0);
+                    
             
             
         
@@ -2175,6 +2448,16 @@
         }
         
         
+        
+            struct sys_pwritev2_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_pwritev2(struct pt_regs *ctx ) {
@@ -2217,26 +2500,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 30;
+            struct sys_pwritev2_event_t stats_key_v = {};
+            struct sys_pwritev2_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 30;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_pwritev2_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_pwritev2_event_t), 0);
+                    
             
             
         
@@ -2245,6 +2528,16 @@
         }
         
         
+        
+            struct sys_readahead_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_readahead(struct pt_regs *ctx ) {
@@ -2287,26 +2580,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 31;
+            struct sys_readahead_event_t stats_key_v = {};
+            struct sys_readahead_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 31;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_readahead_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_readahead_event_t), 0);
+                    
             
             
         
@@ -2315,6 +2608,16 @@
         }
         
         
+        
+            struct sys_readlinkat_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_readlinkat(struct pt_regs *ctx ) {
@@ -2357,26 +2660,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 32;
+            struct sys_readlinkat_event_t stats_key_v = {};
+            struct sys_readlinkat_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 32;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_readlinkat_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_readlinkat_event_t), 0);
+                    
             
             
         
@@ -2385,6 +2688,16 @@
         }
         
         
+        
+            struct sys_readv_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_readv(struct pt_regs *ctx ) {
@@ -2427,26 +2740,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 33;
+            struct sys_readv_event_t stats_key_v = {};
+            struct sys_readv_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 33;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_readv_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_readv_event_t), 0);
+                    
             
             
         
@@ -2455,6 +2768,16 @@
         }
         
         
+        
+            struct sys_renameat_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_renameat(struct pt_regs *ctx ) {
@@ -2497,26 +2820,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 34;
+            struct sys_renameat_event_t stats_key_v = {};
+            struct sys_renameat_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 34;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_renameat_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_renameat_event_t), 0);
+                    
             
             
         
@@ -2525,6 +2848,16 @@
         }
         
         
+        
+            struct sys_renameat2_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_renameat2(struct pt_regs *ctx ) {
@@ -2567,26 +2900,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 35;
+            struct sys_renameat2_event_t stats_key_v = {};
+            struct sys_renameat2_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 35;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_renameat2_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_renameat2_event_t), 0);
+                    
             
             
         
@@ -2595,6 +2928,16 @@
         }
         
         
+        
+            struct sys_statfs_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_statfs(struct pt_regs *ctx ) {
@@ -2637,26 +2980,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 36;
+            struct sys_statfs_event_t stats_key_v = {};
+            struct sys_statfs_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 36;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_statfs_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_statfs_event_t), 0);
+                    
             
             
         
@@ -2665,6 +3008,16 @@
         }
         
         
+        
+            struct sys_statx_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_statx(struct pt_regs *ctx ) {
@@ -2707,26 +3060,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 37;
+            struct sys_statx_event_t stats_key_v = {};
+            struct sys_statx_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 37;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_statx_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_statx_event_t), 0);
+                    
             
             
         
@@ -2735,6 +3088,16 @@
         }
         
         
+        
+            struct sys_sync_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_sync(struct pt_regs *ctx ) {
@@ -2777,26 +3140,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 38;
+            struct sys_sync_event_t stats_key_v = {};
+            struct sys_sync_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 38;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_sync_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_sync_event_t), 0);
+                    
             
             
         
@@ -2805,6 +3168,16 @@
         }
         
         
+        
+            struct sys_sync_file_range_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_sync_file_range(struct pt_regs *ctx ) {
@@ -2847,26 +3220,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 39;
+            struct sys_sync_file_range_event_t stats_key_v = {};
+            struct sys_sync_file_range_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 39;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_sync_file_range_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_sync_file_range_event_t), 0);
+                    
             
             
         
@@ -2875,6 +3248,16 @@
         }
         
         
+        
+            struct sys_syncfs_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_syncfs(struct pt_regs *ctx ) {
@@ -2917,26 +3300,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 40;
+            struct sys_syncfs_event_t stats_key_v = {};
+            struct sys_syncfs_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 40;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_syncfs_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_syncfs_event_t), 0);
+                    
             
             
         
@@ -2945,6 +3328,16 @@
         }
         
         
+        
+            struct sys_writev_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int syscall__trace_entry_writev(struct pt_regs *ctx ) {
@@ -2987,26 +3380,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 41;
+            struct sys_writev_event_t stats_key_v = {};
+            struct sys_writev_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 41;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct sys_writev_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
-                        
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct sys_writev_event_t), 0);
+                    
             
             
         
@@ -3015,6 +3408,16 @@
         }
         
         
+        
+            struct os_cache_add_to_page_cache_lru_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_os_cache_add_to_page_cache_lru_entry(struct pt_regs *ctx ) {
@@ -3057,30 +3460,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 42;
+            struct os_cache_add_to_page_cache_lru_event_t stats_key_v = {};
+            struct os_cache_add_to_page_cache_lru_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 42;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct os_cache_add_to_page_cache_lru_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_add_to_page_cache_lru_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct os_cache_mark_page_accessed_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_os_cache_mark_page_accessed_entry(struct pt_regs *ctx ) {
@@ -3123,30 +3536,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 43;
+            struct os_cache_mark_page_accessed_event_t stats_key_v = {};
+            struct os_cache_mark_page_accessed_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 43;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct os_cache_mark_page_accessed_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_mark_page_accessed_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct os_cache_account_page_dirtied_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_os_cache_account_page_dirtied_entry(struct pt_regs *ctx ) {
@@ -3189,30 +3612,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 44;
+            struct os_cache_account_page_dirtied_event_t stats_key_v = {};
+            struct os_cache_account_page_dirtied_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 44;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct os_cache_account_page_dirtied_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_account_page_dirtied_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct os_cache_mark_buffer_dirty_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_os_cache_mark_buffer_dirty_entry(struct pt_regs *ctx ) {
@@ -3255,30 +3688,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 45;
+            struct os_cache_mark_buffer_dirty_event_t stats_key_v = {};
+            struct os_cache_mark_buffer_dirty_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 45;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct os_cache_mark_buffer_dirty_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_mark_buffer_dirty_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct os_cache_do_page_cache_ra_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_os_cache_do_page_cache_ra_entry(struct pt_regs *ctx ) {
@@ -3321,30 +3764,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 46;
+            struct os_cache_do_page_cache_ra_event_t stats_key_v = {};
+            struct os_cache_do_page_cache_ra_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 46;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct os_cache_do_page_cache_ra_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache_do_page_cache_ra_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct os_cache___page_cache_alloc_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_os_cache___page_cache_alloc_entry(struct pt_regs *ctx ) {
@@ -3387,30 +3840,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 47;
+            struct os_cache___page_cache_alloc_event_t stats_key_v = {};
+            struct os_cache___page_cache_alloc_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 47;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct os_cache___page_cache_alloc_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct os_cache___page_cache_alloc_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct app__Z10gen_randomB5cxx11i_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_app__Z10gen_randomB5cxx11i_entry(struct pt_regs *ctx ) {
@@ -3453,30 +3916,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 48;
+            struct app__Z10gen_randomB5cxx11i_event_t stats_key_v = {};
+            struct app__Z10gen_randomB5cxx11i_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 48;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct app__Z10gen_randomB5cxx11i_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct app__Z10gen_randomB5cxx11i_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct app__fini_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_app__fini_entry(struct pt_regs *ctx ) {
@@ -3519,30 +3992,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 49;
+            struct app__fini_event_t stats_key_v = {};
+            struct app__fini_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 49;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct app__fini_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct app__fini_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct app__init_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_app__init_entry(struct pt_regs *ctx ) {
@@ -3585,30 +4068,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 50;
+            struct app__init_event_t stats_key_v = {};
+            struct app__init_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 50;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct app__init_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct app__init_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct app__start_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_app__start_entry(struct pt_regs *ctx ) {
@@ -3651,30 +4144,40 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 51;
+            struct app__start_event_t stats_key_v = {};
+            struct app__start_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 51;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct app__start_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct app__start_event_t), 0);
+        
             return 0;
         }
         
         
+        
+            struct app_main_event_t {                                                       
+            u64 id;
+            u64 event_id;
+            u64 ip;
+            u64 ts;                                                                   
+            u64 dur;
+            
+            
+        };
         
         
         int trace_app_main_entry(struct pt_regs *ctx ) {
@@ -3717,26 +4220,26 @@
         
             
             
-            struct stats_key_t stats_key_v = {};
-            struct stats_key_t *stats_key = &stats_key_v;
-            stats_key->trange = (fn->ts  - *start_ts) / 1000000000;
-            stats_key->event_id = 52;
+            struct app_main_event_t stats_key_v = {};
+            struct app_main_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
+            stats_key->event_id = 52;
             stats_key->ip = fn->ip;
         
             
             
             
-            
-            struct stats_t zero_stats = {};
-            struct stats_t *stats = fn_map.lookup_or_init(stats_key, &zero_stats);
-            stats->time += bpf_ktime_get_ns() - fn->ts;
-            stats->freq++;
+                        
+            struct app_main_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
             
             
             
+            events.ringbuf_output(&stats_key_v, sizeof(struct app_main_event_t), 0);
+        
             return 0;
         }
         
