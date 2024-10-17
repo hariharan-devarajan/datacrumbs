@@ -12,13 +12,23 @@ NUM_FILES=1
 NUM_OPS=$((1))
 TEST_CASE=1 #write=0 read=1 both=2
 DROP_CACHES=1
+CLEAN=0
 
-for TSKB in 1 4 16 64 256 1024 4096 16384 65536 262144
+for TSKB in 33554432; #1 4 16 64 256 1024 4096 16384 65536 262144
 do
   TS=$((TSKB * 1024))
   if [ "$DROP_CACHES" -eq "1" ]; then
+    echo "Clean Cache"
     sudo sh -c "/usr/bin/echo 3 > /proc/sys/vm/drop_caches"
   fi
-  mpirun -np 1 --use-hwthread-cpus -x LD_PRELOAD=${DATACRUMBS_SO} ${PROJECT_DIR}/build/tests/df_tracer_test ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} ${TEST_CASE}
+  cmd="mpirun -np 1 --use-hwthread-cpus -x LD_PRELOAD=${DATACRUMBS_SO} ${PROJECT_DIR}/build/tests/df_tracer_test ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} ${TEST_CASE}"
+  echo $cmd
+  $cmd
   sleep 5
 done
+
+if [ "$CLEAN" -eq "1" ]; then
+  echo "Cleaning Data"
+  ls -lhs $DATA_DIR
+  rm -rf $DATA_DIR
+fi

@@ -30,6 +30,7 @@ git clone https://github.com/hariharan-devarajan/datacrumbs.git
 
 cd datacrumbs
 mkdir build
+cd build
 cmake ..
 make -j
 ```
@@ -37,7 +38,7 @@ make -j
 ## Build dependency for profiler
 
 ```bash
-pip install -r requirements.txt
+sudo pip install -r requirements.txt
 ```
 
 ## Running the code

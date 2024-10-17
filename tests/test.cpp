@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
     else
       fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0777);
     
-qq    assert(fd != -1);
+    assert(fd != -1);
     open_timer.pauseTime();
     for (int op_idx = 0; op_idx < ops; ++op_idx) {
       if (test_flag == 0 || test_flag == 2) {
