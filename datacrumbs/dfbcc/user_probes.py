@@ -3,6 +3,7 @@ import os
 import logging
 import re
 from bcc import BPF
+from tqdm import tqdm
 from datacrumbs.dfbcc.collector import BCCCollector
 from datacrumbs.dfbcc.probes import BCCFunctions, BCCProbes
 from datacrumbs.common.enumerations import ProbeType
@@ -29,7 +30,7 @@ class UserProbes:
                 .strip()
                 .split("\n")
             )
-            for symbol in symbols:
+            for symbol in tqdm(symbols, desc=f"User symbols for {key}"):
                 if (symbol or symbol != "") and pattern.match(symbol):
                     probe.functions.append(BCCFunctions(symbol))
                     logging.debug(f"Adding Probe function {symbol} from {key}")
@@ -59,10 +60,9 @@ class UserProbes:
         return (bpf_text, category_fn_map, count)
 
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
-
-        for probe in self.probes:
-
-            for fn in probe.functions:
+        logging.info("Attaching probe for User Probes")
+        for probe in tqdm(self.probes, "attach User probes"):
+            for fn in tqdm(probe.functions, "attach User functions"):
                 try:
                     logging.debug(
                         f"Adding Probe function {fn.name} from {probe.category}"

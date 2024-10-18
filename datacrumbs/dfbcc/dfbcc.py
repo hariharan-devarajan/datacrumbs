@@ -66,6 +66,7 @@ class BCCMain:
         f = open(f"{self.config.mode.value}.c", "w")
         f.write(bpf_text)
         f.close()
+        logging.debug(f"Wrote program into {self.config.mode.value}.c")
         self.bpf = BPF(text=bpf_text)
         app_connector.attach_probe(self.bpf)
 
@@ -329,8 +330,7 @@ class BCCMain:
         sleep_sec = self.config.interval_sec * 5
         self.last_processed_ts = -1
         wait_for = (30 / (sleep_sec) - 1)
-        self.no_event_count = 0     
-        
+        self.no_event_count = 0
         logging.info("Ready to run code")   
         try:
             while True:                

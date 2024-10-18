@@ -1,5 +1,8 @@
 from typing import *
 import logging
+import re
+from tqdm import tqdm
+
 from bcc import BPF
 from datacrumbs.dfbcc.collector import BCCCollector
 from datacrumbs.dfbcc.probes import BCCFunctions, BCCProbes
@@ -10,16 +13,18 @@ from datacrumbs.configs.configuration_manager import ConfigurationManager
 class IOProbes:
     config: ConfigurationManager
     probes: List[BCCProbes]
+    regex_functions: Set[str]
 
     def __init__(self) -> None:
         self.config = ConfigurationManager.get_instance()
+        self.regex_functions = set()
         self.probes = []
         self.probes.append(
             BCCProbes(
                 ProbeType.SYSTEM,
                 "sys",
-                [
-                    BCCFunctions(
+                list(filter(None, [
+                    self.get_bcc_function(
                         "openat",
                         entry_struct=[("uint64", "file_hash")],
                         entry_args=", int dfd, const char *filename, int flags",
@@ -48,7 +53,7 @@ class IOProbes:
                         }
                         """,
                     ),
-                    BCCFunctions(
+                    self.get_bcc_function(
                         "read",                        
                         entry_struct=[("uint64", "file_hash")],                        
                         exit_struct=[("uint64", "size_sum")],
@@ -74,7 +79,7 @@ class IOProbes:
                         }
                         """,
                     ),
-                    BCCFunctions(
+                    self.get_bcc_function(
                         "write",                        
                         entry_struct=[("uint64", "file_hash")],                        
                         exit_struct=[("uint64", "size_sum")],
@@ -100,7 +105,7 @@ class IOProbes:
                         }
                         """,
                     ),
-                    BCCFunctions(
+                    self.get_bcc_function(
                         "close",
                         entry_struct=[("uint64", "file_hash")],
                         entry_args="""
@@ -122,97 +127,59 @@ class IOProbes:
                         }
                         """,
                     ),
-                    BCCFunctions("copy_file_range"),
-                    BCCFunctions("execve"),
-                    BCCFunctions("execveat"),
-                    BCCFunctions("exit"),
-                    BCCFunctions("faccessat"),
-                    BCCFunctions("fcntl"),
-                    BCCFunctions("fallocate"),
-                    BCCFunctions("fdatasync"),
-                    BCCFunctions("flock"),
-                    BCCFunctions("fsopen"),
-                    BCCFunctions("fstatfs"),
-                    BCCFunctions("fsync"),
-                    BCCFunctions("ftruncate"),
-                    BCCFunctions("io_pgetevents"),
-                    BCCFunctions("lseek"),
-                    BCCFunctions("memfd_create"),
-                    BCCFunctions("migrate_pages"),
-                    BCCFunctions("mlock"),
-                    BCCFunctions("mmap"),
-                    BCCFunctions("msync"),
-                    BCCFunctions("pread64"),
-                    BCCFunctions("preadv"),
-                    BCCFunctions("preadv2"),
-                    BCCFunctions("pwrite64"),
-                    BCCFunctions("pwritev"),
-                    BCCFunctions("pwritev2"),
-                    BCCFunctions("readahead"),
-                    BCCFunctions("readlinkat"),
-                    BCCFunctions("readv"),
-                    BCCFunctions("renameat"),
-                    BCCFunctions("renameat2"),
-                    BCCFunctions("statfs"),
-                    BCCFunctions("statx"),
-                    BCCFunctions("sync"),
-                    BCCFunctions("sync_file_range"),
-                    BCCFunctions("syncfs"),
-                    BCCFunctions("writev"),
-                ],
+                    self.get_bcc_function("copy_file_range"),
+                    self.get_bcc_function("execve"),
+                    self.get_bcc_function("execveat"),
+                    self.get_bcc_function("exit"),
+                    self.get_bcc_function("faccessat"),
+                    self.get_bcc_function("fcntl"),
+                    self.get_bcc_function("fallocate"),
+                    self.get_bcc_function("fdatasync"),
+                    self.get_bcc_function("flock"),
+                    self.get_bcc_function("fsopen"),
+                    self.get_bcc_function("fstatfs"),
+                    self.get_bcc_function("fsync"),
+                    self.get_bcc_function("ftruncate"),
+                    self.get_bcc_function("io_pgetevents"),
+                    self.get_bcc_function("lseek"),
+                    self.get_bcc_function("memfd_create"),
+                    self.get_bcc_function("migrate_pages"),
+                    self.get_bcc_function("mlock"),
+                    self.get_bcc_function("mmap"),
+                    self.get_bcc_function("msync"),
+                    self.get_bcc_function("pread64"),
+                    self.get_bcc_function("preadv"),
+                    self.get_bcc_function("preadv2"),
+                    self.get_bcc_function("pwrite64"),
+                    self.get_bcc_function("pwritev"),
+                    self.get_bcc_function("pwritev2"),
+                    self.get_bcc_function("readahead"),
+                    self.get_bcc_function("readlinkat"),
+                    self.get_bcc_function("readv"),
+                    self.get_bcc_function("renameat"),
+                    self.get_bcc_function("renameat2"),
+                    self.get_bcc_function("statfs"),
+                    self.get_bcc_function("statx"),
+                    self.get_bcc_function("sync"),
+                    self.get_bcc_function("sync_file_range"),
+                    self.get_bcc_function("syncfs"),
+                    self.get_bcc_function("writev"),
+                ])),
             )
         )
         self.probes.append(
             BCCProbes(
                 ProbeType.KERNEL,
                 "os_cache",
-                [
-                    BCCFunctions("add_to_page_cache_lru"),
-                    BCCFunctions("mark_page_accessed"),
-                    BCCFunctions("account_page_dirtied"),
-                    BCCFunctions("mark_buffer_dirty"),
-                    BCCFunctions("do_page_cache_ra"),
-                    BCCFunctions("__page_cache_alloc"),
-                    BCCFunctions("page", ".*page.*"),
-                    BCCFunctions("lru", ".*lru.*"),
-                    BCCFunctions("swap", ".*swap.*"),
-                    BCCFunctions("buffer", ".*buffer.*"),
-                    BCCFunctions("nr", ".*nr.*"),
-                ],
-            )
-        )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "map",
-        #         [
-        #             BCCFunctions("map", ".*map.*"),
-        #         ],
-        #     )
-        # )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "bio",
-                [
-                    BCCFunctions("bio", ".*bio.*"),
-                ],
-            )
-        )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "aio",
-        #         [
-        #             BCCFunctions("aio", ".*aio.*"),
-        #         ],
-        #     )
-        # )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "ext4",
-                [BCCFunctions("ext4", ".*ext4_.*")],
+                list(filter(None, [
+                    self.get_bcc_function("add_to_page_cache_lru"),
+                    self.get_bcc_function("mark_page_accessed"),
+                    self.get_bcc_function("account_page_dirtied"),
+                    self.get_bcc_function("mark_buffer_dirty"),
+                    self.get_bcc_function("do_page_cache_ra"),
+                    self.get_bcc_function("page_cache_pipe_buf_release"),
+                    self.get_bcc_function("__page_cache_alloc"),
+                ])),
             )
         )
         # https://fossd.anu.edu.au/linux/v2.6.18-rc4/source/fs/read_write.c#L247
@@ -220,104 +187,90 @@ class IOProbes:
             BCCProbes(
                 ProbeType.KERNEL,
                 "vfs",
-                [BCCFunctions("vfs", ".*vfs.*"), 
-                 BCCFunctions("generic", ".*generic.*"), 
-                 BCCFunctions("remote", ".*remote.*"), 
-                 BCCFunctions("llseek", ".*llseek.*"), 
-                 BCCFunctions("do_sync_read"), 
-                 BCCFunctions("vfs_read"), 
-                 BCCFunctions("do_sync_write"), 
-                 BCCFunctions("vfs_write"), 
-                 BCCFunctions("file", ".*file.*"), 
-                 BCCFunctions("do_readv_writev"),
-                 BCCFunctions("vfs_readv"),
-                 BCCFunctions("vfs_writev"),
-                 BCCFunctions("do_sendfile"),
-                 BCCFunctions("rw_verify_area"),
-                 BCCFunctions("wait_on_page_bit"),
-                 BCCFunctions("find_or_create_page"),
-                 BCCFunctions("find_get_pages"),
-                 BCCFunctions("find_get_pages_contig"),
-                 BCCFunctions("grab_cache_page_nowait"),
-                 BCCFunctions("wake_up_page"),
-                 BCCFunctions("do_readahead"),
-                 BCCFunctions("read_cache_page"),
-                 BCCFunctions("fdatawrite"), 
-                 #BCCFunctions("filename", ".*filename.*"), 
-                 #BCCFunctions("sync", ".*sync.*"), 
-                 #BCCFunctions("eio", ".*eio.*"), 
-                ],
+                list(filter(None, [
+                 self.get_bcc_function("vfs_read"),
+                 self.get_bcc_function("vfs_write"),
+                 self.get_bcc_function("vfs_readv"),
+                 self.get_bcc_function("vfs_writev"),
+                 self.get_bcc_function("do_sendfile"),
+                 self.get_bcc_function("rw_verify_area"),
+                 self.get_bcc_function("wait_on_page_bit"),
+                 self.get_bcc_function("find_get_pages_contig"),
+                 self.get_bcc_function("grab_cache_page_nowait"),
+                 self.get_bcc_function("read_cache_page"),
+                ])),
             )
         )
         self.probes.append(
             BCCProbes(
                 ProbeType.USER,
                 "c",
-                [
-                    BCCFunctions("fopen"),
-                    BCCFunctions("fopen64"),
-                    BCCFunctions("fclose"),
-                    BCCFunctions("fread"),
-                    BCCFunctions("fwrite"),
-                    BCCFunctions("ftell"),
-                    BCCFunctions("fseek"),
-                    BCCFunctions("open"),
-                    BCCFunctions("open64"),
-                    BCCFunctions("creat"),
-                    BCCFunctions("creat64"),
-                    BCCFunctions("close_range"),
-                    BCCFunctions("closefrom"),
-                    BCCFunctions("close"),
-                    BCCFunctions("read"),
-                    BCCFunctions("pread"),
-                    BCCFunctions("pread64"),
-                    BCCFunctions("write"),
-                    BCCFunctions("pwrite"),
-                    BCCFunctions("pwrite64"),
-                    BCCFunctions("lseek"),
-                    BCCFunctions("lseek64"),
-                    BCCFunctions("fdopen"),
-                    BCCFunctions("fileno"),
-                    BCCFunctions("fileno_unlocked"),
-                    BCCFunctions("mmap"),
-                    BCCFunctions("mmap64"),
-                    BCCFunctions("munmap"),
-                    BCCFunctions("msync"),
-                    BCCFunctions("mremap"),
-                    BCCFunctions("madvise"),
-                    BCCFunctions("shm_open"),
-                    BCCFunctions("shm_unlink"),
-                    BCCFunctions("memfd_create"),
-                    BCCFunctions("fsync"),
-                    BCCFunctions("fdatasync"),
-                    BCCFunctions("fcntl"),
-                    BCCFunctions("malloc"),
-                    BCCFunctions("calloc"),
-                    BCCFunctions("realloc"),
-                    BCCFunctions("posix_memalign"),
-                    BCCFunctions("valloc"),
-                    BCCFunctions("memalign"),
-                    BCCFunctions("pvalloc"),
-                    BCCFunctions("aligned_alloc"),
-                    BCCFunctions("free"),
-                    BCCFunctions("aio", ".*aio.*"), 
-                ],
+                list(filter(None, [
+                    self.get_bcc_function("fopen"),
+                    self.get_bcc_function("fopen64"),
+                    self.get_bcc_function("fclose"),
+                    self.get_bcc_function("fread"),
+                    self.get_bcc_function("fwrite"),
+                    self.get_bcc_function("ftell"),
+                    self.get_bcc_function("fseek"),
+                    self.get_bcc_function("open"),
+                    self.get_bcc_function("open64"),
+                    self.get_bcc_function("creat"),
+                    self.get_bcc_function("creat64"),
+                    self.get_bcc_function("close_range"),
+                    self.get_bcc_function("closefrom"),
+                    self.get_bcc_function("close"),
+                    self.get_bcc_function("read"),
+                    self.get_bcc_function("pread"),
+                    self.get_bcc_function("pread64"),
+                    self.get_bcc_function("write"),
+                    self.get_bcc_function("pwrite"),
+                    self.get_bcc_function("pwrite64"),
+                    self.get_bcc_function("lseek"),
+                    self.get_bcc_function("lseek64"),
+                    self.get_bcc_function("fdopen"),
+                    self.get_bcc_function("fileno"),
+                    self.get_bcc_function("fileno_unlocked"),
+                    self.get_bcc_function("mmap"),
+                    self.get_bcc_function("mmap64"),
+                    self.get_bcc_function("munmap"),
+                    self.get_bcc_function("msync"),
+                    self.get_bcc_function("mremap"),
+                    self.get_bcc_function("madvise"),
+                    self.get_bcc_function("shm_open"),
+                    self.get_bcc_function("shm_unlink"),
+                    self.get_bcc_function("memfd_create"),
+                    self.get_bcc_function("fsync"),
+                    self.get_bcc_function("fdatasync"),
+                    self.get_bcc_function("fcntl"),
+                    self.get_bcc_function("malloc"),
+                    self.get_bcc_function("calloc"),
+                    self.get_bcc_function("realloc"),
+                    self.get_bcc_function("posix_memalign"),
+                    self.get_bcc_function("valloc"),
+                    self.get_bcc_function("memalign"),
+                    self.get_bcc_function("pvalloc"),
+                    self.get_bcc_function("aligned_alloc"),
+                    self.get_bcc_function("free"),
+                ])),
             )
         )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "block",
-        #         [BCCFunctions("block", "^block_.*")],
-        #     )
-        # )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "io_uring",
-        #         [BCCFunctions("io_uring", "^io_uring_.*")],
-        #     )
-        # )
+        self.probes.extend(self.get_bcc_functions(b".*page.*"))
+        self.probes.extend(self.get_bcc_functions(b".*lru.*"))
+        self.probes.extend(self.get_bcc_functions(b".*swap.*"))
+        self.probes.extend(self.get_bcc_functions(b".*buffer.*"))
+        self.probes.extend(self.get_bcc_functions(b".*nr.*"))
+        self.probes.extend(self.get_bcc_functions(b".*map.*"))
+        self.probes.extend(self.get_bcc_functions(b".*bio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*aio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
+        self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
+        self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
+        self.probes.extend(self.get_bcc_functions(b".*file.*"))
+        self.probes.extend(self.get_bcc_functions(b".*block.*"))
+        self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
+        
+        
 
     def collector_fn(self, collector: BCCCollector, category_fn_map, count: int):
         bpf_text = ""
@@ -341,10 +294,55 @@ class IOProbes:
                 bpf_text += text
 
         return (bpf_text, category_fn_map, count)
+    def is_function_valid(self, function_name):
+        return  "." not in function_name and "$" not in function_name
+
+    def get_bcc_functions(self, regex):
+        matches = BPF.get_kprobe_functions(regex)
+        probes = []
+        bcc_list = {}
+        for line in tqdm(matches, desc=f"Matching for {regex}"):
+            if line.decode() not in self.regex_functions and self.is_function_valid(line.decode()):
+                logging.debug(f"Adding {line.decode()} to probe")
+                self.regex_functions.add(line.decode())
+                value = BPF.ksym(BPF.ksymname(line), show_module=True).decode()
+                value = list(filter(None, re.split('\]|\[| ', value)))
+                function_name = value[0]
+                module = value[1]
+                if self.is_function_valid(function_name):
+                    if module not in bcc_list:
+                        bcc_list[module] = []
+                    bcc_list[module].append(BCCFunctions(function_name))
+            else:
+                logging.debug(f"Skipping {line.decode()} to probe")
+        for key, value in bcc_list.items():
+            probes.append(BCCProbes(ProbeType.KERNEL, key, value))
+        return probes
+
+    def get_bcc_function(self, function_name,
+        entry_struct: List[Tuple] = [],
+        exit_struct: List[Tuple] = [],
+        entry_args: str = "",
+        entry_cmd: str = "",
+        exit_cmd_stats: str = "",
+        exit_cmd_key: str = "",):
+        if function_name not in self.regex_functions:
+            self.regex_functions.add(function_name)            
+            return BCCFunctions(function_name, 
+                                entry_struct=entry_struct, 
+                                exit_struct=exit_struct,
+                                entry_args=entry_args,
+                                entry_cmd=entry_cmd,
+                                exit_cmd_stats=exit_cmd_stats,
+                                exit_cmd_key=exit_cmd_key)
+        else:
+            return None
+            
 
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
-        for probe in self.probes:
-            for fn in probe.functions:
+        logging.info("Attaching I/O Probes")
+        for probe in tqdm(self.probes, "attach I/O probes"):
+            for fn in tqdm(probe.functions, "attach I/O functions"):
                 try:
                     if ProbeType.SYSTEM == probe.type:
                         fnname = bpf.get_syscall_prefix().decode() + fn.name

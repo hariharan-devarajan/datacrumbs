@@ -4,10 +4,10 @@ mode: trace
 file: trace.pfw
 user:
   - name: app
-    link: /home/cc/datacrumbs/build/tests/df_tracer_test
+    link: /home/hariharandev1.linux/datacrumbs/build/tests/df_tracer_test
     regex: .*
   - name: mpi
-    link: /home/cc/datacrumbs/dependency/.spack-env/view/lib/libmpi.so
+    link: /opt/spack/opt/spack/linux-ubuntu22.04-m1/gcc-11.4.0/openmpi-5.0.5-j267g7kotefkm6e5hi7veb6xzak4gozk/lib/libmpi.so
     regex: ^PMPI.*
 
 profile:

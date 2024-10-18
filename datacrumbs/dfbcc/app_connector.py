@@ -36,7 +36,7 @@ class BCCApplicationConnector:
         return self.functions
 
     def attach_probe(self, bpf: BPF) -> None:
-
+        logging.info("Attaching probe for App Connector")
         bpf.add_module(f"{self.config.install_dir}/libdatacrumbs.so")
         bpf.attach_uprobe(
             name=f"{self.config.install_dir}/libdatacrumbs.so",

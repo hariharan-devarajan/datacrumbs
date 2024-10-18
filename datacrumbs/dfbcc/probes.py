@@ -63,7 +63,10 @@ class BCCFunctions:
             args[var_name] = eval(f"obj.{var_name}")
         
         return args
-    
+    def __str__(self):
+        return f"{self.name}"
+    def __repr__(self):
+        return f"{self.name}"
     def get_class(self):
         array = []
         for entry in self.entry_struct:
