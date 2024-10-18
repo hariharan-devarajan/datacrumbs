@@ -28,36 +28,23 @@ class BCCCollector(ABC):
         
         
         self.sys_functions = """
-        
         DFEVENTSTRUCT
-        
         int syscall__trace_entry_DFFUNCTION(struct pt_regs *ctx DFENTRYARGS) {
             DFFILTERPID
-            
             DFFNENTRY
-            
-            DFENTRYCMD
-                        
+            DFENTRYCMD   
             return 0;
         }
 
         int sys__trace_exit_DFFUNCTION(struct pt_regs *ctx) {
             DFFILTERPID
-            
-            DFFNLOOKUP
-            
+            DFFNLOOKUP            
             DFCAPTUREEVENTKEY
-            
             DFEXITCMDKEY
-            
             DFCAPTUREEVENTVALUE
-            
             DFEXITCMDSTATS
-            
-            DFSUBMITEVENT            
-            
+            DFSUBMITEVENT
             DFEXITSTATSCLEAN
-            
             return 0;
         }
         """.replace(

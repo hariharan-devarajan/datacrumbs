@@ -269,6 +269,7 @@ class IOProbes:
         self.probes.extend(self.get_bcc_functions(b".*file.*"))
         self.probes.extend(self.get_bcc_functions(b".*block.*"))
         self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
+        logging.info(f"Added {len(self.regex_functions)} I/O probes")
         
         
 
