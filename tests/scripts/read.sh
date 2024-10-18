@@ -10,9 +10,9 @@ DATA_DIR=${PROJECT_DIR}/build/data
 mkdir -p $DATA_DIR
 NUM_FILES=1
 NUM_OPS=$((1))
-TEST_CASE=0 #write=0 read=1 both=2
+TEST_CASE=1 #write=0 read=1 both=2
 DROP_CACHES=1
-CLEAN=0
+CLEAN=1
 
 for TSKB in 33554432; #1 4 16 64 256 1024 4096 16384 65536 262144
 do
