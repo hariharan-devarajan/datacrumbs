@@ -51,6 +51,8 @@ class UserProbes:
                 text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
                 text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
                 text = text.replace("DFENTRYARGS", fn.entry_args)
+                text = text.replace("DFENTRY_STRUCT", fn.entry_struct_str)
+                text = text.replace("DFEXIT_STRUCT", fn.exit_struct_str)
                 category_fn_map[count] = (probe.category, fn)
                 bpf_text += text
 

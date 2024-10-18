@@ -1,11 +1,7 @@
-class BCCHeader:
-    def __init__(self):
+from abc import ABC, abstractmethod
 
-        self.entry_struct = """
-        """
-        self.exit_struct = """
-            u64 size_sum;
-        """
+class BCCHeader(ABC):
+    def __init__(self):
 
         self.includes = """
         #include <linux/sched.h>
@@ -14,26 +10,12 @@ class BCCHeader:
         """
 
         self.data_structures = """
-        struct stats_key_t {
-            u64 trange;
-            u64 id;
-            u64 event_id;
-            u64 ip;
-            u64 file_hash;
-        };
-        struct stats_t {
-            u64 time;
-            s64 freq;
-            DFENTRY_STRUCT
-            DEXIT_STRUCT
-        };
         struct fn_key_t {
             s64 pid;
         };
         struct fn_t {
             u64 ts;
             u64 ip;
-            DFENTRY_STRUCT
         };
         struct file_t {
           u64 id;
@@ -42,15 +24,11 @@ class BCCHeader:
         struct filename_t {
             char fname[256];
         };
-        """.replace(
-            "DFENTRY_STRUCT", self.entry_struct
-        ).replace(
-            "DEXIT_STRUCT", self.exit_struct
-        )
+        """
+        
         self.events_ds = """
         BPF_HASH(pid_map, u32, u64); // map for apps to collect data
         BPF_HASH(fn_pid_map, struct fn_key_t, struct fn_t); // collect start time and ip for apps
-        BPF_HASH(fn_map, struct stats_key_t, struct stats_t, 2 << 16); // emit events to python
         BPF_HASH(file_hash, u32, struct filename_t);
         BPF_HASH(latest_hash, u64, u32);
         BPF_HASH(latest_fd, u64, int);

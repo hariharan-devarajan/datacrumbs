@@ -21,6 +21,7 @@ class IOProbes:
                 [
                     BCCFunctions(
                         "openat",
+                        entry_struct=[("uint64", "file_hash")],
                         entry_args=", int dfd, const char *filename, int flags",
                         entry_cmd="""
                         struct filename_t fname_i;
@@ -34,7 +35,7 @@ class IOProbes:
                         exit_cmd_key="""
                         u32* hash_ptr = latest_hash.lookup(&id);
                         if (hash_ptr != 0) {
-                            stats_key.file_hash = *hash_ptr; 
+                            stats_key->file_hash = *hash_ptr; 
                         }
                         """,
                         exit_cmd_stats="""
@@ -48,7 +49,9 @@ class IOProbes:
                         """,
                     ),
                     BCCFunctions(
-                        "read",
+                        "read",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
                         entry_args="""
                         , int fd, void *data, u64 count
                         """,
@@ -66,13 +69,15 @@ class IOProbes:
                             file_key.fd = *fd_ptr;
                             u32* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
-                                stats_key.file_hash = *hash_ptr; 
+                                stats_key->file_hash = *hash_ptr; 
                             }
                         }
                         """,
                     ),
                     BCCFunctions(
-                        "write",
+                        "write",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
                         entry_args="""
                         , int fd, const void *data, u64 count
                         """,
@@ -90,13 +95,14 @@ class IOProbes:
                             file_key.fd = *fd_ptr;
                             u32* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
-                                stats_key.file_hash = *hash_ptr; 
+                                stats_key->file_hash = *hash_ptr; 
                             }
                         }
                         """,
                     ),
                     BCCFunctions(
                         "close",
+                        entry_struct=[("uint64", "file_hash")],
                         entry_args="""
                         , int fd
                         """,
@@ -111,7 +117,7 @@ class IOProbes:
                             file_key.fd = *fd_ptr;
                             u32* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
-                                stats_key.file_hash = *hash_ptr; 
+                                stats_key->file_hash = *hash_ptr; 
                             }
                         }
                         """,
@@ -175,15 +181,15 @@ class IOProbes:
                 ],
             )
         )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "map",
-                [
-                    BCCFunctions("map", ".*map.*"),
-                ],
-            )
-        )
+        # self.probes.append(
+        #     BCCProbes(
+        #         ProbeType.KERNEL,
+        #         "map",
+        #         [
+        #             BCCFunctions("map", ".*map.*"),
+        #         ],
+        #     )
+        # )
         self.probes.append(
             BCCProbes(
                 ProbeType.KERNEL,
@@ -298,20 +304,20 @@ class IOProbes:
                 ],
             )
         )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "block",
-                [BCCFunctions("block", "^block_.*")],
-            )
-        )
-        self.probes.append(
-            BCCProbes(
-                ProbeType.KERNEL,
-                "io_uring",
-                [BCCFunctions("io_uring", "^io_uring_.*")],
-            )
-        )
+        # self.probes.append(
+        #     BCCProbes(
+        #         ProbeType.KERNEL,
+        #         "block",
+        #         [BCCFunctions("block", "^block_.*")],
+        #     )
+        # )
+        # self.probes.append(
+        #     BCCProbes(
+        #         ProbeType.KERNEL,
+        #         "io_uring",
+        #         [BCCFunctions("io_uring", "^io_uring_.*")],
+        #     )
+        # )
 
     def collector_fn(self, collector: BCCCollector, category_fn_map, count: int):
         bpf_text = ""
@@ -329,6 +335,8 @@ class IOProbes:
                 text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
                 text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
                 text = text.replace("DFENTRYARGS", fn.entry_args)
+                text = text.replace("DFENTRY_STRUCT", fn.entry_struct_str)
+                text = text.replace("DFEXIT_STRUCT", fn.exit_struct_str)
                 category_fn_map[count] = (probe.category, fn)
                 bpf_text += text
 

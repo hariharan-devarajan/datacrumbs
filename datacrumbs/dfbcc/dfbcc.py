@@ -4,19 +4,23 @@ import ctypes
 from typing import *
 import threading
 import psutil
-
+import math
 # External Imports
 from bcc import BPF
 from bcc.utils import printb
 
 # Internal Imports
 from datacrumbs.dfbcc.app_connector import BCCApplicationConnector
-from datacrumbs.dfbcc.collector import BCCCollector
-from datacrumbs.dfbcc.header import BCCHeader
+from datacrumbs.dfbcc.profile_collector import BCCProfileCollector
+from datacrumbs.dfbcc.trace_collector import BCCTraceCollector
+from datacrumbs.dfbcc.profile_header import BCCProfileHeader
+from datacrumbs.dfbcc.trace_header import BCCTraceHeader
 from datacrumbs.dfbcc.io_probes import IOProbes
 from datacrumbs.dfbcc.user_probes import UserProbes
 from datacrumbs.configs.configuration_manager import ConfigurationManager
-from datacrumbs.common.data_structure import DFEvent, Filename
+from datacrumbs.common.data_structure import DFEvent, Filename, DFTraceEvent
+from datacrumbs.common.enumerations import Mode
+from datacrumbs.common.utils import *
 from datacrumbs.writer.perfetto import PerfettoWriter
 
 
@@ -28,13 +32,20 @@ class BCCMain:
         self.category_fn_map = {}
         self.writer = PerfettoWriter()
         self.run_thread_counter = True
+        self.has_events = False
+        self.filename_map = {0: None}
+        self.filehash_map = {0: None}
         pass
 
     def load(self) -> any:
         app_connector = BCCApplicationConnector()
-        collector = BCCCollector()
         bpf_text = ""
-        bpf_text += str(BCCHeader())
+        if self.config.mode == Mode.PROFILE:
+            collector = BCCProfileCollector()
+            bpf_text += str(BCCProfileHeader())
+        elif self.config.mode == Mode.TRACE:
+            collector = BCCTraceCollector()
+            bpf_text += str(BCCTraceHeader())
         bpf_text += str(app_connector)
         io_probes = IOProbes()
         count = 0
@@ -52,7 +63,7 @@ class BCCMain:
             "INTERVAL_RANGE", str(int(self.config.interval_sec * 1e9))
         )
         logging.debug(f"Compiled Program is \n{bpf_text}")
-        f = open("profile.c", "w")
+        f = open(f"{self.config.mode.value}.c", "w")
         f.write(bpf_text)
         f.close()
         self.bpf = BPF(text=bpf_text)
@@ -179,9 +190,7 @@ class BCCMain:
         self.network_loop.join()
         '''
         self.writer.finalize()
-
     def run(self) -> None:
-        logging.info("Ready to run code")
         '''self.memory_loop = threading.Thread(target=self.run_memory_loop)
         self.memory_loop.start()
         self.cpu_loop = threading.Thread(target=self.run_cpu_loop)
@@ -191,24 +200,30 @@ class BCCMain:
         self.network_loop = threading.Thread(target=self.run_network_usage)
         self.network_loop.start()
         '''
-        no_event_count = 0
-        has_events = False
-        last_processed_ts = -1
+        if self.config.mode == Mode.PROFILE:
+            self.profile_run()
+        elif self.config.mode == Mode.TRACE:
+            self.trace_run()
+            
+    def profile_run(self) -> None:
+        self.no_event_count = 0
+        self.has_events = False
+        self.last_processed_ts = -1
         sleep_sec = self.config.interval_sec * 5
         wait_for = 30 / (sleep_sec)
-        filename_map = {0: None}
+        logging.info("Ready to run code")
         try:
             while True:
                 counts = self.bpf.get_table("fn_map")
                 filenames = self.bpf.get_table("file_hash")
                 try:
                     logging.debug(
-                        f"sleeping for {sleep_sec} secs with last ts {last_processed_ts}"
+                        f"sleeping for {sleep_sec} secs with last ts {self.last_processed_ts}"
                     )
                     sleep(sleep_sec)
-                    if has_events and no_event_count > wait_for:
+                    if self.has_events and self.no_event_count > wait_for:
                         logging.info(
-                            f"No events for {no_event_count * sleep_sec} seconds. Quiting Profiler Now."
+                            f"No events for {self.no_event_count * sleep_sec} seconds. Quiting Profiler Now."
                         )
                         filenames.clear()
                         self.stop()
@@ -216,9 +231,8 @@ class BCCMain:
                 except KeyboardInterrupt:
                     break
                 for k, v in filenames.items():
-
-                    if k.value not in filename_map:
-                        filename_map[k.value] = v.fname.decode()
+                    if k.value not in self.filename_map:
+                        self.filename_map[k.value] = v.fname.decode()
                 map_values = sorted(
                     counts.items(),
                     key=lambda counts: counts[0].trange,
@@ -231,11 +245,11 @@ class BCCMain:
                 for k, v in map_values:
                     event = DFEvent()
                     event.pid = ctypes.c_uint32(k.id).value
-                    has_events = True
+                    self.has_events = True
                     processed += 1
-                    if big_ts == k.trange and big_ts > last_processed_ts + 1:
+                    if big_ts == k.trange and big_ts > self.last_processed_ts + 1:
                         logging.debug(
-                            f"Previous loop had {last_processed_ts} ts and now is {big_ts} ts"
+                            f"Previous loop had {self.last_processed_ts} ts and now is {big_ts} ts"
                         )
                         continue
                     event.tid = ctypes.c_uint32(k.id >> 32).value
@@ -248,24 +262,100 @@ class BCCMain:
                             event.name = self.bpf.ksym(k.ip, show_module=True).decode()
                     else:
                         event.name = function_probe.name
-                    event.ts = k.trange
+                    event.ts = int(k.trange * self.config.interval_sec * 1e6)
+                    event.ph = 'C'
+                    event.dur = -1
                     event.args = {}
                     event.args["fname"] = (
-                        filename_map[k.file_hash]
-                        if k.file_hash in filename_map
+                        self.filename_map[k.file_hash]
+                        if k.file_hash in self.filename_map
                         else None
                     )
                     event.args["freq"] = v.freq
                     event.args["time"] = v.time / 1e9
                     event.args["size_sum"] = v.size_sum if v.size_sum > 0 else None
-                    last_processed_ts = k.trange
-                    logging.info(f"{last_processed_ts} timestamp processed")
+                    self.last_processed_ts = k.trange
+                    logging.info(f"{self.last_processed_ts} timestamp processed")
                     self.writer.write(event)
                     keys = (counts.Key * 1)()
                     keys[0] = k
                     counts.items_delete_batch(keys)
-                    no_event_count = 0
-                if has_events:
-                    no_event_count += 1
+                    self.no_event_count = 0
+                if self.has_events:
+                    self.no_event_count += 1
         except KeyboardInterrupt:
             pass
+    
+    def handle_trace_event(self, ctx, data, size):
+        self.has_events = True
+        event = DFEvent()
+        c_event = ctypes.cast(data, ctypes.POINTER(DFTraceEvent)).contents
+        event_tuple = self.category_fn_map[c_event.event_id]
+        event.cat = event_tuple[0]
+        function_probe = event_tuple[1]
+        event.args = {}
+        event.pid = ctypes.c_uint32(c_event.id).value
+        event.tid = ctypes.c_uint32(c_event.id >> 32).value
+        if not function_probe.regex:
+            class_type = function_probe.get_class()
+            if class_type:
+                c_event = ctypes.cast(data, ctypes.POINTER(class_type)).contents
+                event.args = function_probe.get_args(c_event)
+                if "file_hash" in event.args:
+                    fname = self.filename_map[event.args["file_hash"]]
+                    file_hash = get_hash(fname)
+                    if file_hash not in self.filehash_map:
+                        self.filehash_map[file_hash] = fname
+                        self.writer.write_metadata_event(event.pid, event.tid, "FH", fname, file_hash)
+                    event.args['fhash'] = file_hash
+                    del event.args['file_hash']
+        event.ts = int(c_event.ts // 1e3)
+        event.ph = 'X'
+        event.dur = math.ceil(c_event.dur // 1e3)
+        if function_probe.regex:
+            event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
+            if "unknown" in event.name:
+                event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
+        else:
+            event.name = function_probe.name
+        self.last_processed_ts = c_event.ts
+        logging.debug(f"{self.last_processed_ts} timestamp processed")
+        self.writer.write(event)
+        self.no_event_count = 0
+        
+    
+    def trace_run(self) -> None:
+        self.bpf["events"].open_ring_buffer(self.handle_trace_event)
+        sleep_sec = self.config.interval_sec * 5
+        self.last_processed_ts = -1
+        wait_for = (30 / (sleep_sec) - 1)
+        self.no_event_count = 0     
+        
+        logging.info("Ready to run code")   
+        try:
+            while True:                
+                try:
+                    logging.debug(
+                        f"sleeping for {sleep_sec} secs with last ts {self.last_processed_ts}"
+                    )
+                    sleep(sleep_sec)
+                    if self.has_events:
+                        self.no_event_count += 1
+                    if self.has_events and self.no_event_count > wait_for:
+                        logging.info(
+                            f"No events for {self.no_event_count * sleep_sec} seconds. Quiting Profiler Now."
+                        )
+                        filenames.clear()
+                        self.stop()
+                        break
+                except KeyboardInterrupt:
+                    break
+                filenames = self.bpf.get_table("file_hash")
+                for k, v in filenames.items():
+                    if k.value not in self.filename_map:
+                        self.filename_map[k.value] = v.fname.decode()
+                #filenames.items_delete_batch(keys)
+                self.bpf.ring_buffer_consume()
+        except KeyboardInterrupt:
+            pass
+        
