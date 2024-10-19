@@ -68,7 +68,7 @@ class BCCMain:
         f.write(bpf_text)
         f.close()
         logging.info(f"Wrote program into {file}")
-        self.bpf = BPF(text=bpf_text, debug=1)
+        self.bpf = BPF(text=bpf_text, debug=0)
         app_connector.attach_probe(self.bpf)
         io_probes.attach_probes(self.bpf, collector)
         user_probes.attach_probes(self.bpf, collector)
