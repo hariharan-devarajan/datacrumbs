@@ -309,9 +309,9 @@ class BCCMain:
                         self.writer.write_metadata_event(event.pid, event.tid, "FH", fname, file_hash)
                     event.args['fhash'] = file_hash
                     del event.args['file_hash']
-        event.ts = int(c_event.ts // 1e3)
+        event.ts = int(c_event.ts)
         event.ph = 'X'
-        event.dur = math.ceil(c_event.dur // 1e3)
+        event.dur = c_event.dur
         if function_probe.regex:
             event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
             if "unknown" in event.name:
