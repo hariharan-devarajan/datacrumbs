@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
   int ts = atoi(argv[3]);
   std::string dir = std::string(argv[4]);
   int test_flag = atoi(argv[5]);
+  int direct_io_flag = atoi(argv[6]);
   std::string data = gen_random(ts);
   char *read_data = (char *)malloc(ts);
   Timer open_timer = Timer();
@@ -60,13 +61,17 @@ int main(int argc, char *argv[]) {
                            std::to_string(my_rank) + ".dat";
 
     open_timer.resumeTime();
+    int flag = 0;
+    if (direct_io_flag == 1) {
+      flag = O_DIRECT;
+    }
     int fd = -1;
     if (test_flag == 0)
-      fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
+      fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | flag, 0777);
     else if (test_flag == 1)
-      fd = open(filename.c_str(), O_RDONLY, 0777);
+      fd = open(filename.c_str(), O_RDONLY | flag, 0777);
     else
-      fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0777);
+      fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC | flag, 0777);
     
     assert(fd != -1);
     open_timer.pauseTime();

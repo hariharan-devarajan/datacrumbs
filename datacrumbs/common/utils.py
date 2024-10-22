@@ -12,4 +12,4 @@ def convert_or_fail(type, value):
     
 def get_hash(string):
     result = hashlib.md5(string.encode())
-    return int(result.hexdigest(), 16)
+    return result.hexdigest()
