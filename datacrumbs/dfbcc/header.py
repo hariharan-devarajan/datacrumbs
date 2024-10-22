@@ -11,11 +11,11 @@ class BCCHeader(ABC):
 
         self.data_structures = """
         struct fn_key_t {
+            u64 ip;
             s64 pid;
         };
         struct fn_t {
             u64 ts;
-            u64 ip;
         };
         struct file_t {
           u64 id;

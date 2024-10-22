@@ -14,14 +14,15 @@ class BCCCollector(ABC):
         self.capture_entry_fn = """
             struct fn_key_t key = {};
             key.pid = pid;
+            key.ip = PT_REGS_IP(ctx);
             struct fn_t fn = {};
-            fn.ip = PT_REGS_IP(ctx);
             fn.ts = bpf_ktime_get_ns();
             fn_pid_map.update(&key, &fn);
         """
         self.lookup_fn = """
             struct fn_key_t key = {};
             key.pid = pid;
+            key.ip = PT_REGS_IP(ctx);
             struct fn_t *fn = fn_pid_map.lookup(&key);
             if (fn == 0) return 0; // missed entry
         """
