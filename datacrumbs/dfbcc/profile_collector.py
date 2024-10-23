@@ -12,7 +12,7 @@ class BCCProfileCollector(BCCCollector):
             stats_key->trange = (fn->ts  - *start_ts) / INTERVAL_RANGE;
             stats_key->event_id = DFEVENTID;
             stats_key->id = id;
-            stats_key->ip = fn->ip;
+            stats_key->ip = DFEVENTID;
         """
         
         self.stats_value_create = """

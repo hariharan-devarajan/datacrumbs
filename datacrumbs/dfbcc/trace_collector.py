@@ -11,7 +11,7 @@ class BCCTraceCollector(BCCCollector):
             struct DFCAT_DFFUNCTION_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
             stats_key->event_id = DFEVENTID;
-            stats_key->ip = fn->ip;
+            stats_key->ip = DFEVENTID;
         """
         
         self.stats_value_create = """            
