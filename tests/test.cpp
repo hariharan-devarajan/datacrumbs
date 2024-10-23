@@ -86,6 +86,7 @@ int main(int argc, char *argv[]) {
     assert(fd != -1);
     open_timer.pauseTime();
     for (int op_idx = 0; op_idx < ops; ++op_idx) {
+      sleep(1);
       if (test_flag == 0 || test_flag == 2) {
         write_timer.resumeTime();
         assert(write(fd, data.c_str(), ts) == ts);

@@ -327,8 +327,41 @@ class BCCMain:
     
     def handle_trace_event(self, ctx, data, size):
         self.has_events = True
-        future = executor.submit(async_handle_trace, self, ctx)
-        self.futures.append(future)
+        # future = self.executor.submit(self.async_handle_trace, ctx)
+        event = DFEvent()
+        c_event = ctypes.cast(data, ctypes.POINTER(DFTraceEvent)).contents
+        event_tuple = self.category_fn_map[c_event.event_id]
+        event.cat = event_tuple[0]
+        function_probe = event_tuple[1]
+        event.args = {}
+        event.pid = ctypes.c_uint32(c_event.id).value
+        event.tid = ctypes.c_uint32(c_event.id >> 32).value
+        if not function_probe.regex:
+            class_type = function_probe.get_class()
+            if class_type:
+                c_event = ctypes.cast(data, ctypes.POINTER(class_type)).contents
+                event.args = function_probe.get_args(c_event)
+                if "file_hash" in event.args:
+                    fname = self.filename_map[event.args["file_hash"]]
+                    file_hash = get_hash(fname)
+                    if file_hash not in self.filehash_map:
+                        self.filehash_map[file_hash] = fname
+                        self.writer.write_metadata_event(event.pid, event.tid, "FH", fname, file_hash)
+                    event.args['fhash'] = file_hash
+                    del event.args['file_hash']
+        event.ts = int(c_event.ts)
+        event.ph = 'X'
+        event.dur = c_event.dur
+        if function_probe.regex:
+            event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
+            if "unknown" in event.name:
+                event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
+        else:
+            event.name = function_probe.name
+        self.last_processed_ts = c_event.ts
+        logging.debug(f"{self.last_processed_ts} timestamp processed")
+        self.writer.write(event)
+        # self.futures.append(future)
         self.no_event_count = 0
         
     
@@ -350,11 +383,11 @@ class BCCMain:
                     if self.has_events:
                         self.no_event_count += 1
                     if self.has_events and self.no_event_count > wait_for:
-                        for future in concurrent.futures.as_completed(self.futures):
-                            try:
-                                data = future.result()
-                            except Exception as exc:
-                                print('%r generated an exception: %s' % (exc))
+                        # for future in concurrent.futures.as_completed(self.futures):
+                        #     try:
+                        #         data = future.result()
+                        #     except Exception as exc:
+                        #         print('%r generated an exception: %s' % (exc))
                         logging.info(
                             f"No events for {self.no_event_count * sleep_sec} seconds. Quiting Profiler Now."
                         )
