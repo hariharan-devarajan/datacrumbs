@@ -61,17 +61,27 @@ int main(int argc, char *argv[]) {
                            std::to_string(my_rank) + ".dat";
 
     open_timer.resumeTime();
-    int flag = 0;
-    if (direct_io_flag == 1) {
-      flag = O_DIRECT;
-    }
+    
     int fd = -1;
-    if (test_flag == 0)
-      fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | flag, 0777);
-    else if (test_flag == 1)
-      fd = open(filename.c_str(), O_RDONLY | flag, 0777);
-    else
-      fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC | flag, 0777);
+    if (test_flag == 0) {
+      int flag = O_WRONLY | O_CREAT | O_TRUNC;
+      if (direct_io_flag == 1) {
+        flag = O_WRONLY | O_CREAT | O_TRUNC | O_DIRECT;
+      }
+      fd = open(filename.c_str(), flag, 0777);
+    } else if (test_flag == 1) {
+      int flag = O_RDONLY;
+      if (direct_io_flag == 1) {
+        flag = O_RDONLY | O_DIRECT;
+      }
+      fd = open(filename.c_str(), flag, 0777);
+    } else {
+      int flag = O_RDWR | O_CREAT | O_TRUNC;
+      if (direct_io_flag == 1) {
+        flag = O_RDWR | O_CREAT | O_TRUNC | O_DIRECT;
+      }
+      fd = open(filename.c_str(), flag, 0777);
+    }
     
     assert(fd != -1);
     open_timer.pauseTime();

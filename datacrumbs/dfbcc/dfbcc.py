@@ -5,6 +5,7 @@ from typing import *
 import threading
 import psutil
 import math
+import concurrent.futures
 # External Imports
 from bcc import BPF
 from bcc.utils import printb
@@ -35,6 +36,8 @@ class BCCMain:
         self.has_events = False
         self.filename_map = {0: None}
         self.filehash_map = {0: None}
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=16)
+        self.futures = []
         pass
 
     def load(self) -> any:
@@ -286,8 +289,7 @@ class BCCMain:
         except KeyboardInterrupt:
             pass
     
-    def handle_trace_event(self, ctx, data, size):
-        self.has_events = True
+    def async_handle_trace(self, data):
         event = DFEvent()
         c_event = ctypes.cast(data, ctypes.POINTER(DFTraceEvent)).contents
         event_tuple = self.category_fn_map[c_event.event_id]
@@ -321,6 +323,12 @@ class BCCMain:
         self.last_processed_ts = c_event.ts
         logging.debug(f"{self.last_processed_ts} timestamp processed")
         self.writer.write(event)
+        return 0
+    
+    def handle_trace_event(self, ctx, data, size):
+        self.has_events = True
+        future = executor.submit(async_handle_trace, self, ctx)
+        self.futures.append(future)
         self.no_event_count = 0
         
     
@@ -338,9 +346,15 @@ class BCCMain:
                         f"sleeping for {sleep_sec} secs with last ts {self.last_processed_ts}"
                     )
                     sleep(sleep_sec)
+                    
                     if self.has_events:
                         self.no_event_count += 1
                     if self.has_events and self.no_event_count > wait_for:
+                        for future in concurrent.futures.as_completed(self.futures):
+                            try:
+                                data = future.result()
+                            except Exception as exc:
+                                print('%r generated an exception: %s' % (exc))
                         logging.info(
                             f"No events for {self.no_event_count * sleep_sec} seconds. Quiting Profiler Now."
                         )
