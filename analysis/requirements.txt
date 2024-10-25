@@ -9,3 +9,7 @@ jupyter-server-proxy
 ipywidgets
 pandas>=2.0.3
 zindex_py==0.0.2
+tqdm
+scikit-learn
+seaborn
+jsonlines

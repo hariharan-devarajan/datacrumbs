@@ -7,3 +7,11 @@ tests/output/ops-8192_ts-4m/write.pfw.gz filter=lfs diff=lfs merge=lfs -text
 tests/output/ops-1024_ts-64m/RAW-DIRECT.pfw.gz filter=lfs diff=lfs merge=lfs -text
 tests/output/ops-1_ts-64m/RAW-DIRECT.pfw.gz filter=lfs diff=lfs merge=lfs -text
 tests/output/ops-64_ts-64m/RAW-BUFFERED.pfw.gz filter=lfs diff=lfs merge=lfs -text
+*.pfw.gz.zindex filter=lfs diff=lfs merge=lfs -text
+tests/output/ops-1024_ts-64m/RAW-DIRECT.pfw.gz.zindex filter=lfs diff=lfs merge=lfs -text
+tests/output/ops-1_ts-64m/RAW-DIRECT.pfw.gz.zindex filter=lfs diff=lfs merge=lfs -text
+tests/output/ops-64_ts-64m/RAW-BUFFERED.pfw.gz.zindex filter=lfs diff=lfs merge=lfs -text
+tests/output/ops-64_ts-64m/RAW-DIRECT.pfw.gz.zindex filter=lfs diff=lfs merge=lfs -text
+tests/output/ops-8192_ts-4m/write.pfw.gz.zindex filter=lfs diff=lfs merge=lfs -text
+*.pfw.gz.jsonl filter=lfs diff=lfs merge=lfs -text
+*.pfw.gz filter=lfs diff=lfs merge=lfs -text
