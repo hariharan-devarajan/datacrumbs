@@ -15,6 +15,8 @@ if [ "$TEST_CASE" -eq "0" ] || [ "$TEST_CASE" -eq "2" ]; then
   rm -rf $DATA_DIR/*
 fi
 
-LD_PRELOAD=$DATACRUMBS_SO ${IOR_INSTALL_DIR}/bin/ior -o=${DATA_DIR}/test.bat -F -m -b=16m -t=1m -i 10 -w -r -d 5
-
+for ts in 4k 16k 64k 256k 1m 4m 16m 64m; do 
+  LD_PRELOAD=$DATACRUMBS_SO ${IOR_INSTALL_DIR}/bin/ior -o=${DATA_DIR}/test.bat -F -m -b=1g -t=${ts} -i 10 -w -r -d 5
+  sleep 10
+done
 
