@@ -54,7 +54,7 @@ provision:
       source ${SPACK_ROOT}/share/spack/setup-env.sh 
       spack external find
       spack compiler find
-      spack install -j openmpi@5.0.5
+      spack install -j4 openmpi@5.0.5
       chmod 777 /opt -R
 
   - mode: user

@@ -31,6 +31,15 @@ class ConfigurationManager:
             ConfigurationManager.__instance = ConfigurationManager()
         return ConfigurationManager.__instance
 
+    def setup_logger(self, name, log_file, formatter, level=logging.INFO):
+        """To setup as many loggers as you want"""
+        handler = logging.FileHandler(log_file)        
+        handler.setFormatter(logging.Formatter(formatter))
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        logger.addHandler(handler)
+        return logger
+
     def __init__(self):
         self.project_root = pathlib.Path(__file__).parent.parent.parent.resolve()
         log_file = "datacrumbs.log"
@@ -38,15 +47,7 @@ class ConfigurationManager:
             os.remove(log_file)
         except OSError:
             pass
-        logging.basicConfig(
-            level=logging.INFO,
-            handlers=[
-                logging.FileHandler(log_file, mode="a", encoding="utf-8"),
-                logging.StreamHandler(),
-            ],
-            format="%(asctime)s [%(levelname)s]: %(message)s in %(pathname)s:%(lineno)d",
-        )
-        pass
+        self.tool_logger = self.setup_logger("tool", log_file, "%(asctime)s [%(levelname)s]: %(message)s in %(pathname)s:%(lineno)d", level=logging.INFO)
 
     def load(self, config: DictConfig):
         if "name" in config:
@@ -59,7 +60,7 @@ class ConfigurationManager:
             self.profile_file = config["file"]
         if "mode" in config:
             self.mode = Mode.get_enum(config["mode"])
-            logging.debug(f'yaml mode {config["mode"]} set conf value {self.mode}')
+            self.tool_logger.debug(f'yaml mode {config["mode"]} set conf value {self.mode}')
         if "user" in config:
             for obj in config["user"]:
                 self.user_libraries[obj["name"]] = obj

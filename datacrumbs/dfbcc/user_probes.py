@@ -1,6 +1,5 @@
 from typing import *
 import os
-import logging
 import re
 from bcc import BPF
 from tqdm import tqdm
@@ -33,7 +32,7 @@ class UserProbes:
             for symbol in tqdm(symbols, desc=f"User symbols for {key}"):
                 if (symbol or symbol != "") and pattern.match(symbol):
                     probe.functions.append(BCCFunctions(symbol))
-                    logging.debug(f"Adding Probe function {symbol} from {key}")
+                    self.config.tool_logger.debug(f"Adding Probe function {symbol} from {key}")
             self.probes.append(probe)
 
     def collector_fn(self, collector: BCCCollector, category_fn_map, count: int):
@@ -60,11 +59,11 @@ class UserProbes:
         return (bpf_text, category_fn_map, count)
 
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
-        logging.info("Attaching probe for User Probes")
+        self.config.tool_logger.info("Attaching probe for User Probes")
         for probe in tqdm(self.probes, "attach User probes"):
             for fn in tqdm(probe.functions, "attach User functions"):
                 try:
-                    logging.debug(
+                    self.config.tool_logger.debug(
                         f"Adding Probe function {fn.name} from {probe.category}"
                     )
                     if ProbeType.USER == probe.type:
@@ -84,6 +83,6 @@ class UserProbes:
                             fn_name=f"trace_{probe.category}_{fn.name}_exit",
                         )
                 except Exception as e:
-                    logging.warn(
+                    self.config.tool_logger.warn(
                         f"Unable attach probe {probe.category} to user function {fn.name} due to {e}"
                     )

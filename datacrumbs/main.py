@@ -1,7 +1,6 @@
 # External Imports
 import hydra
 from omegaconf import DictConfig
-import logging
 
 # Internal Imports
 from datacrumbs.dfbcc.dfbcc import BCCMain
@@ -24,7 +23,7 @@ class Datacrumbs:
         self.bcc.run()
 
     def finalize(self) -> None:
-        logging.info("Detaching...")
+        self.config.tool_logger.info("Detaching...")
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="config")

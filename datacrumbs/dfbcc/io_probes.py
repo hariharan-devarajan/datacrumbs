@@ -1,5 +1,4 @@
 from typing import *
-import logging
 import re
 from tqdm import tqdm
 
@@ -30,15 +29,16 @@ class IOProbes:
                         entry_args=", int dfd, const char *filename, int flags",
                         entry_cmd="""
                         struct filename_t fname_i;
-                        int len = bpf_probe_read_user_str(&fname_i.fname, sizeof(fname_i.fname), filename);
+                        u64 filename_len = sizeof(fname_i.fname);
+                        int len = bpf_probe_read_user_str(&fname_i.fname, filename_len, filename);
                         //fname_i.fname[len-1] = '\\0';
-                        u32 filehash = get_hash(id);
-                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filename,filehash);
+                        u64 filehash = get_hash(fname_i.fname, filename_len);
+                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filehash,filename);
                         file_hash.update(&filehash, &fname_i);
-                        latest_hash.update(&id, &filehash);
+                        latest_hash.update(&key, &filehash);
                         """,
                         exit_cmd_key="""
-                        u32* hash_ptr = latest_hash.lookup(&id);
+                        u64* hash_ptr = latest_hash.lookup(&key);
                         if (hash_ptr != 0) {
                             stats_key->file_hash = *hash_ptr; 
                         }
@@ -72,7 +72,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -98,7 +98,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -120,7 +120,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -132,33 +132,7 @@ class IOProbes:
                     self.get_bcc_function("execveat"),
                     self.get_bcc_function("exit"),
                     self.get_bcc_function(
-                        "faccessat",
-                        entry_struct=[("uint64", "file_hash")],
-                        entry_args=", int dfd, const char *filename, int mode",
-                        entry_cmd="""
-                        struct filename_t fname_i;
-                        int len = bpf_probe_read_user_str(&fname_i.fname, sizeof(fname_i.fname), filename);
-                        //fname_i.fname[len-1] = '\\0';
-                        u32 filehash = get_hash(id);
-                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filename,filehash);
-                        file_hash.update(&filehash, &fname_i);
-                        latest_hash.update(&id, &filehash);
-                        """,
-                        exit_cmd_key="""
-                        u32* hash_ptr = latest_hash.lookup(&id);
-                        if (hash_ptr != 0) {
-                            stats_key->file_hash = *hash_ptr; 
-                        }
-                        """,
-                        exit_cmd_stats="""
-                        if (hash_ptr != 0) {
-                            int fd = PT_REGS_RC(ctx);
-                            struct file_t file_key = {};
-                            file_key.id = id;
-                            file_key.fd = fd;
-                            fd_hash.update(&file_key, hash_ptr);
-                        }
-                        """,
+                        "faccessat"
                     ),
                     self.get_bcc_function("fcntl"),
                     self.get_bcc_function(
@@ -176,7 +150,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -198,7 +172,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -220,7 +194,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -244,7 +218,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -266,7 +240,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -289,7 +263,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -320,7 +294,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -346,7 +320,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -372,7 +346,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -398,7 +372,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -424,7 +398,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -450,7 +424,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -476,7 +450,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -484,35 +458,7 @@ class IOProbes:
                         """,
                     ),
                     self.get_bcc_function(
-                        "readlinkat",
-                        entry_struct=[("uint64", "file_hash")],
-                        entry_args="""
-                        , int dfd, const char *filename, void* buf, u64 bufsiz
-                        """,
-                        entry_cmd="""
-                        struct filename_t fname_i;
-                        int len = bpf_probe_read_user_str(&fname_i.fname, sizeof(fname_i.fname), filename);
-                        //fname_i.fname[len-1] = '\\0';
-                        u32 filehash = get_hash(id);
-                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filename,filehash);
-                        file_hash.update(&filehash, &fname_i);
-                        latest_hash.update(&id, &filehash);
-                        """,
-                        exit_cmd_key="""
-                        u32* hash_ptr = latest_hash.lookup(&id);
-                        if (hash_ptr != 0) {
-                            stats_key->file_hash = *hash_ptr; 
-                        }
-                        """,
-                        exit_cmd_stats="""
-                        if (hash_ptr != 0) {
-                            int fd = PT_REGS_RC(ctx);
-                            struct file_t file_key = {};
-                            file_key.id = id;
-                            file_key.fd = fd;
-                            fd_hash.update(&file_key, hash_ptr);
-                        }
-                        """,
+                        "readlinkat"
                     ),
                     self.get_bcc_function(
                         "readv",                        
@@ -533,7 +479,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -541,66 +487,10 @@ class IOProbes:
                         """,
                     ),
                     self.get_bcc_function(
-                        "renameat",
-                        entry_struct=[("uint64", "file_hash")],
-                        entry_args="""
-                        , int dfd, const char *filename,int new_dfd, const char *new_filename
-                        """,
-                        entry_cmd="""
-                        struct filename_t fname_i;
-                        int len = bpf_probe_read_user_str(&fname_i.fname, sizeof(fname_i.fname), filename);
-                        //fname_i.fname[len-1] = '\\0';
-                        u32 filehash = get_hash(id);
-                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filename,filehash);
-                        file_hash.update(&filehash, &fname_i);
-                        latest_hash.update(&id, &filehash);
-                        """,
-                        exit_cmd_key="""
-                        u32* hash_ptr = latest_hash.lookup(&id);
-                        if (hash_ptr != 0) {
-                            stats_key->file_hash = *hash_ptr; 
-                        }
-                        """,
-                        exit_cmd_stats="""
-                        if (hash_ptr != 0) {
-                            int fd = PT_REGS_RC(ctx);
-                            struct file_t file_key = {};
-                            file_key.id = id;
-                            file_key.fd = fd;
-                            fd_hash.update(&file_key, hash_ptr);
-                        }
-                        """,
+                        "renameat"
                     ),
                     self.get_bcc_function(
-                        "renameat2",
-                        entry_struct=[("uint64", "file_hash")],
-                        entry_args="""
-                        , int dfd, const char *filename,int new_dfd, const char *new_filename, u64 flags
-                        """,
-                        entry_cmd="""
-                        struct filename_t fname_i;
-                        int len = bpf_probe_read_user_str(&fname_i.fname, sizeof(fname_i.fname), filename);
-                        //fname_i.fname[len-1] = '\\0';
-                        u32 filehash = get_hash(id);
-                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filename,filehash);
-                        file_hash.update(&filehash, &fname_i);
-                        latest_hash.update(&id, &filehash);
-                        """,
-                        exit_cmd_key="""
-                        u32* hash_ptr = latest_hash.lookup(&id);
-                        if (hash_ptr != 0) {
-                            stats_key->file_hash = *hash_ptr; 
-                        }
-                        """,
-                        exit_cmd_stats="""
-                        if (hash_ptr != 0) {
-                            int fd = PT_REGS_RC(ctx);
-                            struct file_t file_key = {};
-                            file_key.id = id;
-                            file_key.fd = fd;
-                            fd_hash.update(&file_key, hash_ptr);
-                        }
-                        """,
+                        "renameat2"
                     ),
                     self.get_bcc_function("statfs"),
                     self.get_bcc_function("statx"),
@@ -626,7 +516,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -725,20 +615,21 @@ class IOProbes:
             )
         )
         self.probes.extend(self.get_bcc_functions(b".*page.*"))
+        self.probes.extend(self.get_bcc_functions(b".*bio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*aio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
+        self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
+        self.probes.extend(self.get_bcc_functions(b".*file.*"))
+        self.probes.extend(self.get_bcc_functions(b".*block.*"))
+        
+        #self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
+        #self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
         #self.probes.extend(self.get_bcc_functions(b".*lru.*"))
         #self.probes.extend(self.get_bcc_functions(b".*swap.*"))
         #self.probes.extend(self.get_bcc_functions(b".*buffer.*"))
         #self.probes.extend(self.get_bcc_functions(b".*nr.*"))
         #self.probes.extend(self.get_bcc_functions(b".*map.*"))
-        self.probes.extend(self.get_bcc_functions(b".*bio.*"))
-        self.probes.extend(self.get_bcc_functions(b".*aio.*"))
-        self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
-        self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
-        self.probes.extend(self.get_bcc_functions(b".*file.*"))
-        self.probes.extend(self.get_bcc_functions(b".*block.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
-        logging.info(f"Added {len(self.regex_functions)} I/O probes")
+        self.config.tool_logger.info(f"Added {len(self.regex_functions)} I/O probes")
         
         
 
@@ -773,7 +664,7 @@ class IOProbes:
         bcc_list = {}
         for line in tqdm(matches, desc=f"Matching for {regex}"):
             if line.decode() not in self.regex_functions and self.is_function_valid(line.decode()):
-                logging.debug(f"Adding {line.decode()} to probe")
+                self.config.tool_logger.debug(f"Adding {line.decode()} to probe")
                 self.regex_functions.add(line.decode())
                 value = BPF.ksym(BPF.ksymname(line), show_module=True).decode()
                 value = list(filter(None, re.split('\]|\[| ', value)))
@@ -784,7 +675,7 @@ class IOProbes:
                         bcc_list[module] = []
                     bcc_list[module].append(BCCFunctions(function_name))
             else:
-                logging.debug(f"Skipping {line.decode()} to probe")
+                self.config.tool_logger.debug(f"Skipping {line.decode()} to probe")
         for key, value in bcc_list.items():
             probes.append(BCCProbes(ProbeType.KERNEL, key, value))
         return probes
@@ -810,13 +701,13 @@ class IOProbes:
             
 
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
-        logging.info("Attaching I/O Probes")
+        self.config.tool_logger.info("Attaching I/O Probes")
         for probe in tqdm(self.probes, "attach I/O probes"):
             for fn in tqdm(probe.functions, "attach I/O functions"):
                 try:
                     if ProbeType.SYSTEM == probe.type:
                         fnname = bpf.get_syscall_prefix().decode() + fn.name
-                        # logging.debug(
+                        # self.config.tool_logger.debug(
                         #     f"attaching name {fnname} with {fn.name} for cat {probe.category}"
                         # )
                         bpf.attach_kprobe(
@@ -882,6 +773,6 @@ class IOProbes:
                                 fn_name=f"trace_{probe.category}_{fn.name}_exit",
                             )
                 except Exception as e:
-                    logging.warn(
+                    self.config.tool_logger.warn(
                         f"Unable attach probe  {probe.category} to io function {fn.name} due to {e}"
                     )
