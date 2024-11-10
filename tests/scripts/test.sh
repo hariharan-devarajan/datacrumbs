@@ -12,7 +12,7 @@ NUM_FILES=1
 NUM_OPS=$((1024))
 PROC=1
 DIRECTIO=0
-TEST_CASE=0 #write=0 read=1 both=2
+TEST_CASE=2 #write=0 read=1 both=2
 if [ "$TEST_CASE" -eq "0" ] || [ "$TEST_CASE" -eq "2" ]; then
   echo "Cleaning Data"
   ls -lhs $DATA_DIR

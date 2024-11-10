@@ -1,5 +1,4 @@
 from typing import *
-import logging
 import re
 from tqdm import tqdm
 
@@ -30,15 +29,16 @@ class IOProbes:
                         entry_args=", int dfd, const char *filename, int flags",
                         entry_cmd="""
                         struct filename_t fname_i;
-                        int len = bpf_probe_read_user_str(&fname_i.fname, sizeof(fname_i.fname), filename);
+                        u64 filename_len = sizeof(fname_i.fname);
+                        int len = bpf_probe_read_user_str(&fname_i.fname, filename_len, filename);
                         //fname_i.fname[len-1] = '\\0';
-                        u32 filehash = get_hash(id);
-                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filename,filehash);
+                        u64 filehash = get_hash(fname_i.fname, filename_len);
+                        bpf_trace_printk(\"Hash value is %d for filename \%s\",filehash,filename);
                         file_hash.update(&filehash, &fname_i);
-                        latest_hash.update(&id, &filehash);
+                        latest_hash.update(&key, &filehash);
                         """,
                         exit_cmd_key="""
-                        u32* hash_ptr = latest_hash.lookup(&id);
+                        u64* hash_ptr = latest_hash.lookup(&key);
                         if (hash_ptr != 0) {
                             stats_key->file_hash = *hash_ptr; 
                         }
@@ -72,7 +72,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -98,7 +98,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -120,7 +120,7 @@ class IOProbes:
                             struct file_t file_key = {};
                             file_key.id = id;
                             file_key.fd = *fd_ptr;
-                            u32* hash_ptr = fd_hash.lookup(&file_key);
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
                             if (hash_ptr != 0) {
                                 stats_key->file_hash = *hash_ptr; 
                             }
@@ -131,39 +131,398 @@ class IOProbes:
                     self.get_bcc_function("execve"),
                     self.get_bcc_function("execveat"),
                     self.get_bcc_function("exit"),
-                    self.get_bcc_function("faccessat"),
+                    self.get_bcc_function(
+                        "faccessat"
+                    ),
                     self.get_bcc_function("fcntl"),
-                    self.get_bcc_function("fallocate"),
-                    self.get_bcc_function("fdatasync"),
-                    self.get_bcc_function("flock"),
+                    self.get_bcc_function(
+                        "fallocate",
+                        entry_struct=[("uint64", "file_hash")],
+                        entry_args="""
+                        , int fd, int mode, int offset, int len
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "fdatasync",
+                        entry_struct=[("uint64", "file_hash")],
+                        entry_args="""
+                        , int fd
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "flock",
+                        entry_struct=[("uint64", "file_hash")],
+                        entry_args="""
+                        , int fd, int cmd
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
                     self.get_bcc_function("fsopen"),
                     self.get_bcc_function("fstatfs"),
-                    self.get_bcc_function("fsync"),
-                    self.get_bcc_function("ftruncate"),
+                    self.get_bcc_function(
+                        "fsync",
+                        entry_struct=[("uint64", "file_hash")],
+                        entry_args="""
+                        , int fd
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "ftruncate",
+                        entry_struct=[("uint64", "file_hash")],
+                        entry_args="""
+                        , int fd, int length
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
                     self.get_bcc_function("io_pgetevents"),
-                    self.get_bcc_function("lseek"),
+                    self.get_bcc_function(
+                        "lseek",
+                        entry_struct=[("uint64", "file_hash")],
+                        entry_args="""
+                        , int fd, int offset, int whence
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
                     self.get_bcc_function("memfd_create"),
                     self.get_bcc_function("migrate_pages"),
                     self.get_bcc_function("mlock"),
                     self.get_bcc_function("mmap"),
                     self.get_bcc_function("msync"),
-                    self.get_bcc_function("pread64"),
-                    self.get_bcc_function("preadv"),
-                    self.get_bcc_function("preadv2"),
-                    self.get_bcc_function("pwrite64"),
-                    self.get_bcc_function("pwritev"),
-                    self.get_bcc_function("pwritev2"),
-                    self.get_bcc_function("readahead"),
-                    self.get_bcc_function("readlinkat"),
-                    self.get_bcc_function("readv"),
-                    self.get_bcc_function("renameat"),
-                    self.get_bcc_function("renameat2"),
+                    self.get_bcc_function(
+                        "pread64",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, void *buf, u64 count, u64 pos
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "preadv",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, u64 buf, u64 vlen, u64 pos_l, u64 pos_h
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "preadv2",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, u64 buf, u64 vlen, u64 pos_l, u64 pos_h, u64 flags
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "pwrite64",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, const void *data, u64 count, u64 pos
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "pwritev",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, u64 buf, u64 vlen, u64 pos_l, u64 pos_h
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "pwritev2",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, u64 buf, u64 vlen, u64 pos_l, u64 pos_h, u64 flags
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "readahead",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, u64 offset, u64 count
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "readlinkat"
+                    ),
+                    self.get_bcc_function(
+                        "readv",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, u64 vec, u64 vlen
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
+                    self.get_bcc_function(
+                        "renameat"
+                    ),
+                    self.get_bcc_function(
+                        "renameat2"
+                    ),
                     self.get_bcc_function("statfs"),
                     self.get_bcc_function("statx"),
                     self.get_bcc_function("sync"),
                     self.get_bcc_function("sync_file_range"),
                     self.get_bcc_function("syncfs"),
-                    self.get_bcc_function("writev"),
+                    self.get_bcc_function(
+                        "writev",                        
+                        entry_struct=[("uint64", "file_hash")],                        
+                        exit_struct=[("uint64", "size_sum")],
+                        entry_args="""
+                        , int fd, u64 vec, u64 vlen
+                        """,
+                        entry_cmd="""
+                        latest_fd.update(&id,&fd);
+                        """,
+                        exit_cmd_stats="""
+                                 stats->size_sum += PT_REGS_RC(ctx);
+                                 """,
+                        exit_cmd_key="""
+                        int* fd_ptr = latest_fd.lookup(&id);
+                        if (fd_ptr != 0 ) {
+                            struct file_t file_key = {};
+                            file_key.id = id;
+                            file_key.fd = *fd_ptr;
+                            u64* hash_ptr = fd_hash.lookup(&file_key);
+                            if (hash_ptr != 0) {
+                                stats_key->file_hash = *hash_ptr; 
+                            }
+                        }
+                        """,
+                    ),
                 ])),
             )
         )
@@ -256,20 +615,21 @@ class IOProbes:
             )
         )
         self.probes.extend(self.get_bcc_functions(b".*page.*"))
+        self.probes.extend(self.get_bcc_functions(b".*bio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*aio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
+        self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
+        self.probes.extend(self.get_bcc_functions(b".*file.*"))
+        self.probes.extend(self.get_bcc_functions(b".*block.*"))
+        
+        #self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
+        #self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
         #self.probes.extend(self.get_bcc_functions(b".*lru.*"))
         #self.probes.extend(self.get_bcc_functions(b".*swap.*"))
         #self.probes.extend(self.get_bcc_functions(b".*buffer.*"))
         #self.probes.extend(self.get_bcc_functions(b".*nr.*"))
         #self.probes.extend(self.get_bcc_functions(b".*map.*"))
-        self.probes.extend(self.get_bcc_functions(b".*bio.*"))
-        self.probes.extend(self.get_bcc_functions(b".*aio.*"))
-        self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
-        self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
-        self.probes.extend(self.get_bcc_functions(b".*file.*"))
-        self.probes.extend(self.get_bcc_functions(b".*block.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
-        logging.info(f"Added {len(self.regex_functions)} I/O probes")
+        self.config.tool_logger.info(f"Added {len(self.regex_functions)} I/O probes")
         
         
 
@@ -304,7 +664,7 @@ class IOProbes:
         bcc_list = {}
         for line in tqdm(matches, desc=f"Matching for {regex}"):
             if line.decode() not in self.regex_functions and self.is_function_valid(line.decode()):
-                logging.debug(f"Adding {line.decode()} to probe")
+                self.config.tool_logger.debug(f"Adding {line.decode()} to probe")
                 self.regex_functions.add(line.decode())
                 value = BPF.ksym(BPF.ksymname(line), show_module=True).decode()
                 value = list(filter(None, re.split('\]|\[| ', value)))
@@ -315,7 +675,7 @@ class IOProbes:
                         bcc_list[module] = []
                     bcc_list[module].append(BCCFunctions(function_name))
             else:
-                logging.debug(f"Skipping {line.decode()} to probe")
+                self.config.tool_logger.debug(f"Skipping {line.decode()} to probe")
         for key, value in bcc_list.items():
             probes.append(BCCProbes(ProbeType.KERNEL, key, value))
         return probes
@@ -341,13 +701,13 @@ class IOProbes:
             
 
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
-        logging.info("Attaching I/O Probes")
+        self.config.tool_logger.info("Attaching I/O Probes")
         for probe in tqdm(self.probes, "attach I/O probes"):
             for fn in tqdm(probe.functions, "attach I/O functions"):
                 try:
                     if ProbeType.SYSTEM == probe.type:
                         fnname = bpf.get_syscall_prefix().decode() + fn.name
-                        # logging.debug(
+                        # self.config.tool_logger.debug(
                         #     f"attaching name {fnname} with {fn.name} for cat {probe.category}"
                         # )
                         bpf.attach_kprobe(
@@ -413,6 +773,6 @@ class IOProbes:
                                 fn_name=f"trace_{probe.category}_{fn.name}_exit",
                             )
                 except Exception as e:
-                    logging.warn(
+                    self.config.tool_logger.warn(
                         f"Unable attach probe  {probe.category} to io function {fn.name} due to {e}"
                     )

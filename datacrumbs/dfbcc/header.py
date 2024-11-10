@@ -29,19 +29,30 @@ class BCCHeader(ABC):
         self.events_ds = """
         BPF_HASH(pid_map, u32, u64); // map for apps to collect data
         BPF_HASH(fn_pid_map, struct fn_key_t, struct fn_t); // collect start time and ip for apps
-        BPF_HASH(file_hash, u32, struct filename_t);
-        BPF_HASH(latest_hash, u64, u32);
+        BPF_HASH(file_hash, u64, struct filename_t, 10240);
+        BPF_HASH(latest_hash, struct fn_key_t, u64);
         BPF_HASH(latest_fd, u64, int);
-        BPF_HASH(fd_hash, struct file_t, u32);
+        BPF_HASH(fd_hash, struct file_t, u64);
         BPF_HASH(pid_hash, u64, u64);
         """
         self.util = """
-        static u64 get_hash(u64 id) {
+        static u64 get_hash(unsigned char *str, u64 len) {
+            u64 hash = 5381;
+            int c = *str;
+            int count = 0;
+            while (count < len && c) {
+                hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+                c = *str++;
+                count++;
+            }
+            return hash;
+        }
+        /*static u64 get_hash(u64 id) {
             u64 first_hash = 1;
             u64* hash_value = pid_hash.lookup_or_init(&id, &first_hash);
             (*hash_value)++;
             return *hash_value;
-        }
+        }*/
         """
 
     def __str__(self) -> str:

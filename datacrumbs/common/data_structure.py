@@ -3,6 +3,7 @@ from typing import *
 
 
 class DFEvent:
+    id: int
     pid: int
     tid: int
     name: str
