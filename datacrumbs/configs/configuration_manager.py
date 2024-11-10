@@ -49,6 +49,9 @@ class ConfigurationManager:
             pass
         self.tool_logger = self.setup_logger("tool", log_file, "%(asctime)s [%(levelname)s]: %(message)s in %(pathname)s:%(lineno)d", level=logging.INFO)
 
+    def derive(self):
+        self.function_file = f"{self.project_root}/datacrumbs/configs/function.json"
+        
     def load(self, config: DictConfig):
         if "name" in config:
             self.module = config["name"]
@@ -71,4 +74,5 @@ class ConfigurationManager:
                 )
                 if status.failed():
                     exit(status)
+        self.derive()
         return self
