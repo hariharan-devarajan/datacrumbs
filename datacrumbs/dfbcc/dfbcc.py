@@ -54,6 +54,7 @@ class BCCMain:
         elif self.config.mode == Mode.TRACE:
             collector = BCCTraceCollector()
             bpf_text += str(BCCTraceHeader())
+        bpf_text += collector.get_generic_functions()
         bpf_text += str(app_connector)
         io_probes = IOProbes()
         count = 0
@@ -344,28 +345,42 @@ class BCCMain:
         event = DFEvent()
         event.id = index
         c_event = ctypes.cast(data, ctypes.POINTER(DFTraceEvent)).contents
-        event_tuple = self.category_fn_map[c_event.event_id]
-        event.cat = event_tuple[0]
-        function_probe = event_tuple[1]
-        event.args = {}
         event.pid = ctypes.c_uint32(c_event.id).value
         event.tid = ctypes.c_uint32(c_event.id >> 32).value
-        event.ts = int(c_event.ts)
-        event.ph = 'X'
-        event.dur = c_event.dur
-        if function_probe.regex:
+        
+        if c_event.event_id == 10000:
             event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
             if "unknown" in event.name:
                 event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
+            if event.name == "unknown":
+                event.cat = "unknown"
+            else:
+                vals =  event.name.split(" ")
+                event.cat = vals[1][1:-1]
+                event.name = vals[0]
         else:
-            event.name = function_probe.name
-        if not function_probe.regex:
-            class_type = function_probe.get_class()
-            if class_type:
-                c_event = ctypes.cast(data, ctypes.POINTER(class_type)).contents
-                event.args = function_probe.get_args(c_event)
-                if "file_hash" in event.args: # and event.args["file_hash"] in self.filename_map and self.filename_map[event.args["file_hash"]] is not None:
-                    event.args["fhash"] = event.args.pop("file_hash")
+            event_tuple = self.category_fn_map[c_event.event_id]
+            event.cat = event_tuple[0]
+            function_probe = event_tuple[1]
+            if function_probe.regex:
+                event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
+                if "unknown" in event.name:
+                    event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
+            else:
+                event.name = function_probe.name
+            if not function_probe.regex:
+                class_type = function_probe.get_class()
+                if class_type:
+                    c_event = ctypes.cast(data, ctypes.POINTER(class_type)).contents
+                    event.args = function_probe.get_args(c_event)
+                    if "file_hash" in event.args: # and event.args["file_hash"] in self.filename_map and self.filename_map[event.args["file_hash"]] is not None:
+                        event.args["fhash"] = event.args.pop("file_hash")
+            
+        self.config.tool_logger.debug(f"Processing event {event.name} and {event.cat}")
+        event.args = {}
+        event.ts = int(c_event.ts)
+        event.ph = 'X'
+        event.dur = c_event.dur
         # self.last_processed_ts = c_event.ts
         # self.config.tool_logger.debug(f"{self.last_processed_ts} timestamp processed")
         self.writer.write(event)
@@ -416,6 +431,7 @@ class BCCMain:
                 except KeyboardInterrupt:
                     break
                 for k, v in self.bpf["file_hash"].items_lookup_and_delete_batch():
+                    self.no_event_count = 0
                     self.writer.write_process_independent_metadata("FH", v.fname.decode(), k.value)
                 #filenames.items_delete_batch(keys)
                 self.bpf.ring_buffer_consume()

@@ -42,29 +42,28 @@ class UserProbes:
         bpf_text = ""
         for probe in self.probes:
             for fn in probe.functions:
-                count = count + 1
-                if ProbeType.SYSTEM == probe.type:
-                    text = collector.sys_functions
-                else:
-                    text = collector.functions
-                text = text.replace("DFCAT", probe.category)
-                text = text.replace("DFFUNCTION", fn.name)
-                text = text.replace("DFEVENTID", str(count))
-                text = text.replace("DFENTRYCMD", fn.entry_cmd)
-                text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
-                text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
-                text = text.replace("DFENTRYARGS", fn.entry_args)
-                text = text.replace("DFENTRY_STRUCT", fn.entry_struct_str)
-                text = text.replace("DFEXIT_STRUCT", fn.exit_struct_str)
-                category_fn_map[count] = (probe.category, fn)
-                bpf_text += text
+                if fn.is_custom:
+                    count = count + 1
+                    if ProbeType.SYSTEM != probe.type:
+                        text = collector.custom_functions
+                        text = text.replace("DFCAT", probe.category)
+                        text = text.replace("DFFUNCTION", fn.name)
+                        text = text.replace("DFEVENTID", str(count))
+                        text = text.replace("DFENTRYCMD", fn.entry_cmd)
+                        text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
+                        text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
+                        text = text.replace("DFENTRYARGS", fn.entry_args)
+                        text = text.replace("DFENTRY_STRUCT", fn.entry_struct_str)
+                        text = text.replace("DFEXIT_STRUCT", fn.exit_struct_str)
+                        bpf_text += text
+                        category_fn_map[count] = (probe.category, fn)
 
         return (bpf_text, category_fn_map, count)
 
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
         self.config.tool_logger.info("Attaching probe for User Probes")
         for probe in tqdm(self.probes, "attach User probes"):
-            for fn in tqdm(probe.functions, "attach User functions"):
+            for fn in tqdm(probe.functions, f"attach {probe.category} functions"):
                 try:
                     self.config.tool_logger.debug(
                         f"Adding Probe function {fn.name} from {probe.category}"
@@ -78,12 +77,12 @@ class UserProbes:
                         bpf.attach_uprobe(
                             name=library,
                             sym=fname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            fn_name=f"trace_generic_entry",
                         )
                         bpf.attach_uretprobe(
                             name=library,
                             sym=fname,
-                            fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            fn_name=f"trace_generic_exit",
                         )
                 except Exception as e:
                     self.config.tool_logger.warn(

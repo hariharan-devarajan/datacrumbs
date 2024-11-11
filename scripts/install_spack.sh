@@ -16,6 +16,6 @@ IOR_DIR=/opt/ior
 git clone git@github.com:hpc/ior.git ${IOR_DIR}
 cd $IOR_DIR
 ./bootstrap
-./configure --with-hdf5=on --prefix=$PWD/install CFLAGS="-I${HDF5_DIR}/include -L${HDF5_DIR}/lib" CPPFLAGS="-I${HDF5_DIR}/include -L${HDF5_DIR}/lib"
+./configure --with-hdf5 --prefix=$PWD/install CFLAGS="-I${HDF5_DIR}/include -L${HDF5_DIR}/lib" CPPFLAGS="-I${HDF5_DIR}/include -L${HDF5_DIR}/lib"
 make install
 cd -
