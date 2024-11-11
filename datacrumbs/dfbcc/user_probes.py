@@ -44,7 +44,7 @@ class UserProbes:
             for fn in probe.functions:
                 if fn.is_custom:
                     count = count + 1
-                    if ProbeType.SYSTEM != probe.type:
+                    if ProbeType.USER == probe.type:
                         text = collector.custom_functions
                         text = text.replace("DFCAT", probe.category)
                         text = text.replace("DFFUNCTION", fn.name)
@@ -62,27 +62,33 @@ class UserProbes:
 
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
         self.config.tool_logger.info("Attaching probe for User Probes")
+        added_libraries = set()
         for probe in tqdm(self.probes, "attach User probes"):
             for fn in tqdm(probe.functions, f"attach {probe.category} functions"):
                 try:
-                    self.config.tool_logger.debug(
-                        f"Adding Probe function {fn.name} from {probe.category}"
-                    )
                     if ProbeType.USER == probe.type:
+                        self.config.tool_logger.debug(
+                            f"Adding Probe function {fn.name} from {probe.category}"
+                        )
                         library = probe.category
                         fname = fn.name
                         if probe.category in self.config.user_libraries:
                             library = self.config.user_libraries[probe.category]["link"]
-                            bpf.add_module(library)
+                            if probe.category not in added_libraries:
+                                bpf.add_module(library)
+                                added_libraries.add(probe.category)
+                                self.config.tool_logger.debug(
+                                    f"Adding Probe library {library} from {probe.category}"
+                                )
                         bpf.attach_uprobe(
                             name=library,
                             sym=fname,
-                            fn_name=f"trace_generic_entry",
+                            fn_name=f"user_generic_entry",
                         )
                         bpf.attach_uretprobe(
                             name=library,
                             sym=fname,
-                            fn_name=f"trace_generic_exit",
+                            fn_name=f"user_generic_exit",
                         )
                 except Exception as e:
                     self.config.tool_logger.warn(

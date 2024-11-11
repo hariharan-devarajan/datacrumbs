@@ -67,7 +67,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
                     
             return 0;
@@ -91,7 +91,7 @@
             struct generic_event_t stats_key_v = {};
             struct generic_event_t *stats_key = &stats_key_v;
             stats_key->id = id;
-            stats_key->event_id = 10000;
+            stats_key->event_id = 10001;
             stats_key->ip = fn->ip;
                     
                         
@@ -99,7 +99,60 @@
             stats->ts = (fn->ts  - *start_ts);
             stats->dur = bpf_ktime_get_ns() - fn->ts;
               
-            bpf_trace_printk("Submitting GEN TRACE IP \%d",fn->ip);      
+            // bpf_trace_printk("Submitting GEN TRACE IP \%d",fn->ip);      
+            
+            events.ringbuf_output(&stats_key_v, sizeof(struct generic_event_t), 0);
+        
+            return 0;
+        }
+                
+        int user_generic_entry(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+                    
+            
+            struct fn_key_t key = {};
+            key.id = id;
+            struct fn_t fn = {};
+            fn.ts = bpf_ktime_get_ns();
+            fn.ip = PT_REGS_IP(ctx);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
+            fn_pid_map.update(&key, &fn);
+                    
+            return 0;
+        }
+
+        int user_generic_exit(struct pt_regs *ctx) {
+            
+            u64 id = bpf_get_current_pid_tgid();
+            u32 pid = id;
+            u64* start_ts = pid_map.lookup(&pid);
+            if (start_ts == 0 || pid == 0)                                      
+                return 0;
+                    
+            
+            struct fn_key_t key = {};
+            key.id = id;
+            struct fn_t *fn = fn_pid_map.lookup(&key);
+            if (fn == 0) return 0; // missed entry
+                    
+            
+            struct generic_event_t stats_key_v = {};
+            struct generic_event_t *stats_key = &stats_key_v;
+            stats_key->id = id;
+            stats_key->event_id = 10002;
+            stats_key->ip = fn->ip;
+                    
+                        
+            struct generic_event_t* stats = stats_key;
+            stats->ts = (fn->ts  - *start_ts);
+            stats->dur = bpf_ktime_get_ns() - fn->ts;
+              
+            // bpf_trace_printk("Submitting GEN TRACE IP \%d",fn->ip);      
             
             events.ringbuf_output(&stats_key_v, sizeof(struct generic_event_t), 0);
         
@@ -120,7 +173,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
            
             return 0;
@@ -152,7 +205,7 @@
             stats->ts = (fn->ts  - *start_ts);
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
-            bpf_trace_printk("Submitting GEN SYS IP \%d",fn->ip);
+            // bpf_trace_printk("Submitting GEN SYS IP \%d",fn->ip);
             
             events.ringbuf_output(&stats_key_v, sizeof(struct generic_event_t), 0);
         
@@ -208,7 +261,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -265,7 +318,7 @@
                             fd_hash.update(&file_key, hash_ptr);
                         }
                         
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_openat_event_t), 0);
         
@@ -301,7 +354,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -351,7 +404,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_read_event_t), 0);
         
@@ -387,7 +440,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -437,7 +490,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_write_event_t), 0);
         
@@ -473,7 +526,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -521,7 +574,7 @@
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_close_event_t), 0);
         
@@ -557,7 +610,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -605,7 +658,7 @@
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_fallocate_event_t), 0);
         
@@ -641,7 +694,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -689,7 +742,7 @@
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_fdatasync_event_t), 0);
         
@@ -725,7 +778,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -773,7 +826,7 @@
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_flock_event_t), 0);
         
@@ -809,7 +862,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -857,7 +910,7 @@
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_fsync_event_t), 0);
         
@@ -893,7 +946,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -941,7 +994,7 @@
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_ftruncate_event_t), 0);
         
@@ -977,7 +1030,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1025,7 +1078,7 @@
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         
             
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_lseek_event_t), 0);
         
@@ -1061,7 +1114,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1111,7 +1164,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_pread64_event_t), 0);
         
@@ -1147,7 +1200,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1197,7 +1250,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_preadv_event_t), 0);
         
@@ -1233,7 +1286,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1283,7 +1336,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_preadv2_event_t), 0);
         
@@ -1319,7 +1372,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1369,7 +1422,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_pwrite64_event_t), 0);
         
@@ -1405,7 +1458,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1455,7 +1508,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_pwritev_event_t), 0);
         
@@ -1491,7 +1544,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1541,7 +1594,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_pwritev2_event_t), 0);
         
@@ -1577,7 +1630,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1627,7 +1680,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_readahead_event_t), 0);
         
@@ -1663,7 +1716,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1713,7 +1766,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_readv_event_t), 0);
         
@@ -1749,7 +1802,7 @@
             struct fn_t fn = {};
             fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
-            bpf_trace_printk("Tracing IP \%d",fn.ip);
+            // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
         
             
@@ -1799,7 +1852,7 @@
             
                                  stats->size_sum += PT_REGS_RC(ctx);
                                  
-            bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
+            // bpf_trace_printk("Submitting CUSTOM SYS IP \%d",fn->ip); 
             
             events.ringbuf_output(&stats_key_v, sizeof(struct sys_writev_event_t), 0);
         

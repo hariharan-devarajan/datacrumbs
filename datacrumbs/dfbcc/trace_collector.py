@@ -1,5 +1,7 @@
 
 from datacrumbs.dfbcc.collector import BCCCollector
+from datacrumbs.common.constants import *
+
 class BCCTraceCollector(BCCCollector):
     entry_fn: str
     exit_fn: str
@@ -71,7 +73,7 @@ class BCCTraceCollector(BCCCollector):
         ).replace(
             "DFEXITSTATSCLEAN", self.stats_clean
         ).replace(
-            "DFEVENTID", "10000"
+            "DFEVENTID", f"{SYS_GEN_FUNC}"
         ).replace(
             "DFCAT_DFFUNCTION", "generic"
         )
@@ -85,7 +87,21 @@ class BCCTraceCollector(BCCCollector):
         ).replace(
             "DFEXITSTATSCLEAN", self.stats_clean
         ).replace(
-            "DFEVENTID", "10000"
+            "DFEVENTID", f"{KER_GEN_FUNC}"
+        ).replace(
+            "DFCAT_DFFUNCTION", "generic"
+        )
+        
+        self.user_gen_functions = self.user_gen_functions.replace(
+            "DFCAPTUREEVENTKEY", self.stats_key_create
+        ).replace(
+            "DFCAPTUREEVENTVALUE", self.stats_value_create
+        ).replace(
+            "DFSUBMITEVENT", self.stats_submit
+        ).replace(
+            "DFEXITSTATSCLEAN", self.stats_clean
+        ).replace(
+            "DFEVENTID", f"{USR_GEN_FUNC}"
         ).replace(
             "DFCAT_DFFUNCTION", "generic"
         )

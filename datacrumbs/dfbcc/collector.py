@@ -141,9 +141,34 @@ class BCCCollector(ABC):
         ).replace(
             "DFFNLOOKUP", self.lookup_fn
         )
+        
+        self.user_gen_functions = """        
+        int user_generic_entry(struct pt_regs *ctx) {
+            DFFILTERPID            
+            DFFNENTRY            
+            return 0;
+        }
+
+        int user_generic_exit(struct pt_regs *ctx) {
+            DFFILTERPID            
+            DFFNLOOKUP            
+            DFCAPTUREEVENTKEY            
+            DFCAPTUREEVENTVALUE      
+            // bpf_trace_printk("Submitting GEN TRACE IP \%d",fn->ip);      
+            DFSUBMITEVENT
+            return 0;
+        }
+        """.replace(
+            "DFFILTERPID", self.filter_pid
+        ).replace(
+            "DFFNENTRY", self.capture_entry_fn
+        ).replace(
+            "DFFNLOOKUP", self.lookup_fn
+        )
 
     def get_generic_functions(self):
         bpf_text = ""
         bpf_text += self.gen_functions
+        bpf_text += self.user_gen_functions
         bpf_text += self.sys_gen_functions
         return bpf_text

@@ -23,6 +23,7 @@ from datacrumbs.configs.configuration_manager import ConfigurationManager
 from datacrumbs.common.data_structure import DFEvent, Filename, DFTraceEvent
 from datacrumbs.common.enumerations import Mode
 from datacrumbs.common.utils import *
+from datacrumbs.common.constants import *
 from datacrumbs.writer.perfetto import PerfettoWriter
 
 def copy(dst, src):
@@ -348,11 +349,16 @@ class BCCMain:
         event.pid = ctypes.c_uint32(c_event.id).value
         event.tid = ctypes.c_uint32(c_event.id >> 32).value
         
-        if c_event.event_id == 10000:
-            event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
-            if "unknown" in event.name:
+        if c_event.event_id >= SYS_GEN_FUNC:
+            if c_event.event_id in [SYS_GEN_FUNC,KER_GEN_FUNC]:
                 event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
-            if event.name == "unknown":
+            else:
+                event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()                
+                if "unknown" in event.name:
+                    event.name = self.bpf.sym(c_event.ip, -1, show_module=True).decode()
+                    self.config.tool_logger.info(f"Processing event {event.name}")
+                    
+            if "unknown" in event.name:
                 event.cat = "unknown"
             else:
                 vals =  event.name.split(" ")
@@ -376,7 +382,6 @@ class BCCMain:
                     if "file_hash" in event.args: # and event.args["file_hash"] in self.filename_map and self.filename_map[event.args["file_hash"]] is not None:
                         event.args["fhash"] = event.args.pop("file_hash")
             
-        self.config.tool_logger.debug(f"Processing event {event.name} and {event.cat}")
         event.args = {}
         event.ts = int(c_event.ts)
         event.ph = 'X'
