@@ -16,6 +16,7 @@ class UserProbes:
     def __init__(self) -> None:
         self.config = ConfigurationManager.get_instance()
         self.probes = []
+        num_symbols = 0
         for key, obj in self.config.user_libraries.items():
             probe = BCCProbes(ProbeType.USER, key, [])
             if "regex" not in obj:
@@ -32,8 +33,10 @@ class UserProbes:
             for symbol in tqdm(symbols, desc=f"User symbols for {key}"):
                 if (symbol or symbol != "") and pattern.match(symbol):
                     probe.functions.append(BCCFunctions(symbol))
+                    num_symbols += 1
                     self.config.tool_logger.debug(f"Adding Probe function {symbol} from {key}")
             self.probes.append(probe)
+        self.config.tool_logger.info(f"Added {num_symbols} User probes")
 
     def collector_fn(self, collector: BCCCollector, category_fn_map, count: int):
         bpf_text = ""
