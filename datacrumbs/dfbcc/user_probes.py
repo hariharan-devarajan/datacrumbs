@@ -32,7 +32,7 @@ class UserProbes:
             )
             for symbol in tqdm(symbols, desc=f"User symbols for {key}"):
                 if (symbol or symbol != "") and pattern.match(symbol):
-                    probe.functions.append(BCCFunctions(symbol))
+                    probe.functions.append(BCCFunctions(symbol, is_custom=True))
                     num_symbols += 1
                     self.config.tool_logger.debug(f"Adding Probe function {symbol} from {key}")
             self.probes.append(probe)
@@ -80,16 +80,28 @@ class UserProbes:
                                 self.config.tool_logger.debug(
                                     f"Adding Probe library {library} from {probe.category}"
                                 )
-                        bpf.attach_uprobe(
-                            name=library,
-                            sym=fname,
-                            fn_name=f"user_generic_entry",
-                        )
-                        bpf.attach_uretprobe(
-                            name=library,
-                            sym=fname,
-                            fn_name=f"user_generic_exit",
-                        )
+                        if fn.is_custom:
+                            bpf.attach_uprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                            )
+                            bpf.attach_uretprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                            )
+                        else:
+                            bpf.attach_uprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"user_generic_entry",
+                            )
+                            bpf.attach_uretprobe(
+                                name=library,
+                                sym=fname,
+                                fn_name=f"user_generic_exit",
+                            )
                 except Exception as e:
                     self.config.tool_logger.warn(
                         f"Unable attach probe {probe.category} to user function {fn.name} due to {e}"
