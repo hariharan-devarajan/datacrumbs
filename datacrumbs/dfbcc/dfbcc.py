@@ -350,14 +350,14 @@ class BCCMain:
         event.pid = ctypes.c_uint32(c_event.id).value
         event.tid = ctypes.c_uint32(c_event.id >> 32).value
         
-        if c_event.event_id >= SYS_GEN_FUNC:
+        if c_event.event_id not in self.category_fn_map and c_event.event_id >= SYS_GEN_FUNC:
             if c_event.event_id in [SYS_GEN_FUNC,KER_GEN_FUNC]:
                 event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
             else:
                 event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()                
                 if "unknown" in event.name:
                     event.name = self.bpf.sym(c_event.ip, -1, show_module=True).decode()
-                    self.config.tool_logger.info(f"Processing event {event.name}")
+                self.config.tool_logger.info(f"Processing general event {event.name}")
                     
             if "unknown" in event.name:
                 event.cat = "unknown"
@@ -369,10 +369,9 @@ class BCCMain:
             event_tuple = self.category_fn_map[c_event.event_id]
             event.cat = event_tuple[0]
             function_probe = event_tuple[1]
-            if function_probe.regex:
-                event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
-                if "unknown" in event.name:
-                    event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
+            if function_probe.regex and function_probe.type != ProbeType.USER:
+                event.name = self.bpf.ksym(c_event.ip, show_module=True).decode()
+                self.config.tool_logger.info(f"Processing custom event {event.name}")
             else:
                 event.name = function_probe.name
             if not function_probe.regex:
