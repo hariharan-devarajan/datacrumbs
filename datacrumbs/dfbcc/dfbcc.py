@@ -77,6 +77,7 @@ class BCCMain:
         f.close()
         self.config.tool_logger.info(f"Wrote program into {file}")
         self.bpf = BPF(text=bpf_text, debug=0)
+        self.config.tool_logger.info(f"Attaching Probes")
         app_connector.attach_probe(self.bpf)
         io_probes.attach_probes(self.bpf, collector)
         user_probes.attach_probes(self.bpf, collector)
