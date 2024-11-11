@@ -617,7 +617,7 @@ class IOProbes:
         
         with open(self.config.function_file) as json_file:
             kernel_functions = json.load(json_file)
-            for cat, functions in kernel_functions:
+            for cat, functions in kernel_functions.items():
                 fn_list = []
                 for fn in functions:
                     fn_list.append(self.get_bcc_function(fn))
