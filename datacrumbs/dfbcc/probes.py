@@ -15,6 +15,7 @@ class BCCFunctions:
     entry_args: str
     entry_struct_str: str
     exit_struct_str: str
+    is_custom: bool
 
     def __init__(
         self,
@@ -26,6 +27,7 @@ class BCCFunctions:
         entry_cmd: str = "",
         exit_cmd_stats: str = "",
         exit_cmd_key: str = "",
+        is_custom: bool = False,
     ) -> None:
         self.name = name
         self.regex = regex
@@ -37,6 +39,7 @@ class BCCFunctions:
         self.entry_args = entry_args
         self.entry_struct_str = self.get_str_from_args(entry_struct)
         self.exit_struct_str = self.get_str_from_args(exit_struct)
+        self.is_custom = is_custom
         
     def get_str_from_args(self, args):
         args_str = ""
