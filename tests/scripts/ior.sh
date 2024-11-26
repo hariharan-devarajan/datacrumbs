@@ -4,7 +4,7 @@ echo $SCRIPT_DIR
 TEST_DIR=$(dirname $SCRIPT_DIR)
 PROJECT_DIR=$(dirname $TEST_DIR)
 PARENT_DIR=$(dirname $PROJECT_DIR)
-IOR_INSTALL_DIR=${PARENT_DIR}/ior/install
+IOR_INSTALL_DIR=/opt/ior/install
 DATACRUMBS_SO=${PROJECT_DIR}/build/libdatacrumbs.so
 
 DATA_DIR=${PROJECT_DIR}/build/data
@@ -128,7 +128,7 @@ BLOCK=1g
 #   rm -rf $DATA_DIR/*
 # done
 
-for ts in 256k; do # 4k 16k 64k 256k 1m 4m 16m 64m
+for ts in 64m; do # 4k 16k 64k 256k 1m 4m 16m 64m
   configuration="-o=${DATA_DIR}/test.bat-${ts} -F -m -b=${BLOCK} -i 1 -d 10 -t=${ts} -a HDF5"
   echo "Running ${IOR_INSTALL_DIR}/bin/ior ${configuration} -w"
   LD_PRELOAD=$DATACRUMBS_SO ${IOR_INSTALL_DIR}/bin/ior ${configuration} -w -k

@@ -2,6 +2,7 @@
 sudo pip install -r requirements.txt
 sudo apt-get update
 sudo apt-get install -y hwloc libtool openssl libssl-dev gfortran gcc g++
+sudo chmod 777 /opt -R
 SPACK_ROOT=/opt/spack
 git clone https://github.com/spack/spack.git ${SPACK_ROOT}
 source ${SPACK_ROOT}/share/spack/setup-env.sh 
