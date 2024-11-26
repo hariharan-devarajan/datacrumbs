@@ -526,21 +526,22 @@ class IOProbes:
                 ])),
             )
         )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "os_cache",
-        #         list(filter(None, [
-        #             self.get_bcc_function("add_to_page_cache_lru"),
-        #             self.get_bcc_function("mark_page_accessed"),
-        #             self.get_bcc_function("account_page_dirtied"),
-        #             self.get_bcc_function("mark_buffer_dirty"),
-        #             self.get_bcc_function("do_page_cache_ra"),
-        #             self.get_bcc_function("page_cache_pipe_buf_release"),
-        #             self.get_bcc_function("__page_cache_alloc"),
-        #         ])),
-        #     )
-        # )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "os_cache",
+                list(filter(None, [
+                    self.get_bcc_function("add_to_page_cache_lru"),
+                    self.get_bcc_function("mark_page_accessed"),
+                    self.get_bcc_function("account_page_dirtied"),
+                    self.get_bcc_function("mark_buffer_dirty"),
+                    self.get_bcc_function("do_page_cache_ra"),
+                    self.get_bcc_function("page_cache_pipe_buf_release"),
+                    self.get_bcc_function("__page_cache_alloc"),
+                    self.get_bcc_function("__do_page_cache_readahead"),
+                ])),
+            )
+        )
         # # https://fossd.anu.edu.au/linux/v2.6.18-rc4/source/fs/read_write.c#L247
         # self.probes.append(
         #     BCCProbes(
