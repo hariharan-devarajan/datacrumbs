@@ -4,13 +4,13 @@ mode: trace
 file: trace.pfw
 user:
   - name: app
-    link: /opt/datacrumbs/build/tests/df_tracer_test
+    link: /opt/ior/install/bin/ior
     regex: .*
   - name: mpi
-    link: /opt/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/openmpi-5.0.5-cikcsmrpj7iig4ptjdekpd3lnlktupyv/lib/libmpi.so
+    link: /opt/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/openmpi-5.0.5-4a5uwfh5giognvdtk7r33qbzzafke4me/lib/libmpi.so
     regex: ^PMPI.*
   - name: hdf5
-    link: /opt/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/hdf5-1.14.5-y4edcb5v3m6etrnwbavqkhy663wva5ra/lib/libhdf5.so
+    link: /opt/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/hdf5-1.14.5-3y4ojmnfqwx6stovnnmwzg2gjrh7v47p/lib/libhdf5.so
     regex: ^H5.*
 
 profile:

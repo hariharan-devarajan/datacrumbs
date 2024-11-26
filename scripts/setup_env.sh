@@ -6,4 +6,4 @@ ulimit -n 1048576
 export BCC_PROBE_LIMIT=1048576
 SPACK_ROOT=/opt/spack
 source ${SPACK_ROOT}/share/spack/setup-env.sh
-spack install hdf5@1.14.5 openmpi@5.0.5
+# spack install hdf5@1.14.5 openmpi@5.0.5
