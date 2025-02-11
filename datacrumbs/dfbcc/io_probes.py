@@ -719,7 +719,7 @@ class IOProbes:
         entry_cmd: str = "",
         exit_cmd_stats: str = "",
         exit_cmd_key: str = "",
-        is_custom = False,):
+        is_custom = True,):
         if function_name not in self.regex_functions:
             self.regex_functions.add(function_name)            
             return BCCFunctions(function_name, 

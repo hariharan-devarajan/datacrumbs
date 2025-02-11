@@ -14,7 +14,7 @@ export OPENMPI_DIR=$(spack location -i openmpi@5.0.5%gcc@11.4.0)
 echo "Set HDF5 to ${HDF5_DIR}"
 echo "Set OPENMPI to ${OPENMPI_DIR}"
 IOR_DIR=/opt/ior
-git clone git@github.com:hpc/ior.git ${IOR_DIR}
+git clone https://github.com/hpc/ior.git ${IOR_DIR}
 cd $IOR_DIR
 ./bootstrap
 ./configure --with-hdf5 --prefix=$PWD/install CFLAGS="-I${HDF5_DIR}/include -L${HDF5_DIR}/lib" CPPFLAGS="-I${HDF5_DIR}/include -L${HDF5_DIR}/lib"

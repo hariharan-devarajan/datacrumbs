@@ -22,7 +22,7 @@ fi
 for TSKB in $((512*1024)); #1 4 16 64 256 1024 4096 16384 65536 262144
 do
   TS=$((TSKB * 1024))
-  cmd="mpirun -np ${PROC} --use-hwthread-cpus -x LD_PRELOAD=${DATACRUMBS_SO} ${PROJECT_DIR}/build/tests/df_tracer_test ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} ${TEST_CASE} ${DIRECTIO}"
+  cmd="mpirun -np ${PROC} --use-hwthread-cpus -x LD_PRELOAD=${DATACRUMBS_SO} ${PROJECT_DIR}/build/tests/df_tracer_test_stdio ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} ${TEST_CASE} ${DIRECTIO}"
   echo $cmd
   $cmd
   sleep 5
