@@ -55,6 +55,7 @@ int main(int argc, char *argv[]) {
   Timer write_timer = Timer();
   Timer read_timer = Timer();
   Timer close_timer = Timer();
+  int sleep_time = 5;
   for (int file_idx = 0; file_idx < files; ++file_idx) {
 
     std::string filename = dir + "/file_" + std::to_string(file_idx) + "_" +
@@ -71,11 +72,13 @@ int main(int argc, char *argv[]) {
     } else {
       fh = fopen(filename.c_str(), "w+");
     }
-
+    printf("Sleeping for %d\n", sleep_time);
+    sleep(sleep_time);
     assert(fh != NULL);
     open_timer.pauseTime();
     for (int op_idx = 0; op_idx < ops; ++op_idx) {
-      sleep(5);
+      printf("Sleeping for write for %d for step %d of %d\n", sleep_time, op_idx, ops);
+      sleep(sleep_time);
       if (test_flag == 0 || test_flag == 2) {
         write_timer.resumeTime();
         assert(fwrite(data.c_str(), ts, 1, fh) == 1);
@@ -83,14 +86,20 @@ int main(int argc, char *argv[]) {
       }
 
       if (test_flag == 2) {
+        printf("Sleeping for fseek for %d for step %d of %d\n", sleep_time, op_idx, ops);
+        sleep(sleep_time);
         fseek(fh, (off_t)op_idx * ts, SEEK_SET);
       }
       if (test_flag == 1 || test_flag == 2) {
+        printf("Sleeping for read for %d for step %d of %d\n", sleep_time, op_idx, ops);
+        sleep(sleep_time);
         read_timer.resumeTime();
         assert(fread(read_data, ts, 1, fh) == 1);
         read_timer.pauseTime();
       }
     }
+    printf("Sleeping for close for %d\n", sleep_time);
+    sleep(sleep_time);
     close_timer.resumeTime();
     fclose(fh);
     close_timer.pauseTime();

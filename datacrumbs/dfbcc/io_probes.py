@@ -562,24 +562,24 @@ class IOProbes:
             )
         )
         # # https://fossd.anu.edu.au/linux/v2.6.18-rc4/source/fs/read_write.c#L247
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "vfs",
-        #         list(filter(None, [
-        #          self.get_bcc_function("vfs_read"),
-        #          self.get_bcc_function("vfs_write"),
-        #          self.get_bcc_function("vfs_readv"),
-        #          self.get_bcc_function("vfs_writev"),
-        #          self.get_bcc_function("do_sendfile"),
-        #          self.get_bcc_function("rw_verify_area"),
-        #          self.get_bcc_function("wait_on_page_bit"),
-        #          self.get_bcc_function("find_get_pages_contig"),
-        #          self.get_bcc_function("grab_cache_page_nowait"),
-        #          self.get_bcc_function("read_cache_page"),
-        #         ])),
-        #     )
-        # )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "vfs",
+                list(filter(None, [
+                 self.get_bcc_function("vfs_read"),
+                 self.get_bcc_function("vfs_write"),
+                 self.get_bcc_function("vfs_readv"),
+                 self.get_bcc_function("vfs_writev"),
+                 self.get_bcc_function("do_sendfile"),
+                 self.get_bcc_function("rw_verify_area"),
+                 self.get_bcc_function("wait_on_page_bit"),
+                 self.get_bcc_function("find_get_pages_contig"),
+                 self.get_bcc_function("grab_cache_page_nowait"),
+                 self.get_bcc_function("read_cache_page"),
+                ])),
+            )
+        )
         self.probes.append(
             BCCProbes(
                 ProbeType.USER,
@@ -635,31 +635,31 @@ class IOProbes:
             )
         )
         
-        with open(self.config.function_file) as json_file:
-            kernel_functions = json.load(json_file)
-            for cat, functions in kernel_functions.items():
-                fn_list = []
-                for fn in functions:
-                    self.config.tool_logger.debug(f"Added {cat}, {fn} I/O probe")
-                    fn_list.append(self.get_bcc_function(fn))
-                self.probes.append(BCCProbes(ProbeType.KERNEL, cat, fn_list))
+        # with open(self.config.function_file) as json_file:
+        #     kernel_functions = json.load(json_file)
+        #     for cat, functions in kernel_functions.items():
+        #         fn_list = []
+        #         for fn in functions:
+        #             self.config.tool_logger.debug(f"Added {cat}, {fn} I/O probe")
+        #             fn_list.append(self.get_bcc_function(fn))
+        #         self.probes.append(BCCProbes(ProbeType.KERNEL, cat, fn_list))
         
         
-        # self.probes.extend(self.get_bcc_functions(b".*page.*"))
-        # self.probes.extend(self.get_bcc_functions(b".*bio.*"))
-        # self.probes.extend(self.get_bcc_functions(b".*aio.*"))
-        # self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
-        # self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
-        # self.probes.extend(self.get_bcc_functions(b".*file.*"))
-        # self.probes.extend(self.get_bcc_functions(b".*block.*"))
+        self.probes.extend(self.get_bcc_functions(b".*page.*"))
+        self.probes.extend(self.get_bcc_functions(b".*bio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*aio.*"))
+        self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
+        self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
+        self.probes.extend(self.get_bcc_functions(b".*file.*"))
+        self.probes.extend(self.get_bcc_functions(b".*block.*"))
         
-        #self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*lru.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*swap.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*buffer.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*nr.*"))
-        #self.probes.extend(self.get_bcc_functions(b".*map.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*lru.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*swap.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*buffer.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*nr.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*map.*"))
         self.config.tool_logger.info(f"Added {len(self.regex_functions)} I/O probes")
         
         

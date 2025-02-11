@@ -319,9 +319,9 @@ class BCCMain:
                         self.writer.write_metadata_event(event.pid, event.tid, "FH", fname, file_hash)
                     event.args['fhash'] = file_hash
                     del event.args['file_hash']
-        event.ts = int(c_event.ts)
+        event.ts = int(c_event.ts / 1e3)
         event.ph = 'X'
-        event.dur = c_event.dur
+        event.dur = c_event.dur / 1e3
         if function_probe.regex:
             event.name = self.bpf.sym(c_event.ip, event.pid, show_module=True).decode()
             if "unknown" in event.name:
@@ -383,9 +383,9 @@ class BCCMain:
                         event.args["fhash"] = event.args.pop("file_hash")
             
         event.args = {}
-        event.ts = int(c_event.ts)
+        event.ts = int(c_event.ts // 1e3)
         event.ph = 'X'
-        event.dur = c_event.dur
+        event.dur = math.ceil(c_event.dur // 1e3)
         # self.last_processed_ts = c_event.ts
         # self.config.tool_logger.debug(f"{self.last_processed_ts} timestamp processed")
         self.writer.write(event)
