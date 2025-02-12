@@ -1,5 +1,8 @@
 
 from datacrumbs.dfbcc.collector import BCCCollector
+from datacrumbs.common.constants import *
+from datacrumbs.common.enumerations import TraceType
+
 class BCCTraceCollector(BCCCollector):
     entry_fn: str
     exit_fn: str
@@ -20,9 +23,14 @@ class BCCTraceCollector(BCCCollector):
             stats->dur = bpf_ktime_get_ns() - fn->ts;
         """
         
-        self.stats_submit = """
-            events.ringbuf_output(&stats_key_v, sizeof(struct DFCAT_DFFUNCTION_event_t), 0);
-        """
+        if self.config.trace_type == TraceType.PERF:
+            self.stats_submit = """
+                events.perf_submit(ctx, &stats_key_v, sizeof(struct DFCAT_DFFUNCTION_event_t)); 
+            """
+        elif self.config.trace_type == TraceType.RING_BUFFER:
+            self.stats_submit = """
+                events.ringbuf_output(&stats_key_v, sizeof(struct DFCAT_DFFUNCTION_event_t), 0);
+            """
         
         self.event_specific_struct = """
             struct DFCAT_DFFUNCTION_event_t {                                                       
