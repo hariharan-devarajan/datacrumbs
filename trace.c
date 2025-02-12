@@ -7268,8 +7268,8 @@
             struct fn_key_t key = {};
             key.id = id;
             struct fn_t fn = {};
-            fn.ts = bpf_ktime_get_ns();
             fn.ip = PT_REGS_IP(ctx);
+            fn.ts = bpf_ktime_get_ns();
             // bpf_trace_printk("Tracing IP \%d",fn.ip);
             fn_pid_map.update(&key, &fn);
                     

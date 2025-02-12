@@ -384,9 +384,9 @@ class BCCMain:
                         event.args["fhash"] = event.args.pop("file_hash")
             
         event.args = {}
-        event.ts = int(c_event.ts / 1e3)
+        event.ts = c_event.ts #int(c_event.ts / 1e3)
         event.ph = 'X'
-        event.dur = math.ceil(c_event.dur / 1e3)
+        event.dur = c_event.dur #math.ceil(c_event.dur / 1e3)
         # self.last_processed_ts = c_event.ts
         # self.config.tool_logger.debug(f"{self.last_processed_ts} timestamp processed")
         self.writer.write(event)

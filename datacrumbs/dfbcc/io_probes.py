@@ -649,7 +649,7 @@ class IOProbes:
         # self.probes.extend(self.get_bcc_functions(b".*aio.*"))
         # self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
         # self.probes.extend(self.get_bcc_functions(b".*file.*"))
-        self.probes.extend(self.get_bcc_functions(b".*bio.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*bio.*"))
         self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
         # self.probes.extend(self.get_bcc_functions(b".*block.*"))
         

@@ -19,8 +19,9 @@ class BCCTraceCollector(BCCCollector):
         
         self.stats_value_create = """            
             struct DFCAT_DFFUNCTION_event_t* stats = stats_key;
-            stats->ts = (fn->ts  - *start_ts);
-            stats->dur = bpf_ktime_get_ns() - fn->ts;
+            stats->ts = (fn->ts  - *start_ts) / 1000;
+            stats->dur = bpf_ktime_get_ns() - fn->ts / 1000;
+            if (stats->dur == 0) stats->dur = 1;
         """
         
         if self.config.trace_type == TraceType.PERF:
