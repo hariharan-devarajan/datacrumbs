@@ -9,7 +9,7 @@ from omegaconf import DictConfig
 
 # Internal Imports
 from datacrumbs.common.utils import convert_or_fail
-from datacrumbs.common.enumerations import Mode
+from datacrumbs.common.enumerations import Mode, TraceType
 
 
 class ConfigurationManager:
@@ -23,6 +23,7 @@ class ConfigurationManager:
     install_dir: str
     profile_file: str
     mode: Mode = Mode.PROFILE
+    trace_type: TraceType = TraceType.PERF
 
     @staticmethod
     def get_instance():
@@ -74,5 +75,8 @@ class ConfigurationManager:
                 )
                 if status.failed():
                     exit(status)
+        if "trace" in config:
+            if "type" in config["trace"]:
+                self.trace_type = TraceType.get_enum(config["trace"]["type"])
         self.derive()
         return self

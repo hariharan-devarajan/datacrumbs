@@ -645,13 +645,13 @@ class IOProbes:
         #         self.probes.append(BCCProbes(ProbeType.KERNEL, cat, fn_list))
         
         
-        self.probes.extend(self.get_bcc_functions(b".*page.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*page.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*aio.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*file.*"))
         self.probes.extend(self.get_bcc_functions(b".*bio.*"))
-        self.probes.extend(self.get_bcc_functions(b".*aio.*"))
         self.probes.extend(self.get_bcc_functions(b".*ext4.*"))
-        self.probes.extend(self.get_bcc_functions(b".*vfs.*"))
-        self.probes.extend(self.get_bcc_functions(b".*file.*"))
-        self.probes.extend(self.get_bcc_functions(b".*block.*"))
+        # self.probes.extend(self.get_bcc_functions(b".*block.*"))
         
         # self.probes.extend(self.get_bcc_functions(b".*llseek.*"))
         # self.probes.extend(self.get_bcc_functions(b".*io_uring.*"))

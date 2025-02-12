@@ -21,7 +21,7 @@ from datacrumbs.dfbcc.io_probes import IOProbes
 from datacrumbs.dfbcc.user_probes import UserProbes
 from datacrumbs.configs.configuration_manager import ConfigurationManager
 from datacrumbs.common.data_structure import DFEvent, Filename, DFTraceEvent
-from datacrumbs.common.enumerations import Mode
+from datacrumbs.common.enumerations import Mode, TraceType
 from datacrumbs.common.utils import *
 from datacrumbs.common.constants import *
 from datacrumbs.writer.perfetto import PerfettoWriter
@@ -216,6 +216,7 @@ class BCCMain:
         elif self.config.mode == Mode.TRACE:
             self.trace_run()
             
+            
     def profile_run(self) -> None:
         self.no_event_count = 0
         self.has_events = False
@@ -383,9 +384,9 @@ class BCCMain:
                         event.args["fhash"] = event.args.pop("file_hash")
             
         event.args = {}
-        event.ts = int(c_event.ts // 1e3)
+        event.ts = int(c_event.ts / 1e3)
         event.ph = 'X'
-        event.dur = math.ceil(c_event.dur // 1e3)
+        event.dur = math.ceil(c_event.dur / 1e3)
         # self.last_processed_ts = c_event.ts
         # self.config.tool_logger.debug(f"{self.last_processed_ts} timestamp processed")
         self.writer.write(event)
@@ -401,10 +402,21 @@ class BCCMain:
         self.no_event_count = 0
         self.pbar.update(1)
         return 
-        
+    
+    def open_buffer(self, callback):
+        if self.config.trace_type == TraceType.PERF:
+            self.bpf["events"].open_perf_buffer(self.handle_trace_event, page_cnt=2**16)
+        elif self.config.trace_type == TraceType.RING_BUFFER:
+            self.bpf["events"].open_ring_buffer(self.handle_trace_event)
+            
+    def poll_buffer(self):
+        if self.config.trace_type == TraceType.PERF:
+            self.bpf.perf_buffer_poll()
+        elif self.config.trace_type == TraceType.RING_BUFFER:
+            self.bpf.ring_buffer_consume()
     
     def trace_run(self) -> None:
-        self.bpf["events"].open_ring_buffer(self.handle_trace_event)
+        self.open_buffer(self.handle_trace_event)
         sleep_sec = self.config.interval_sec * 5
         self.last_processed_ts = -1
         wait_for = (30.0 / (sleep_sec) - 1)
@@ -439,7 +451,6 @@ class BCCMain:
                     self.no_event_count = 0
                     self.writer.write_process_independent_metadata("FH", v.fname.decode(), k.value)
                 #filenames.items_delete_batch(keys)
-                self.bpf.ring_buffer_consume()
+                self.poll_buffer()
         except KeyboardInterrupt:
             pass
-        

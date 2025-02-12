@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
+from datacrumbs.configs.configuration_manager import ConfigurationManager
+from datacrumbs.common.enumerations import TraceType
 
 class BCCHeader(ABC):
     def __init__(self):
-
+        self.config = ConfigurationManager.get_instance()
         self.includes = """
         #include <linux/sched.h>
         #include <uapi/linux/limits.h>
