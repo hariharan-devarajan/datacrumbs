@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
+from datacrumbs.configs.configuration_manager import ConfigurationManager
 class BCCCollector(ABC):
     entry_fn: str
     exit_fn: str
 
     def __init__(self) -> None:
+        self.config = ConfigurationManager.get_instance()
         self.filter_pid = """
             u64 id = bpf_get_current_pid_tgid();
             u32 pid = id;
