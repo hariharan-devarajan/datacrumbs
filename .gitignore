@@ -53,3 +53,4 @@ dependency
 # Data
 *.pfw
 *.pfw.gz
+trace.c

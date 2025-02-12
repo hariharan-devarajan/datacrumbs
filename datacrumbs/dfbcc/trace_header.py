@@ -13,7 +13,6 @@ class BCCTraceHeader(BCCHeader):
             self.events_ds += """
             BPF_RINGBUF_OUTPUT(events, 1 << 16); // emit events to python
             """
-            
 
     def __str__(self) -> str:
         return self.includes + self.data_structures + self.events_ds + self.util

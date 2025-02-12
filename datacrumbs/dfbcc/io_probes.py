@@ -52,6 +52,7 @@ class IOProbes:
                             fd_hash.update(&file_key, hash_ptr);
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "read",                        
@@ -78,6 +79,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "write",                        
@@ -104,6 +106,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "close",
@@ -126,6 +129,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function("copy_file_range"),
                     self.get_bcc_function("execve"),
@@ -156,6 +160,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "fdatasync",
@@ -178,6 +183,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "flock",
@@ -200,6 +206,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function("fsopen"),
                     self.get_bcc_function("fstatfs"),
@@ -224,6 +231,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "ftruncate",
@@ -246,6 +254,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function("io_pgetevents"),
                     self.get_bcc_function(
@@ -269,6 +278,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function("memfd_create"),
                     self.get_bcc_function("migrate_pages"),
@@ -300,6 +310,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "preadv",                        
@@ -326,6 +337,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "preadv2",                        
@@ -352,6 +364,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "pwrite64",                        
@@ -378,6 +391,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "pwritev",                        
@@ -404,6 +418,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "pwritev2",                        
@@ -430,6 +445,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "readahead",                        
@@ -456,6 +472,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "readlinkat"
@@ -485,6 +502,7 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                     self.get_bcc_function(
                         "renameat"
@@ -522,25 +540,27 @@ class IOProbes:
                             }
                         }
                         """,
+                        is_custom = True,
                     ),
                 ])),
             )
         )
-        # self.probes.append(
-        #     BCCProbes(
-        #         ProbeType.KERNEL,
-        #         "os_cache",
-        #         list(filter(None, [
-        #             self.get_bcc_function("add_to_page_cache_lru"),
-        #             self.get_bcc_function("mark_page_accessed"),
-        #             self.get_bcc_function("account_page_dirtied"),
-        #             self.get_bcc_function("mark_buffer_dirty"),
-        #             self.get_bcc_function("do_page_cache_ra"),
-        #             self.get_bcc_function("page_cache_pipe_buf_release"),
-        #             self.get_bcc_function("__page_cache_alloc"),
-        #         ])),
-        #     )
-        # )
+        self.probes.append(
+            BCCProbes(
+                ProbeType.KERNEL,
+                "os_cache",
+                list(filter(None, [
+                    self.get_bcc_function("add_to_page_cache_lru"),
+                    self.get_bcc_function("mark_page_accessed"),
+                    self.get_bcc_function("account_page_dirtied"),
+                    self.get_bcc_function("mark_buffer_dirty"),
+                    self.get_bcc_function("do_page_cache_ra"),
+                    self.get_bcc_function("page_cache_pipe_buf_release"),
+                    self.get_bcc_function("__page_cache_alloc"),
+                    self.get_bcc_function("__do_page_cache_readahead"),
+                ])),
+            )
+        )
         # # https://fossd.anu.edu.au/linux/v2.6.18-rc4/source/fs/read_write.c#L247
         # self.probes.append(
         #     BCCProbes(
@@ -620,6 +640,7 @@ class IOProbes:
             for cat, functions in kernel_functions.items():
                 fn_list = []
                 for fn in functions:
+                    self.config.tool_logger.debug(f"Added {cat}, {fn} I/O probe")
                     fn_list.append(self.get_bcc_function(fn))
                 self.probes.append(BCCProbes(ProbeType.KERNEL, cat, fn_list))
         
@@ -647,22 +668,23 @@ class IOProbes:
         bpf_text = ""
         for probe in self.probes:
             for fn in probe.functions:
-                count = count + 1
-                if ProbeType.SYSTEM == probe.type:
-                    text = collector.sys_functions
-                else:
-                    text = collector.functions
-                text = text.replace("DFCAT", probe.category)
-                text = text.replace("DFFUNCTION", fn.name)
-                text = text.replace("DFEVENTID", str(count))
-                text = text.replace("DFENTRYCMD", fn.entry_cmd)
-                text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
-                text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
-                text = text.replace("DFENTRYARGS", fn.entry_args)
-                text = text.replace("DFENTRY_STRUCT", fn.entry_struct_str)
-                text = text.replace("DFEXIT_STRUCT", fn.exit_struct_str)
-                category_fn_map[count] = (probe.category, fn)
-                bpf_text += text
+                if fn.is_custom:
+                    count = count + 1
+                    if ProbeType.SYSTEM == probe.type:
+                        text = collector.sys_custom_functions
+                    else:
+                        text = collector.custom_functions
+                    text = text.replace("DFCAT", probe.category)
+                    text = text.replace("DFFUNCTION", fn.name)
+                    text = text.replace("DFEVENTID", str(count))
+                    text = text.replace("DFENTRYCMD", fn.entry_cmd)
+                    text = text.replace("DFEXITCMDSTATS", fn.exit_cmd_stats)
+                    text = text.replace("DFEXITCMDKEY", fn.exit_cmd_key)
+                    text = text.replace("DFENTRYARGS", fn.entry_args)
+                    text = text.replace("DFENTRY_STRUCT", fn.entry_struct_str)
+                    text = text.replace("DFEXIT_STRUCT", fn.exit_struct_str)
+                    bpf_text += text
+                    category_fn_map[count] = (probe.category, fn)
 
         return (bpf_text, category_fn_map, count)
     def is_function_valid(self, function_name):
@@ -696,7 +718,8 @@ class IOProbes:
         entry_args: str = "",
         entry_cmd: str = "",
         exit_cmd_stats: str = "",
-        exit_cmd_key: str = "",):
+        exit_cmd_key: str = "",
+        is_custom = False,):
         if function_name not in self.regex_functions:
             self.regex_functions.add(function_name)            
             return BCCFunctions(function_name, 
@@ -705,7 +728,8 @@ class IOProbes:
                                 entry_args=entry_args,
                                 entry_cmd=entry_cmd,
                                 exit_cmd_stats=exit_cmd_stats,
-                                exit_cmd_key=exit_cmd_key)
+                                exit_cmd_key=exit_cmd_key,
+                                is_custom=is_custom,)
         else:
             return None
             
@@ -713,42 +737,75 @@ class IOProbes:
     def attach_probes(self, bpf: BPF, collector: BCCCollector) -> None:
         self.config.tool_logger.info("Attaching I/O Probes")
         for probe in tqdm(self.probes, "attach I/O probes"):
-            for fn in tqdm(probe.functions, "attach I/O functions"):
+            for fn in tqdm(probe.functions, f"attach {probe.category} functions"):
                 try:
                     if ProbeType.SYSTEM == probe.type:
                         fnname = bpf.get_syscall_prefix().decode() + fn.name
                         # self.config.tool_logger.debug(
                         #     f"attaching name {fnname} with {fn.name} for cat {probe.category}"
                         # )
-                        bpf.attach_kprobe(
-                            event=fnname,
-                            fn_name=f"syscall__trace_entry_{fn.name}",
-                        )
-                        bpf.attach_kretprobe(
-                            event=fnname,
-                            fn_name=f"sys__trace_exit_{fn.name}",
-                        )
-                    elif ProbeType.KERNEL == probe.type:
-                        fname = fn.name
-                        if fn.regex:
-                            fname = fn.regex
+                        
+                        if fn.is_custom:
                             bpf.attach_kprobe(
-                                event_re=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                                event=fnname,
+                                fn_name=f"syscall__trace_entry_{fn.name}",
                             )
                             bpf.attach_kretprobe(
-                                event_re=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                                event=fnname,
+                                fn_name=f"sys__trace_exit_{fn.name}",
                             )
                         else:
                             bpf.attach_kprobe(
-                                event=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                                event=fnname,
+                                fn_name=f"syscall__trace_entry_generic",
                             )
                             bpf.attach_kretprobe(
-                                event=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                                event=fnname,
+                                fn_name=f"sys__trace_exit_generic",
                             )
+                    elif ProbeType.KERNEL == probe.type:
+                        fname = fn.name
+                        if fn.is_custom:
+                            if fn.regex:
+                                fname = fn.regex
+                                bpf.attach_kprobe(
+                                    event_re=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                                )
+                                bpf.attach_kretprobe(
+                                    event_re=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                                )
+                            else:
+                                bpf.attach_kprobe(
+                                    event=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                                )
+                                bpf.attach_kretprobe(
+                                    event=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                                )
+                        else:
+                            self.config.tool_logger.debug(f"Attaching Probe function {fn.name} from {probe.category}")
+                            if fn.regex:
+                                fname = fn.regex
+                                bpf.attach_kprobe(
+                                    event_re=fname,
+                                    fn_name=f"trace_generic_entry",
+                                )
+                                bpf.attach_kretprobe(
+                                    event_re=fname,
+                                    fn_name=f"trace_generic_exit",
+                                )
+                            else:
+                                bpf.attach_kprobe(
+                                    event=fname,
+                                    fn_name=f"trace_generic_entry",
+                                )
+                                bpf.attach_kretprobe(
+                                    event=fname,
+                                    fn_name=f"trace_generic_exit",
+                                )
                     elif ProbeType.USER == probe.type:
                         library = probe.category
                         fname = fn.name
@@ -759,29 +816,52 @@ class IOProbes:
                         if probe.category in self.config.user_libraries:
                             library = self.config.user_libraries[probe.category]["link"]
                             bpf.add_module(library)
-
-                        if is_regex:
-                            bpf.attach_uprobe(
-                                name=library,
-                                sym_re=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                            )
-                            bpf.attach_uretprobe(
-                                name=library,
-                                sym_re=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                            )
+                        if fn.is_custom:
+                            if is_regex:
+                                bpf.attach_uprobe(
+                                    name=library,
+                                    sym_re=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                                )
+                                bpf.attach_uretprobe(
+                                    name=library,
+                                    sym_re=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                                )
+                            else:
+                                bpf.attach_uprobe(
+                                    name=library,
+                                    sym=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_entry",
+                                )
+                                bpf.attach_uretprobe(
+                                    name=library,
+                                    sym=fname,
+                                    fn_name=f"trace_{probe.category}_{fn.name}_exit",
+                                )
                         else:
-                            bpf.attach_uprobe(
-                                name=library,
-                                sym=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_entry",
-                            )
-                            bpf.attach_uretprobe(
-                                name=library,
-                                sym=fname,
-                                fn_name=f"trace_{probe.category}_{fn.name}_exit",
-                            )
+                            if is_regex:
+                                bpf.attach_uprobe(
+                                    name=library,
+                                    sym_re=fname,
+                                    fn_name=f"trace_generic_entry",
+                                )
+                                bpf.attach_uretprobe(
+                                    name=library,
+                                    sym_re=fname,
+                                    fn_name=f"trace_generic_exit",
+                                )
+                            else:
+                                bpf.attach_uprobe(
+                                    name=library,
+                                    sym=fname,
+                                    fn_name=f"trace_generic_entry",
+                                )
+                                bpf.attach_uretprobe(
+                                    name=library,
+                                    sym=fname,
+                                    fn_name=f"trace_generic_exit",
+                                )
                 except Exception as e:
                     self.config.tool_logger.warn(
                         f"Unable attach probe  {probe.category} to io function {fn.name} due to {e}"

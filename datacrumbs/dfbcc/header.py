@@ -13,10 +13,10 @@ class BCCHeader(ABC):
 
         self.data_structures = """
         struct fn_key_t {
-            u64 ip;
-            s64 pid;
+            u64 id;
         };
         struct fn_t {
+            u64 ip;
             u64 ts;
         };
         struct file_t {
