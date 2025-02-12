@@ -4,7 +4,8 @@ echo $SCRIPT_DIR
 TEST_DIR=$(dirname $SCRIPT_DIR)
 PROJECT_DIR=$(dirname $TEST_DIR)
 PARENT_DIR=$(dirname $PROJECT_DIR)
-IOR_INSTALL_DIR=/opt/ior/install
+#IOR_INSTALL_DIR=/opt/spack/opt/spack/linux-ubuntu22.04-icelake/gcc-11.4.0/ior-4.0.0-arszr4x4i7xuua4opbyx73oqq7tlzljo
+IOR_INSTALL_DIR=$(spack location -i ior@4.0.0%gcc@11.4.0)
 DATACRUMBS_SO=${PROJECT_DIR}/build/libdatacrumbs.so
 
 DATA_DIR=${PROJECT_DIR}/build/data
