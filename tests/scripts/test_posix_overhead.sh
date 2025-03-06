@@ -9,8 +9,8 @@ DATACRUMBS_SO=${PROJECT_DIR}/build/libdatacrumbs.so
 DATA_DIR=${PROJECT_DIR}/build/data
 mkdir -p $DATA_DIR
 NUM_FILES=1
-NUM_OPS=$((32))
-PROC=1
+NUM_OPS=$((100))
+PROC=2
 DIRECTIO=0
 TEST_CASE=0 #write=0 read=1 both=2
 if [ "$TEST_CASE" -eq "0" ] || [ "$TEST_CASE" -eq "2" ]; then
@@ -19,13 +19,21 @@ if [ "$TEST_CASE" -eq "0" ] || [ "$TEST_CASE" -eq "2" ]; then
   rm -rf $DATA_DIR/*
 fi
 
-for TSKB in $((1*1024)); #1 4 16 64 256 1024 4096 16384 65536 262144
+echo "Base"
+TS=$((1*1024 * 1024))
+for i in {1..5};
 do
-  TS=$((TSKB * 1024))
-  cmd="mpirun -np ${PROC} --use-hwthread-cpus -x LD_PRELOAD=${DATACRUMBS_SO} ${PROJECT_DIR}/build/tests/df_tracer_test_stdio ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} ${TEST_CASE} ${DIRECTIO}"
-  echo $cmd
-  $cmd
-  sleep 5
+cmd="mpirun -np ${PROC} --use-hwthread-cpus ${PROJECT_DIR}/build/tests/df_tracer_test ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} ${TEST_CASE} ${DIRECTIO}"
+# echo $cmd
+$cmd
+done
+sleep 5
+echo "DataCrums"
+for i in {1..5};
+do
+cmd="mpirun -np ${PROC} --use-hwthread-cpus -x LD_PRELOAD=${DATACRUMBS_SO} ${PROJECT_DIR}/build/tests/df_tracer_test ${NUM_FILES} ${NUM_OPS} ${TS} ${DATA_DIR} ${TEST_CASE} ${DIRECTIO}"
+# echo $cmd
+$cmd
 done
 
 

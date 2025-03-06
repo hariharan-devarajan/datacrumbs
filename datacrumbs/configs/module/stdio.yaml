@@ -15,4 +15,4 @@ profile:
 
 trace:
   args: 1
-  type: perf # ring_buffer
+  type: ring_buffer # ring_buffer
