@@ -48,29 +48,54 @@ int main(int argc, char *argv[]) {
   int ts = atoi(argv[3]);
   std::string dir = std::string(argv[4]);
   int test_flag = atoi(argv[5]);
+  int direct_io_flag = atoi(argv[6]);
   std::string data = gen_random(ts);
   char *read_data = (char *)malloc(ts);
   Timer open_timer = Timer();
   Timer write_timer = Timer();
   Timer read_timer = Timer();
   Timer close_timer = Timer();
+  int sleep_time = 0;
   for (int file_idx = 0; file_idx < files; ++file_idx) {
 
     std::string filename = dir + "/file_" + std::to_string(file_idx) + "_" +
                            std::to_string(my_rank) + ".dat";
 
     open_timer.resumeTime();
-    int fd = -1;
-    if (test_flag == 0)
-      fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0777);
-    else if (test_flag == 1)
-      fd = open(filename.c_str(), O_RDONLY, 0777);
-    else
-      fd = open(filename.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0777);
     
-    assert(fd != -1);
+    int fd = -1;
+    if (test_flag == 0) {
+      int flag = O_WRONLY | O_CREAT | O_TRUNC;
+      if (direct_io_flag == 1) {
+        flag = O_WRONLY | O_CREAT | O_TRUNC | O_DIRECT;
+      }
+      fd = open(filename.c_str(), flag, 0777);
+    } else if (test_flag == 1) {
+      int flag = O_RDONLY;
+      if (direct_io_flag == 1) {
+        flag = O_RDONLY | O_DIRECT;
+      }
+      fd = open(filename.c_str(), flag, 0777);
+    } else {
+      int flag = O_RDWR | O_CREAT | O_TRUNC;
+      if (direct_io_flag == 1) {
+        flag = O_RDWR | O_CREAT | O_TRUNC | O_DIRECT;
+      }
+      fd = open(filename.c_str(), flag, 0777);
+    }
+    
     open_timer.pauseTime();
+    assert(fd != -1);
+    if (sleep_time > 0) {
+      printf("Sleeping for %d\n", sleep_time);
+      sleep(sleep_time);
+    }
     for (int op_idx = 0; op_idx < ops; ++op_idx) {
+      
+      if (sleep_time > 0) {
+        printf("Sleeping for write for %d for step %d of %d\n", sleep_time, op_idx, ops);
+        sleep(sleep_time);
+      }
       if (test_flag == 0 || test_flag == 2) {
         write_timer.resumeTime();
         assert(write(fd, data.c_str(), ts) == ts);
@@ -78,13 +103,25 @@ int main(int argc, char *argv[]) {
       }
 
       if (test_flag == 2) {
+        if (sleep_time > 0) {
+            printf("Sleeping for fseek for %d for step %d of %d\n", sleep_time, op_idx, ops);
+            sleep(sleep_time);
+        }
         lseek(fd, (off_t)op_idx * ts, SEEK_SET);
       }
       if (test_flag == 1 || test_flag == 2) {
+        if (sleep_time > 0) {
+            printf("Sleeping for read for %d for step %d of %d\n", sleep_time, op_idx, ops);
+            sleep(sleep_time);
+        }
         read_timer.resumeTime();
         auto read_bytes = read(fd, read_data, ts);
         read_timer.pauseTime();
       }
+    }
+    if (sleep_time > 0) {
+      printf("Sleeping for close for %d\n", sleep_time);
+      sleep(sleep_time);
     }
     close_timer.resumeTime();
     close(fd);

@@ -49,3 +49,9 @@ __pycache__
 venv
 .venv
 dependency
+
+# Data
+*.pfw
+*.pfw.gz
+trace.c
+profile.c
