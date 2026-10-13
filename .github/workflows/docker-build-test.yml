@@ -87,6 +87,9 @@ jobs:
             libyaml-cpp-dev \
             libjson-c-dev \
             zlib1g-dev \
+            libsqlite3-dev \
+            libmunge-dev \
+            munge \
             jq \
             patchelf \
             python3 \
@@ -242,6 +245,18 @@ jobs:
 
           ! ldd "${probe_exec}" | grep -q "not found"
           ldd "${probe_exec}" | grep -q "libclang"
+
+      - name: Start munge for probe manager authentication
+        run: |
+          set -euo pipefail
+          if [[ ! -s /etc/munge/munge.key ]]; then
+            sudo mungekey --create --force || sudo /usr/sbin/create-munge-key -f
+            sudo chown munge:munge /etc/munge/munge.key
+            sudo chmod 0400 /etc/munge/munge.key
+          fi
+          sudo systemctl enable munge
+          sudo systemctl restart munge
+          munge -n | unmunge
 
       - name: Install and start runtime systemd units
         run: |
